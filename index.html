@@ -203,7 +203,6 @@
                 let lastTwoChars = root.slice(-2).toLowerCase();
                 let vowels = ['a','i','u','e','o','é','è','ê'];
                 
-                // Aturan Khusus: -kake pada kata dasar berakhiran vokal (memunculkan pasangan ha)
                 if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kakén') && vowels.includes(lastChar)) {
                     modSuffix = 'kh' + modSuffix.substring(1); 
                 }
