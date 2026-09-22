@@ -322,6 +322,14 @@
                     continue;
                 }
 
+                // ATURAN BARU: Aksara 'ra' dilarang keras dipasangkan dengan pengkal/cakra/keret.
+                // Jika c = 'r' dan terdapat sisipan (y/r), ubah 'r' menjadi layar (ꦂ), dan jadikan sisipan tersebut sebagai aksara utama.
+                if (c === 'r' && medial !== "") {
+                    res += 'ꦂ'; 
+                    c = medial;
+                    medial = ""; 
+                }
+
                 if (c === 'l' && (v === 'e' || v === 'ê') && medial === "") {
                     res += 'ꦊ'; 
                 } else if (c === 'r' && (v === 'e' || v === 'ê') && medial === "") {
@@ -352,4 +360,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
