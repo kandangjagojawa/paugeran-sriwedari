@@ -48,11 +48,20 @@
             margin-bottom: 0.5rem;
             color: var(--primary);
         }
-        .info-kapital {
-            font-size: 0.85rem;
-            color: #e74c3c;
-            margin-bottom: 5px;
-            display: block;
+        .typing-guide {
+            background-color: #e8f4f8;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--secondary);
+        }
+        .typing-guide ul {
+            margin: 5px 0 0;
+            padding-left: 20px;
+        }
+        .typing-guide li {
+            margin-bottom: 3px;
         }
         textarea {
             width: 100%;
@@ -81,17 +90,7 @@
             overflow-y: auto;
             word-break: break-all; 
         }
-        .legend {
-            background-color: #e8f4f8;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin-top: 2rem;
-        }
-        .legend ul { margin: 0; padding-left: 20px; }
-        .legend li { margin-bottom: 8px; }
-        code { background-color: #d1e8f0; padding: 2px 5px; border-radius: 4px;}
-        .highlight { color: #d35400; font-weight: bold; }
+        code { background-color: #d1e8f0; padding: 2px 4px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -100,11 +99,19 @@
     <p class="subtitle">Mesin Transliterasi Latin ke Aksara Jawa (Scriptio Continua)</p>
 
     <div class="container">
+        
+        <div class="typing-guide">
+            <strong>Petunjuk Penulisan:</strong>
+            <ul>
+                <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
+                <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
+                <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
+            </ul>
+        </div>
+
         <div class="input-group">
             <label for="inputLatin">Teks Latin:</label>
-            <span class="info-kapital">* Fitur Auto-Kapital dimatikan. Gunakan Shift manual untuk memicu Aksara Murda.</span>
-            <span class="info-kapital highlight">* PENTING: Gunakan tanda hubung (-) sebelum akhiran (panambang) agar sistem mendeteksinya. Contoh: pinggir-e, pangan-en.</span>
-            <textarea id="inputLatin" placeholder="Contoh: omah-e kanca-ku apik..." 
+            <textarea id="inputLatin" placeholder="Ketik di sini..." 
                       oninput="prosesTransliterasi()" 
                       autocapitalize="none" 
                       autocomplete="off" 
@@ -116,24 +123,6 @@
             <label>Hasil Aksara Jawa:</label>
             <div id="outputJawa"></div>
         </div>
-    </div>
-
-    <div class="legend">
-        <strong>Paugeran Khusus yang Diterapkan:</strong>
-        <ul>
-            <li><strong>Aksara Panglancar (Dwi-Vokal):</strong> Dua vokal berurutan dalam satu kata otomatis disisipi peluncur fonetis: 
-                <br>• <strong>a, e/ê</strong> bertemu vokal lain → disisipi <strong>ha</strong> (contoh: <code>laut</code> -> la-hu-t).
-                <br>• <strong>i, é/è</strong> bertemu vokal lain → disisipi <strong>ya</strong> (contoh: <code>Diana</code> -> Di-ya-na).
-                <br>• <strong>u, o</strong> bertemu vokal lain → disisipi <strong>wa</strong> (contoh: <code>nawua</code> -> na-wu-wa).
-            </li>
-            <li><strong>Sistem Panambang (Akhiran):</strong> Jika menggunakan tanda hubung <code>-</code> (misal <code>kancing-en</code> atau <code>sambat-e</code>), sistem otomatis akan:
-                <br>1. Mengubah semua bentuk e/é/ê di dalam panambang menjadi Taling (ꦺ).
-                <br>2. Menggandakan konsonan akhir dari kata dasar secara presisi (termasuk menjadi <i>cecak/wignyan/layar</i>) JIKA akhiran diawali huruf vokal.
-            </li>
-            <li><strong>Taling Tarung Palsu:</strong> Suku kata mati oleh anuswara (m, n, ny, ng) yang bertemu suku kata terbuka 'a' akan otomatis mendapat taling tarung (contoh: <code>tampa</code> -> ꦠꦺꦴꦩ꧀ꦥ). Taling tarung batal otomatis jika mendapat akhiran (contoh: <code>tampa-na</code> -> ꦠꦩ꧀ꦥꦤ).</li>
-            <li><strong>Digraf nc & nj:</strong> <code>nc</code> dan <code>nj</code> di tengah kata otomatis dieksekusi menjadi <i>nya-ca</i> (ꦚ꧀ꦕ) dan <i>nya-ja</i> (ꦚ꧀ꦗ).</li>
-            <li><strong>Singkatan:</strong> Singkatan Latin dengan titik (misal: <code>K.H.</code>) otomatis diubah menjadi aksara nglegena diapit pada lingsa (꧈ꦏ꧈꧈ꦲ꧈).</li>
-        </ul>
     </div>
 
     <script>
@@ -171,13 +160,13 @@
         function transliterasiKata(rawLatin) {
             if (!rawLatin) return "";
 
-            // 1. Eksekusi Singkatan
+            // 1. Eksekusi Singkatan (Direvisi: Pada Lingsa hanya di akhir setiap aksara)
             if (/^([a-zA-Z]\.)+$/.test(rawLatin)) {
                 let abbr = "";
                 for (let j = 0; j < rawLatin.length; j += 2) {
                     let h = rawLatin[j].toLowerCase();
                     let nglegena = KAMUS_AKSARA[h] || (['a','i','u','e','o'].includes(h) ? 'ꦲ' : '');
-                    if (nglegena) abbr += `꧈${nglegena}꧈`;
+                    if (nglegena) abbr += `${nglegena}꧈`; 
                 }
                 return abbr;
             }
@@ -213,15 +202,11 @@
             });
 
             // 4. Eksekusi Dwi-Vokal (Aksara Panglancar)
-            // Menggunakan perulangan (while) untuk menangani kasus >2 vokal berurutan (misal: kiai)
             let prevLatin = "";
             while (latinProcessed !== prevLatin) {
                 prevLatin = latinProcessed;
-                // Vokal a, e, ê -> disisipi h
                 latinProcessed = latinProcessed.replace(/([aeêAEÊ])([aiueoéèêAIUEOÉÈÊ])/g, '$1h$2');
-                // Vokal i, é, è -> disisipi y
                 latinProcessed = latinProcessed.replace(/([iéèIÉÈ])([aiueoéèêAIUEOÉÈÊ])/g, '$1y$2');
-                // Vokal u, o -> disisipi w
                 latinProcessed = latinProcessed.replace(/([uoUO])([aiueoéèêAIUEOÉÈÊ])/g, '$1w$2');
             }
 
@@ -347,4 +332,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
