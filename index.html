@@ -48,6 +48,13 @@
             margin-bottom: 0.5rem;
             color: var(--primary);
         }
+        /* Penambahan penanda fitur autocapitalize non-aktif */
+        .info-kapital {
+            font-size: 0.8rem;
+            color: #e74c3c;
+            margin-bottom: 5px;
+            display: block;
+        }
         textarea {
             width: 100%;
             height: 120px;
@@ -73,7 +80,7 @@
             padding: 20px;
             min-height: 120px;
             overflow-y: auto;
-            word-break: break-all;
+            word-break: break-all; 
         }
         .legend {
             background-color: #e8f4f8;
@@ -83,21 +90,26 @@
             margin-top: 2rem;
         }
         .legend ul { margin: 0; padding-left: 20px; }
-        .legend li { margin-bottom: 5px; }
+        .legend li { margin-bottom: 8px; }
+        code { background-color: #d1e8f0; padding: 2px 5px; border-radius: 4px;}
     </style>
 </head>
 <body>
 
     <h1>Paugeran Sriwedari</h1>
-    <p class="subtitle">Aplikasi Transliterasi Aksara Jawa Presisi</p>
+    <p class="subtitle">Mesin Transliterasi Latin ke Aksara Jawa (Scriptio Continua)</p>
 
     <div class="container">
         <div class="input-group">
-            <label for="inputLatin">Ketik Teks Latin:</label>
-            <!-- Aturan 2: autocapitalize="none" ditambahkan agar huruf awal/setelah titik tidak otomatis besar -->
-            <textarea id="inputLatin" placeholder="Ketik kalimat di sini..." 
-                      autocapitalize="none" autocomplete="off" spellcheck="false" 
-                      oninput="prosesTransliterasi()"></textarea>
+            <label for="inputLatin">Teks Latin:</label>
+            <!-- Atribut autocapitalize="none" memastikan keyboard HP tidak memaksa huruf besar di awal / setelah titik -->
+            <span class="info-kapital">* Fitur Auto-Kapital (huruf besar otomatis) dimatikan agar tidak keliru memicu Aksara Murda. Gunakan Shift secara manual jika butuh Murda.</span>
+            <textarea id="inputLatin" placeholder="Ketik kalimat di sini... (otomatis dikonversi)" 
+                      oninput="prosesTransliterasi()" 
+                      autocapitalize="none" 
+                      autocomplete="off" 
+                      spellcheck="false" 
+                      autocorrect="off"></textarea>
         </div>
 
         <div class="input-group">
@@ -107,11 +119,13 @@
     </div>
 
     <div class="legend">
-        <strong>Pembaruan Aturan Sistem:</strong>
+        <strong>Aturan Khusus yang Diterapkan:</strong>
         <ul>
-            <li><strong>Auto-Kapitalisasi Dimatikan:</strong> Menghindari false-positive Aksara Murda di awal kalimat/setelah titik.</li>
-            <li><strong>Digraf nc & nj:</strong> Otomatis menggunakan ꦚ꧀ꦕ dan ꦚ꧀ꦗ di tengah kata (contoh: <i>kanca, pancing, banjir</i>).</li>
-            <li><strong>Taling Tarung Palsu:</strong> Huruf 'a' sebelum anuswara (m, n, ny, ng) yang diikuti suku kata terbuka otomatis diberi taling tarung. Jika tertutup atau diberi akhiran, taling tarung hilang.</li>
+            <li><strong>Taling Tarung Palsu:</strong> Suku kata mati oleh anuswara (m, n, ny, ng) yang bertemu suku kata terbuka 'a' akan otomatis mendapat taling tarung (contoh: <code>tampa</code> -> ꦠꦺꦴꦩ꧀ꦥ, <code>kanca</code> -> ꦏꦺꦴꦚ꧀ꦕ). Jika mendapat akhiran, taling tarung batal/hilang otomatis (contoh: <code>tampana</code> -> ꦠꦩ꧀ꦥꦤ).</li>
+            <li><strong>Digraf nc & nj:</strong> Penulisan <code>nc</code> dan <code>nj</code> di tengah kata otomatis dieksekusi menjadi <i>nya-ca</i> (ꦚ꧀ꦕ) dan <i>nya-ja</i> (ꦚ꧀ꦗ).</li>
+            <li><strong>Singkatan:</strong> Jika menulis singkatan dengan huruf kapital dan titik (misal: <code>K.H.</code> atau <code>P.R.</code>), sistem otomatis mengubahnya menjadi aksara nglegena diapit pada lingsa (꧈ꦏ꧈꧈ꦲ꧈). <br><i>*Opsional (Saran Penulisan): Anda tetap diperbolehkan menambahkan format Latin di dalam kurung setelahnya secara manual jika dirasa butuh, misal: ꧈ꦏ꧈ (K.).</i></li>
+            <li><strong>e</strong> = Pepet (ꦼ), <strong>é / è</strong> = Taling (ꦺ).</li>
+            <li><strong>Huruf Kapital (N, K, T, S, P, G, B, C)</strong> memicu <strong>Aksara Murda</strong>.</li>
         </ul>
     </div>
 
@@ -133,49 +147,8 @@
 
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
-            let teksPraProses = praProses(teksInput); // Lewati filter aturan khusus dulu
-            let hasil = transliterasiKalimat(teksPraProses);
+            let hasil = transliterasiKalimat(teksInput);
             document.getElementById('outputJawa').innerText = hasil;
-        }
-
-        // FUNGSI KHUSUS UNTUK MENANGANI ATURAN 1 & 3
-        function praProses(teks) {
-            // Aturan 3: Digraf nc -> nyc dan nj -> nyj
-            teks = teks.replace(/n([cj])/g, 'ny$1');
-            teks = teks.replace(/N([cj])/g, 'Ny$1');
-            teks = teks.replace(/n([CJ])/g, 'ny$1');
-            teks = teks.replace(/N([CJ])/g, 'Ny$1');
-
-            // Aturan 1: Taling Tarung Palsu
-            // Memecah teks berdasarkan spasi dan tanda baca, tapi menyimpannya agar bisa digabung lagi
-            let kataKata = teks.split(/(\s+|[.,;!?]+)/);
-            
-            for (let i = 0; i < kataKata.length; i++) {
-                let kata = kataKata[i];
-                if (!kata.trim().match(/^[a-zA-Z]+$/)) continue; // Abaikan spasi/tanda baca
-
-                // Pola Regex mencari: (KonsonanAwal) + a + (m|n|ny|ng) + (KonsonanKedua) + (VokalAkhir)
-                // Ini memastikan kata tersebut BERAKHIR terbuka (hanya 2 suku kata atau suku kata terakhirnya terbuka)
-                let polaTerbuka = /^([bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]*)[aA](m|n|ny|ng)([bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]+)([aiueoAIUEO])$/i;
-                
-                let match = kata.match(polaTerbuka);
-                
-                if (match) {
-                    let konsonanAwal = match[1];
-                    let anuswara = match[2];
-                    let konsonanKedua = match[3];
-                    let vokalAkhir = match[4];
-                    
-                    // Karena memenuhi syarat "suku kata sebelum berikutnya terbuka", 
-                    // huruf 'a' diubah menjadi 'o' secara internal agar sistem memberikan Taling Tarung.
-                    kataKata[i] = konsonanAwal + 'o' + anuswara + konsonanKedua + vokalAkhir;
-                }
-                // Catatan logika: 
-                // Jika user mengetik "tampal" (tertutup), regex di atas akan GAGAL (karena diakhiri 'l', bukan vokal).
-                // Jika user mengetik "tampane" (diberi akhiran), regex di atas GAGAL (karena jumlah suku kata/huruf belakang tidak pas dengan batas akhir).
-                // Sehingga huruf tetap 'a' (taling tarung hilang sesuai request Anda).
-            }
-            return kataKata.join('');
         }
 
         function transliterasiKalimat(teks) {
@@ -183,14 +156,64 @@
             let hasilBaris = baris.map(line => {
                 let kataKata = line.split(/\s+/);
                 let kataJawa = kataKata.map(kata => transliterasiKata(kata));
-                return kataJawa.join(''); // Scriptio Continua
+                return kataJawa.join(''); 
             });
             return hasilBaris.join('\n');
         }
 
-        function transliterasiKata(latin) {
+        function transliterasiKata(rawLatin) {
+            if (!rawLatin) return "";
+
+            // 1. Eksekusi Singkatan dengan Aksara Nglegena + Pada Lingsa
+            // Mendeteksi pola tunggal atau berulang seperti "K.", "S.P.", "D.P.R."
+            if (/^([a-zA-Z]\.)+$/.test(rawLatin)) {
+                let abbr = "";
+                for (let j = 0; j < rawLatin.length; j += 2) {
+                    let h = rawLatin[j].toLowerCase();
+                    let nglegena = KAMUS_AKSARA[h] || (['a','i','u','e','o'].includes(h) ? 'ꦲ' : '');
+                    if (nglegena) abbr += `꧈${nglegena}꧈`;
+                }
+                return abbr;
+            }
+
+            let latinProcessed = rawLatin;
+
+            // 2. Eksekusi Digraf nc -> nyc, nj -> nyj
+            latinProcessed = latinProcessed.replace(/nc/g, 'nyc').replace(/nj/g, 'nyj');
+            latinProcessed = latinProcessed.replace(/Nc/g, 'Nyc').replace(/Nj/g, 'Nyj');
+
+            // 3. Eksekusi Taling Tarung Palsu (Anuswara)
+            // Memisahkan tanda baca di akhir agar regex tetap bisa membaca ujung struktur kata
+            let wordMatch = latinProcessed.match(/^([a-zA-Z]+)([^a-zA-Z]*)$/);
+            if (wordMatch) {
+                let wordOnly = wordMatch[1];
+                let punctuations = wordMatch[2];
+
+                // Tokenisasi untuk menyatukan digraf
+                let token = wordOnly
+                    .replace(/ng/gi, 'N')
+                    .replace(/ny/gi, 'Y')
+                    .replace(/dh/gi, 'D')
+                    .replace(/th/gi, 'T');
+
+                // Pola: Vokal 'a' + [m,n,Y,N] + minimal satu konsonan penyela + 'a' persis di ujung kata
+                // Diubah menjadi: 'o' + ... (diberi taling tarung)
+                token = token.replace(/a([mnYN])([bcdfghjklpqrstvwxzNDT]+)a$/i, 'o$1$2a');
+
+                // Mengembalikan token ke bentuk asli Latin
+                wordOnly = token
+                    .replace(/N/g, 'ng')
+                    .replace(/Y/g, 'ny')
+                    .replace(/D/g, 'dh')
+                    .replace(/T/g, 'th');
+                
+                latinProcessed = wordOnly + punctuations;
+            }
+
+            // 4. Proses Rendering Aksara per Suku Kata
             let res = "";
             let i = 0;
+            let latin = latinProcessed;
             let lower = latin.toLowerCase();
 
             while (i < latin.length) {
@@ -243,9 +266,9 @@
                 }
 
                 if (v === "") {
-                    if (c === 'ng') res += 'ꦁ';
-                    else if (c === 'r') res += 'ꦂ';
-                    else if (c === 'h') res += 'ꦃ';
+                    if (c === 'ng') res += 'ꦁ'; 
+                    else if (c === 'r') res += 'ꦂ'; 
+                    else if (c === 'h') res += 'ꦃ'; 
                     else if (c !== "") {
                         let base = (isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
                         res += base + '꧀'; 
@@ -286,5 +309,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>
