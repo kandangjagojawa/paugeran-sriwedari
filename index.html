@@ -12,6 +12,7 @@
             --bg: #f4f6f7;
             --surface: #ffffff;
             --text: #333333;
+            --warning: #d35400;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -50,10 +51,10 @@
         }
         .typing-guide {
             background-color: #e8f4f8;
-            padding: 10px 15px;
+            padding: 15px;
             border-radius: 8px;
             font-size: 0.9rem;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             border-left: 4px solid var(--secondary);
         }
         .typing-guide ul {
@@ -61,7 +62,14 @@
             padding-left: 20px;
         }
         .typing-guide li {
-            margin-bottom: 3px;
+            margin-bottom: 6px;
+        }
+        .homonym-alert {
+            background-color: #fdf3e7;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border: 1px solid #fadbd8;
         }
         textarea {
             width: 100%;
@@ -90,7 +98,7 @@
             overflow-y: auto;
             word-break: break-all; 
         }
-        code { background-color: #d1e8f0; padding: 2px 4px; border-radius: 4px; }
+        code { background-color: #d1e8f0; padding: 2px 4px; border-radius: 4px; font-weight: bold;}
     </style>
 </head>
 <body>
@@ -107,6 +115,14 @@
                 <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
                 <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
             </ul>
+            <div class="homonym-alert">
+                <strong style="color: var(--warning);">⚠️ AWAS HOMONIM: Ketahui Kata Dasarnya!</strong><br>
+                Untuk menghindari salah penulisan aksara Jawa pada kata ejaan Latin yang sama (misal: <i>nambakake</i>):
+                <ul style="margin-top: 4px;">
+                    <li>Jika kata dasar <strong>vokal</strong> (tamba + ake): ketik <code>namba-kake</code>. Sistem merender: ꦤꦩ꧀ꦧꦏ꧀ꦲꦏꦺ (na-mbak-ha-ke).</li>
+                    <li>Jika kata dasar <strong>konsonan</strong> (tambak + ake): ketik <code>nambak-ake</code>. Sistem merender: ꦤꦩ꧀ꦧꦏ꧀ꦏꦏꦺ (na-mbak-ka-ke).</li>
+                </ul>
+            </div>
         </div>
 
         <div class="input-group">
@@ -160,7 +176,7 @@
         function transliterasiKata(rawLatin) {
             if (!rawLatin) return "";
 
-            // 1. Eksekusi Singkatan (Direvisi: Pada Lingsa hanya di akhir setiap aksara)
+            // 1. Eksekusi Singkatan
             if (/^([a-zA-Z]\.)+$/.test(rawLatin)) {
                 let abbr = "";
                 for (let j = 0; j < rawLatin.length; j += 2) {
@@ -185,10 +201,15 @@
 
                 let lastChar = root.slice(-1).toLowerCase();
                 let lastTwoChars = root.slice(-2).toLowerCase();
-                let firstCharSuffix = modSuffix.charAt(0).toLowerCase();
-
-                let consonantToDouble = "";
                 let vowels = ['a','i','u','e','o','é','è','ê'];
+                
+                // Aturan Khusus: -kake pada kata dasar berakhiran vokal (memunculkan pasangan ha)
+                if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kakén') && vowels.includes(lastChar)) {
+                    modSuffix = 'kh' + modSuffix.substring(1); 
+                }
+
+                let firstCharSuffix = modSuffix.charAt(0).toLowerCase();
+                let consonantToDouble = "";
 
                 if (vowels.includes(firstCharSuffix)) {
                     if (['ng', 'ny', 'dh', 'th'].includes(lastTwoChars)) {
@@ -332,5 +353,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>
