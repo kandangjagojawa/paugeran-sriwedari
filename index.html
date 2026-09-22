@@ -113,6 +113,7 @@
             <ul>
                 <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
                 <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
+                <li><strong>Otomatisasi Cakra Keret:</strong> "er" mati pada suku kata pertama kata dasar (walau disisipi awalan seperti <i>di-, ng-, m-</i>) otomatis menjadi cakra keret (ꦽ). Contoh: <code>diperluake</code> ➔ ꦢꦶꦥꦽꦭꦸꦮꦏꦺ. Di suku kata selain itu (misal: baper) otomatis pepet+layar (ꦼꦂ).</li>
                 <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
             </ul>
             <div class="homonym-alert">
@@ -193,7 +194,18 @@
             latinProcessed = latinProcessed.replace(/nc/g, 'nyc').replace(/nj/g, 'nyj');
             latinProcessed = latinProcessed.replace(/Nc/g, 'Nyc').replace(/Nj/g, 'Nyj');
 
-            // 3. Eksekusi Panambang (Akhiran) Berbasis Tanda Hubung (-)
+            // 3. ATURAN BARU: Cegah Pepet+Layar di suku kata pertama kata dasar (Jadikan Cakra Keret)
+            // Deteksi awalan spesifik lalu periksa "er" mati pada suku kata berikutnya.
+            const prefixRegexStr = "kuma|kami|kapi|dak|tak|kok|tar|pra|ng|ny|ko|di|ha|ka|ke|sa|pa|pi|m|n|a";
+            const keretRegex = new RegExp(`^(${prefixRegexStr})?([bcdfghjklmnpqrstvwxyz]*)([eê])r([bcdfghjklmnpqrstvwxyz])`, 'i');
+            
+            latinProcessed = latinProcessed.replace(keretRegex, function(match, p1, p2, p3, p4) {
+                let prefix = p1 || '';
+                // Transformasi: (prefix) + (konsonan awal) + r + e + (konsonan mati) -> Cakra Keret
+                return prefix + p2 + 'r' + p3 + p4; 
+            });
+
+            // 4. Eksekusi Panambang (Akhiran) Berbasis Tanda Hubung (-)
             latinProcessed = latinProcessed.replace(/([a-zA-Z]+)-([a-zA-Z]+)/g, function(match, root, suffix) {
                 if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
 
@@ -221,7 +233,7 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            // 4. Eksekusi Dwi-Vokal (Aksara Panglancar)
+            // 5. Eksekusi Dwi-Vokal (Aksara Panglancar)
             let prevLatin = "";
             while (latinProcessed !== prevLatin) {
                 prevLatin = latinProcessed;
@@ -230,7 +242,7 @@
                 latinProcessed = latinProcessed.replace(/([uoUO])([aiueoéèêAIUEOÉÈÊ])/g, '$1w$2');
             }
 
-            // 5. Eksekusi Taling Tarung Palsu (Anuswara)
+            // 6. Eksekusi Taling Tarung Palsu (Anuswara)
             let wordMatch = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)([^a-zA-Z]*)$/);
             if (wordMatch) {
                 let wordOnly = wordMatch[1];
@@ -253,7 +265,7 @@
                 latinProcessed = wordOnly + punctuations;
             }
 
-            // 6. Proses Rendering Aksara per Suku Kata
+            // 7. Proses Rendering Aksara per Suku Kata
             let res = "";
             let i = 0;
             let latin = latinProcessed;
@@ -322,8 +334,6 @@
                     continue;
                 }
 
-                // ATURAN BARU: Aksara 'ra' dilarang keras dipasangkan dengan pengkal/cakra/keret.
-                // Jika c = 'r' dan terdapat sisipan (y/r), ubah 'r' menjadi layar (ꦂ), dan jadikan sisipan tersebut sebagai aksara utama.
                 if (c === 'r' && medial !== "") {
                     res += 'ꦂ'; 
                     c = medial;
@@ -360,5 +370,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>
