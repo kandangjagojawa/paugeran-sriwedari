@@ -73,7 +73,7 @@
             padding: 20px;
             min-height: 120px;
             overflow-y: auto;
-            word-break: break-all; /* Mendukung scriptio continua */
+            word-break: break-all;
         }
         .legend {
             background-color: #e8f4f8;
@@ -89,12 +89,15 @@
 <body>
 
     <h1>Paugeran Sriwedari</h1>
-    <p class="subtitle">Mesin Transliterasi Latin ke Aksara Jawa (Scriptio Continua)</p>
+    <p class="subtitle">Aplikasi Transliterasi Aksara Jawa Presisi</p>
 
     <div class="container">
         <div class="input-group">
-            <label for="inputLatin">Teks Latin:</label>
-            <textarea id="inputLatin" placeholder="Ketik kalimat di sini... (otomatis dikonversi)" oninput="prosesTransliterasi()"></textarea>
+            <label for="inputLatin">Ketik Teks Latin:</label>
+            <!-- Aturan 2: autocapitalize="none" ditambahkan agar huruf awal/setelah titik tidak otomatis besar -->
+            <textarea id="inputLatin" placeholder="Ketik kalimat di sini..." 
+                      autocapitalize="none" autocomplete="off" spellcheck="false" 
+                      oninput="prosesTransliterasi()"></textarea>
         </div>
 
         <div class="input-group">
@@ -104,27 +107,21 @@
     </div>
 
     <div class="legend">
-        <strong>Aturan Penulisan (Sistem):</strong>
+        <strong>Pembaruan Aturan Sistem:</strong>
         <ul>
-            <li><strong>e</strong> = Pepet (seperti s<i>e</i>g<i>e</i>r) → ꦼ</li>
-            <li><strong>é / è</strong> = Taling (seperti l<i>é</i>l<i>é</i>) → ꦺ</li>
-            <li><strong>Huruf Kapital (N, K, T, S, P, G, B, C)</strong> akan otomatis menjadi <strong>Aksara Murda</strong>.</li>
-            <li><strong>Spasi</strong> akan membatasi morfologi kata (menentukan <i>cecak/layar/pangkon</i>), namun <strong>tidak akan ditampilkan</strong> di hasil akhir sesuai kaidah <i>scriptio continua</i>.</li>
+            <li><strong>Auto-Kapitalisasi Dimatikan:</strong> Menghindari false-positive Aksara Murda di awal kalimat/setelah titik.</li>
+            <li><strong>Digraf nc & nj:</strong> Otomatis menggunakan ꦚ꧀ꦕ dan ꦚ꧀ꦗ di tengah kata (contoh: <i>kanca, pancing, banjir</i>).</li>
+            <li><strong>Taling Tarung Palsu:</strong> Huruf 'a' sebelum anuswara (m, n, ny, ng) yang diikuti suku kata terbuka otomatis diberi taling tarung. Jika tertutup atau diberi akhiran, taling tarung hilang.</li>
         </ul>
     </div>
 
     <script>
-        /**
-         * ENGINE TRANSLITERASI PAUGERAN SRIWEDARI
-         * Menggunakan finite state algorithm untuk tokenisasi suku kata.
-         */
-
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
             'p':'ꦥ', 'dh':'ꦝ', 'j':'ꦗ', 'y':'ꦪ', 'ny':'ꦚ',
             'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ', 'th':'ꦛ', 'ng':'ꦔ',
-            'f':'ꦥ꦳', 'v':'ꦮ꦳', 'z':'ꦗ꦳' // Rekan dasar
+            'f':'ꦥ꦳', 'v':'ꦮ꦳', 'z':'ꦗ꦳'
         };
 
         const AKSARA_MURDA = {
@@ -136,18 +133,57 @@
 
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
-            let hasil = transliterasiKalimat(teksInput);
+            let teksPraProses = praProses(teksInput); // Lewati filter aturan khusus dulu
+            let hasil = transliterasiKalimat(teksPraProses);
             document.getElementById('outputJawa').innerText = hasil;
+        }
+
+        // FUNGSI KHUSUS UNTUK MENANGANI ATURAN 1 & 3
+        function praProses(teks) {
+            // Aturan 3: Digraf nc -> nyc dan nj -> nyj
+            teks = teks.replace(/n([cj])/g, 'ny$1');
+            teks = teks.replace(/N([cj])/g, 'Ny$1');
+            teks = teks.replace(/n([CJ])/g, 'ny$1');
+            teks = teks.replace(/N([CJ])/g, 'Ny$1');
+
+            // Aturan 1: Taling Tarung Palsu
+            // Memecah teks berdasarkan spasi dan tanda baca, tapi menyimpannya agar bisa digabung lagi
+            let kataKata = teks.split(/(\s+|[.,;!?]+)/);
+            
+            for (let i = 0; i < kataKata.length; i++) {
+                let kata = kataKata[i];
+                if (!kata.trim().match(/^[a-zA-Z]+$/)) continue; // Abaikan spasi/tanda baca
+
+                // Pola Regex mencari: (KonsonanAwal) + a + (m|n|ny|ng) + (KonsonanKedua) + (VokalAkhir)
+                // Ini memastikan kata tersebut BERAKHIR terbuka (hanya 2 suku kata atau suku kata terakhirnya terbuka)
+                let polaTerbuka = /^([bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]*)[aA](m|n|ny|ng)([bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]+)([aiueoAIUEO])$/i;
+                
+                let match = kata.match(polaTerbuka);
+                
+                if (match) {
+                    let konsonanAwal = match[1];
+                    let anuswara = match[2];
+                    let konsonanKedua = match[3];
+                    let vokalAkhir = match[4];
+                    
+                    // Karena memenuhi syarat "suku kata sebelum berikutnya terbuka", 
+                    // huruf 'a' diubah menjadi 'o' secara internal agar sistem memberikan Taling Tarung.
+                    kataKata[i] = konsonanAwal + 'o' + anuswara + konsonanKedua + vokalAkhir;
+                }
+                // Catatan logika: 
+                // Jika user mengetik "tampal" (tertutup), regex di atas akan GAGAL (karena diakhiri 'l', bukan vokal).
+                // Jika user mengetik "tampane" (diberi akhiran), regex di atas GAGAL (karena jumlah suku kata/huruf belakang tidak pas dengan batas akhir).
+                // Sehingga huruf tetap 'a' (taling tarung hilang sesuai request Anda).
+            }
+            return kataKata.join('');
         }
 
         function transliterasiKalimat(teks) {
             let baris = teks.split('\n');
             let hasilBaris = baris.map(line => {
-                // Pecah berdasarkan spasi untuk menjaga batas morfologi (coda)
                 let kataKata = line.split(/\s+/);
                 let kataJawa = kataKata.map(kata => transliterasiKata(kata));
-                // Gabungkan tanpa spasi (Scriptio Continua)
-                return kataJawa.join(''); 
+                return kataJawa.join(''); // Scriptio Continua
             });
             return hasilBaris.join('\n');
         }
@@ -158,7 +194,6 @@
             let lower = latin.toLowerCase();
 
             while (i < latin.length) {
-                // 1. Cek Tanda Baca & Angka
                 if (latin[i] === ',') { res += '꧈'; i++; continue; }
                 if (latin[i] === '.') { res += '꧉'; i++; continue; }
                 if (latin[i] >= '0' && latin[i] <= '9') {
@@ -172,7 +207,6 @@
                 let c = "";
                 let jump = 0;
 
-                // 2. Baca Konsonan Awal (Onset)
                 if (i+1 < lower.length && ['ng','ny','dh','th'].includes(lower.substring(i, i+2))) {
                     c = lower.substring(i, i+2);
                     jump = 2;
@@ -181,7 +215,6 @@
                     jump = 1;
                 }
 
-                // Jika kata diawali Vokal, menurut Sriwedari menggunakan 'Ha'
                 if (c === "" && /[aieéèou]/.test(lower[i])) {
                     c = "h"; 
                 } else if (c !== "") {
@@ -192,36 +225,30 @@
                     continue;
                 }
 
-                // 3. Baca Konsonan Sisipan (Medial: y / r)
                 let medial = "";
                 if (i < lower.length && (lower[i] === 'y' || lower[i] === 'r')) {
                     if (i+1 < lower.length && /[aieéèou]/.test(lower[i+1])) {
                         medial = lower[i];
                         i++;
                     } else if (c === 'h') {
-                        // Jika 'h' implisit dan tidak ada vokal setelah y/r, 
-                        // berarti y/r adalah onset aslinya.
                         c = lower[i];
                         i++;
                     }
                 }
 
-                // 4. Baca Vokal
                 let v = "";
                 if (i < lower.length && /[aieéèou]/.test(lower[i])) {
                     v = lower[i];
                     i++;
                 }
 
-                // 5. Eksekusi Pembentukan Karakter (Render)
-                // KONDISI A: Konsonan Mati (Sigeg)
                 if (v === "") {
-                    if (c === 'ng') res += 'ꦁ'; // Cecak
-                    else if (c === 'r') res += 'ꦂ'; // Layar
-                    else if (c === 'h') res += 'ꦃ'; // Wignyan
+                    if (c === 'ng') res += 'ꦁ';
+                    else if (c === 'r') res += 'ꦂ';
+                    else if (c === 'h') res += 'ꦃ';
                     else if (c !== "") {
                         let base = (isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
-                        res += base + '꧀'; // Pangkon
+                        res += base + '꧀'; 
                     }
                     if (medial !== "") {
                         res += KAMUS_AKSARA[medial] + '꧀';
@@ -229,29 +256,25 @@
                     continue;
                 }
 
-                // KONDISI B: Pengecualian Baku (Nga Lelet & Pa Cerek)
                 if (c === 'l' && v === 'e' && medial === "") {
                     res += 'ꦊ'; 
                 } else if (c === 'r' && v === 'e' && medial === "") {
                     res += 'ꦉ'; 
                 } else {
-                    // KONDISI C: Konsonan + Sandhangan Normal
                     let base = (isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
                     res += base;
 
-                    // Sisipan (Pengkal / Cakra / Keret)
                     if (medial === 'y') {
                         res += 'ꦾ';
                     } else if (medial === 'r') {
                         if (v === 'e') {
-                            res += 'ꦽ'; // Keret (Cakra + Pepet)
-                            v = ''; // Kosongkan vokal agar tidak dobel pepet
+                            res += 'ꦽ'; 
+                            v = ''; 
                         } else {
-                            res += 'ꦿ'; // Cakra
+                            res += 'ꦿ'; 
                         }
                     }
 
-                    // Vokal (Wulu, Suku, Taling, Pepet, Taling Tarung)
                     if (v === 'i') res += 'ꦶ';
                     else if (v === 'u') res += 'ꦸ';
                     else if (v === 'é' || v === 'è') res += 'ꦺ';
@@ -263,5 +286,5 @@
         }
     </script>
 </body>
-</html>
-
+    </html>
+    
