@@ -1,1 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paugeran Sriwedari - Transliterasi Aksara Jawa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #18bc9c;
+            --bg: #f4f6f7;
+            --surface: #ffffff;
+            --text: #333333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-top: 0;
+            margin-bottom: 2rem;
+        }
+        .container {
+            background-color: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid #dcdcdc;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: monospace;
+            box-sizing: border-box;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        #outputJawa {
+            font-family: 'Noto Sans Javanese', sans-serif;
+            font-size: 2.5rem;
+            line-height: 2.2;
+            background-color: #fcfdfd;
+            border-left: 5px solid var(--secondary);
+            padding: 20px;
+            min-height: 120px;
+            overflow-y: auto;
+            word-break: break-all; /* Mendukung scriptio continua */
+        }
+        .legend {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+        .legend ul { margin: 0; padding-left: 20px; }
+        .legend li { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>Paugeran Sriwedari</h1>
+    <p class="subtitle">Mesin Transliterasi Latin ke Aksara Jawa (Scriptio Continua)</p>
+
+    <div class="container">
+        <div class="input-group">
+            <label for="inputLatin">Teks Latin:</label>
+            <textarea id="inputLatin" placeholder="Ketik kalimat di sini... (otomatis dikonversi)" oninput="prosesTransliterasi()"></textarea>
+        </div>
+
+        <div class="input-group">
+            <label>Hasil Aksara Jawa:</label>
+            <div id="outputJawa"></div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <strong>Aturan Penulisan (Sistem):</strong>
+        <ul>
+            <li><strong>e</strong> = Pepet (seperti s<i>e</i>g<i>e</i>r) → ꦼ</li>
+            <li><strong>é / è</strong> = Taling (seperti l<i>é</i>l<i>é</i>) → ꦺ</li>
+            <li><strong>Huruf Kapital (N, K, T, S, P, G, B, C)</strong> akan otomatis menjadi <strong>Aksara Murda</strong>.</li>
+            <li><strong>Spasi</strong> akan membatasi morfologi kata (menentukan <i>cecak/layar/pangkon</i>), namun <strong>tidak akan ditampilkan</strong> di hasil akhir sesuai kaidah <i>scriptio continua</i>.</li>
+        </ul>
+    </div>
+
+    <script>
+        /**
+         * ENGINE TRANSLITERASI PAUGERAN SRIWEDARI
+         * Menggunakan finite state algorithm untuk tokenisasi suku kata.
+         */
+
+        const KAMUS_AKSARA = {
+            'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
+            'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
+            'p':'ꦥ', 'dh':'ꦝ', 'j':'ꦗ', 'y':'ꦪ', 'ny':'ꦚ',
+            'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ', 'th':'ꦛ', 'ng':'ꦔ',
+            'f':'ꦥ꦳', 'v':'ꦮ꦳', 'z':'ꦗ꦳' // Rekan dasar
+        };
+
+        const AKSARA_MURDA = {
+            'n':'ꦟ', 'k':'ꦑ', 't':'ꦡ', 's':'ꦯ', 'p':'ꦦ',
+            'g':'ꦓ', 'b':'ꦨ', 'c':'ꦖ'
+        };
+
+        const ANGKA = ['꧐','꧑','꧒','꧓','꧔','꧕','꧖','꧗','꧘','꧙'];
+
+        function prosesTransliterasi() {
+            let teksInput = document.getElementById('inputLatin').value;
+            let hasil = transliterasiKalimat(teksInput);
+            document.getElementById('outputJawa').innerText = hasil;
+        }
+
+        function transliterasiKalimat(teks) {
+            let baris = teks.split('\n');
+            let hasilBaris = baris.map(line => {
+                // Pecah berdasarkan spasi untuk menjaga batas morfologi (coda)
+                let kataKata = line.split(/\s+/);
+                let kataJawa = kataKata.map(kata => transliterasiKata(kata));
+                // Gabungkan tanpa spasi (Scriptio Continua)
+                return kataJawa.join(''); 
+            });
+            return hasilBaris.join('\n');
+        }
+
+        function transliterasiKata(latin) {
+            let res = "";
+            let i = 0;
+            let lower = latin.toLowerCase();
+
+            while (i < latin.length) {
+                // 1. Cek Tanda Baca & Angka
+                if (latin[i] === ',') { res += '꧈'; i++; continue; }
+                if (latin[i] === '.') { res += '꧉'; i++; continue; }
+                if (latin[i] >= '0' && latin[i] <= '9') {
+                    res += ANGKA[parseInt(latin[i])]; i++; continue;
+                }
+                if (!/[a-zA-ZéèÉÈ]/.test(latin[i])) {
+                    res += latin[i]; i++; continue; 
+                }
+                
+                let isCapital = (latin[i] >= 'A' && latin[i] <= 'Z');
+                let c = "";
+                let jump = 0;
+
+                // 2. Baca Konsonan Awal (Onset)
+                if (i+1 < lower.length && ['ng','ny','dh','th'].includes(lower.substring(i, i+2))) {
+                    c = lower.substring(i, i+2);
+                    jump = 2;
+                } else if (KAMUS_AKSARA[lower[i]]) {
+                    c = lower[i];
+                    jump = 1;
+                }
+
+                // Jika kata diawali Vokal, menurut Sriwedari menggunakan 'Ha'
+                if (c === "" && /[aieéèou]/.test(lower[i])) {
+                    c = "h"; 
+                } else if (c !== "") {
+                    i += jump;
+                } else {
+                    res += latin[i]; 
+                    i++;
+                    continue;
+                }
+
+                // 3. Baca Konsonan Sisipan (Medial: y / r)
+                let medial = "";
+                if (i < lower.length && (lower[i] === 'y' || lower[i] === 'r')) {
+                    if (i+1 < lower.length && /[aieéèou]/.test(lower[i+1])) {
+                        medial = lower[i];
+                        i++;
+                    } else if (c === 'h') {
+                        // Jika 'h' implisit dan tidak ada vokal setelah y/r, 
+                        // berarti y/r adalah onset aslinya.
+                        c = lower[i];
+                        i++;
+                    }
+                }
+
+                // 4. Baca Vokal
+                let v = "";
+                if (i < lower.length && /[aieéèou]/.test(lower[i])) {
+                    v = lower[i];
+                    i++;
+                }
+
+                // 5. Eksekusi Pembentukan Karakter (Render)
+                // KONDISI A: Konsonan Mati (Sigeg)
+                if (v === "") {
+                    if (c === 'ng') res += 'ꦁ'; // Cecak
+                    else if (c === 'r') res += 'ꦂ'; // Layar
+                    else if (c === 'h') res += 'ꦃ'; // Wignyan
+                    else if (c !== "") {
+                        let base = (isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
+                        res += base + '꧀'; // Pangkon
+                    }
+                    if (medial !== "") {
+                        res += KAMUS_AKSARA[medial] + '꧀';
+                    }
+                    continue;
+                }
+
+                // KONDISI B: Pengecualian Baku (Nga Lelet & Pa Cerek)
+                if (c === 'l' && v === 'e' && medial === "") {
+                    res += 'ꦊ'; 
+                } else if (c === 'r' && v === 'e' && medial === "") {
+                    res += 'ꦉ'; 
+                } else {
+                    // KONDISI C: Konsonan + Sandhangan Normal
+                    let base = (isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
+                    res += base;
+
+                    // Sisipan (Pengkal / Cakra / Keret)
+                    if (medial === 'y') {
+                        res += 'ꦾ';
+                    } else if (medial === 'r') {
+                        if (v === 'e') {
+                            res += 'ꦽ'; // Keret (Cakra + Pepet)
+                            v = ''; // Kosongkan vokal agar tidak dobel pepet
+                        } else {
+                            res += 'ꦿ'; // Cakra
+                        }
+                    }
+
+                    // Vokal (Wulu, Suku, Taling, Pepet, Taling Tarung)
+                    if (v === 'i') res += 'ꦶ';
+                    else if (v === 'u') res += 'ꦸ';
+                    else if (v === 'é' || v === 'è') res += 'ꦺ';
+                    else if (v === 'e') res += 'ꦼ';
+                    else if (v === 'o') res += 'ꦺꦴ';
+                }
+            }
+            return res;
+        }
+    </script>
+</body>
+</html>
 
