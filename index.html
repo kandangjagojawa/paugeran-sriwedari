@@ -113,15 +113,16 @@
             <ul>
                 <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
                 <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
-                <li><strong>Otomatisasi Cakra Keret:</strong> "er" mati pada suku kata pertama kata dasar (walau disisipi awalan seperti <i>di-, ng-, m-</i>) otomatis menjadi cakra keret (ꦽ). Contoh: <code>diperluake</code> ➔ ꦢꦶꦥꦽꦭꦸꦮꦏꦺ. Di suku kata selain itu (misal: baper) otomatis pepet+layar (ꦼꦂ).</li>
+                <li><strong>Otomatisasi Cakra Keret:</strong> "er" mati pada suku kata pertama kata dasar otomatis menjadi cakra keret (ꦽ). Di suku kata selain itu menjadi pepet+layar (ꦼꦂ).</li>
+                <li><strong>Ater-ater Anuswara (Awal Kalimat):</strong> Kata berawalan <i>mb, nd, ndh, nth, ngg, nc, nj</i> di awal kalimat otomatis disisipi <i>ha</i> (contoh: mbalang -> ꦲꦩ꧀ꦧꦭꦁ). Di tengah kalimat akan langsung menyambung (contoh: bisa mbalang -> ꦧꦶꦱꦩ꧀ꦧꦭꦁ).</li>
                 <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
             </ul>
             <div class="homonym-alert">
                 <strong style="color: var(--warning);">⚠️ AWAS HOMONIM: Ketahui Kata Dasarnya!</strong><br>
                 Untuk menghindari salah penulisan aksara Jawa pada kata ejaan Latin yang sama (misal: <i>nambakake</i>):
                 <ul style="margin-top: 4px;">
-                    <li>Jika kata dasar <strong>vokal</strong> (tamba + ake): ketik <code>namba-kake</code>. Sistem merender: ꦤꦩ꧀ꦧꦏ꧀ꦲꦏꦺ (na-mbak-ha-ke).</li>
-                    <li>Jika kata dasar <strong>konsonan</strong> (tambak + ake): ketik <code>nambak-ake</code>. Sistem merender: ꦤꦩ꧀ꦧꦏ꧀ꦏꦏꦺ (na-mbak-ka-ke).</li>
+                    <li>Jika kata dasar <strong>vokal</strong> (tamba + ake): ketik <code>namba-kake</code>. (Merender pasangan ha: ꦤꦩ꧀ꦧꦏ꧀ꦲꦏꦺ).</li>
+                    <li>Jika kata dasar <strong>konsonan</strong> (tambak + ake): ketik <code>nambak-ake</code>. (Merender konsonan dobel: ꦤꦩ꧀ꦧꦏ꧀ꦏꦏꦺ).</li>
                 </ul>
             </div>
         </div>
@@ -147,7 +148,7 @@
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
             'p':'ꦥ', 'dh':'ꦝ', 'j':'ꦗ', 'y':'ꦪ', 'ny':'ꦚ',
-            'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ', 'th':'ꦛ', 'ng':'ꦔ',
+            'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ', 'th':'ꦛ', 'ng':'ꦔ', 'nx':'ꦔ',
             'f':'ꦥ꦳', 'v':'ꦮ꦳', 'z':'ꦗ꦳'
         };
 
@@ -165,7 +166,12 @@
         }
 
         function transliterasiKalimat(teks) {
-            let baris = teks.split('\n');
+            // INJEKSI AWAL KALIMAT: Menambahkan 'ha' untuk ater-ater tidak luluh dan palatalisasi di awal teks / setelah tanda baca.
+            let teksDiolah = teks.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|ngg|nc|nj)/gim, function(match, p1, p2) {
+                return p1 + 'ha' + p2;
+            });
+
+            let baris = teksDiolah.split('\n');
             let hasilBaris = baris.map(line => {
                 let kataKata = line.split(/\s+/);
                 let kataJawa = kataKata.map(kata => transliterasiKata(kata));
@@ -190,18 +196,19 @@
 
             let latinProcessed = rawLatin;
 
+            // Memaksa 'nga' utuh (bukan cecak) khusus untuk ater-ater ngg- (baik asli maupun yang sudah disuntik ha-)
+            latinProcessed = latinProcessed.replace(/^ngg/i, 'nxg').replace(/^hangg/i, 'hanxg');
+
             // 2. Eksekusi Digraf nc -> nyc, nj -> nyj
             latinProcessed = latinProcessed.replace(/nc/g, 'nyc').replace(/nj/g, 'nyj');
             latinProcessed = latinProcessed.replace(/Nc/g, 'Nyc').replace(/Nj/g, 'Nyj');
 
-            // 3. ATURAN BARU: Cegah Pepet+Layar di suku kata pertama kata dasar (Jadikan Cakra Keret)
-            // Deteksi awalan spesifik lalu periksa "er" mati pada suku kata berikutnya.
+            // 3. Eksekusi Cakra Keret di Suku Kata Pertama Kata Dasar
             const prefixRegexStr = "kuma|kami|kapi|dak|tak|kok|tar|pra|ng|ny|ko|di|ha|ka|ke|sa|pa|pi|m|n|a";
             const keretRegex = new RegExp(`^(${prefixRegexStr})?([bcdfghjklmnpqrstvwxyz]*)([eê])r([bcdfghjklmnpqrstvwxyz])`, 'i');
             
             latinProcessed = latinProcessed.replace(keretRegex, function(match, p1, p2, p3, p4) {
                 let prefix = p1 || '';
-                // Transformasi: (prefix) + (konsonan awal) + r + e + (konsonan mati) -> Cakra Keret
                 return prefix + p2 + 'r' + p3 + p4; 
             });
 
@@ -285,7 +292,8 @@
                 let c = "";
                 let jump = 0;
 
-                if (i+1 < lower.length && ['ng','ny','dh','th'].includes(lower.substring(i, i+2))) {
+                // Memasukkan 'nx' ke dalam deteksi 2 karakter
+                if (i+1 < lower.length && ['ng','ny','dh','th','nx'].includes(lower.substring(i, i+2))) {
                     c = lower.substring(i, i+2);
                     jump = 2;
                 } else if (KAMUS_AKSARA[lower[i]]) {
