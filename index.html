@@ -177,9 +177,10 @@
         <div class="typing-guide">
             <strong>Petunjuk Penulisan:</strong>
             <ul>
-                <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
-                <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
-                <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
+                <li><strong>Vokal & Panambang:</strong> Gunakan <code>é</code>/<code>è</code> (taling), dan <code>e</code> (pepet). Tanda hubung <code>-</code> sebelum akhiran (contoh: omah-e).</li>
+                <li><strong>Aksara Rekan:</strong> <code>kh</code> (ꦏ꦳), <code>dz</code> (ꦢ꦳), <code>gh</code> (ꦒ꦳), <code>z</code> (ꦗ꦳), <code>f/v</code> (ꦥ꦳). Selain ꦥ꦳, aksara rekan tidak bisa menjadi pasangan.</li>
+                <li><strong>Aksara Swara & Murda:</strong> Ketik huruf vokal kapital (<code>A, I, U, E, O</code>) untuk Aksara Swara. Konsonan kapital memicu Aksara Murda. Aksara Swara tidak bisa menjadi pasangan dan tidak mendapat sandhangan.</li>
+                <li><strong>Angka:</strong> Angka (0-9) akan otomatis diapit oleh <i>pada pangkat</i> (꧇).</li>
             </ul>
             <div class="homonym-alert">
                 <strong style="color: var(--warning);">⚠️ AWAS HOMONIM: Ketahui Kata Dasarnya!</strong><br>
@@ -224,19 +225,23 @@
             <div id="outputJawa"></div>
         </div>
     </div>
-
-    <script>
+        <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
             'p':'ꦥ', 'dh':'ꦝ', 'j':'ꦗ', 'y':'ꦪ', 'ny':'ꦚ',
             'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ', 'th':'ꦛ', 'ng':'ꦔ', 'nx':'ꦔ',
-            'f':'ꦥ꦳', 'v':'ꦮ꦳', 'z':'ꦗ꦳'
+            'f':'ꦥ꦳', 'v':'ꦮ꦳', 'z':'ꦗ꦳',
+            'kh':'ꦏ꦳', 'dz':'ꦢ꦳', 'gh':'ꦒ꦳'
         };
 
         const AKSARA_MURDA = {
             'n':'ꦟ', 'k':'ꦑ', 't':'ꦡ', 's':'ꦯ', 'p':'ꦦ',
             'g':'ꦓ', 'b':'ꦨ', 'c':'ꦖ'
+        };
+
+        const SWARA_MAP = {
+            'A':'ꦄ', 'I':'ꦆ', 'U':'ꦈ', 'E':'ꦌ', 'É':'ꦌ', 'È':'ꦌ', 'Ê':'ꦌ', 'O':'ꦎ'
         };
 
         const ANGKA = ['꧐','꧑','꧒','꧓','꧔','꧕','꧖','꧗','꧘','꧙'];
@@ -294,7 +299,6 @@
                 lineJoined = lineJoined.replace(/꧀ꦊ/g, '꧀ꦭꦼ');
 
                 // Aturan 2: Mencegah Tumpuk Telu pada la dan wa 
-                // ZWNJ (\u200C) digunakan untuk mempertahankan scriptio continua tanpa jeda visual
                 lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])꧀([ꦭꦮ])/g, '$1꧀\u200C$2꧀$3');
 
                 return lineJoined;
@@ -360,12 +364,13 @@
                 return root + consonantToDouble + modSuffix;
             });
 
+            // Mencegah Dwi-Vokal memicu Aksara Panglancar jika huruf kedua adalah Aksara Swara Kapital
             let prevLatin = "";
             while (latinProcessed !== prevLatin) {
                 prevLatin = latinProcessed;
-                latinProcessed = latinProcessed.replace(/([aeêAEÊ])([aiueoéèêAIUEOÉÈÊ])/g, '$1h$2');
-                latinProcessed = latinProcessed.replace(/([iéèIÉÈ])([aiueoéèêAIUEOÉÈÊ])/g, '$1y$2');
-                latinProcessed = latinProcessed.replace(/([uoUO])([aiueoéèêAIUEOÉÈÊ])/g, '$1w$2');
+                latinProcessed = latinProcessed.replace(/([aeêAEÊ])([aiueoéèê])/g, '$1h$2');
+                latinProcessed = latinProcessed.replace(/([iéèIÉÈ])([aiueoéèê])/g, '$1y$2');
+                latinProcessed = latinProcessed.replace(/([uoUO])([aiueoéèê])/g, '$1w$2');
             }
 
             let wordMatch = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)([^a-zA-ZéèêÉÈÊ]*)$/);
@@ -397,6 +402,19 @@
             let isFirstAksara = true; 
 
             while (i < latin.length) {
+                // Aturan Angka: Otomatis dibungkus Pada Pangkat (꧇)
+                if (latin[i] >= '0' && latin[i] <= '9') {
+                    if (!res.endsWith('꧇') && !/[꧐-꧙]$/.test(res)) {
+                        res += '꧇';
+                    }
+                    res += ANGKA[parseInt(latin[i])];
+                    i++;
+                    if (i >= latin.length || !(latin[i] >= '0' && latin[i] <= '9')) {
+                        res += '꧇';
+                    }
+                    continue;
+                }
+
                 if (latin[i] === ',') { 
                     if (res.endsWith('꧀')) {
                         res += '\u200C'; 
@@ -414,9 +432,6 @@
                     i++; continue; 
                 }
                 
-                if (latin[i] >= '0' && latin[i] <= '9') {
-                    res += ANGKA[parseInt(latin[i])]; i++; continue;
-                }
                 if (!/[a-zA-ZéèêÉÈÊ]/.test(latin[i])) {
                     res += latin[i]; i++; continue; 
                 }
@@ -424,17 +439,23 @@
                 let isCapital = (latin[i] >= 'A' && latin[i] <= 'Z');
                 let c = "";
                 let jump = 0;
+                let isSwara = false;
 
-                if (i+1 < lower.length && ['ng','ny','dh','th','nx'].includes(lower.substring(i, i+2))) {
+                if (i+1 < lower.length && ['ng','ny','dh','th','nx','kh','dz','gh'].includes(lower.substring(i, i+2))) {
                     c = lower.substring(i, i+2);
                     jump = 2;
                 } else if (KAMUS_AKSARA[lower[i]]) {
                     c = lower[i];
                     jump = 1;
+                } else if (['A','I','U','E','O','É','È','Ê'].includes(latin[i])) {
+                    c = latin[i];
+                    isSwara = true;
+                    jump = 1;
                 }
 
                 if (c === "" && /[aieéèêou]/.test(lower[i])) {
                     c = "h"; 
+                    jump = 0;
                 } else if (c !== "") {
                     i += jump;
                 } else {
@@ -444,7 +465,7 @@
                 }
 
                 let medial = "";
-                if (i < lower.length && (lower[i] === 'y' || lower[i] === 'r') && c !== 'nx') {
+                if (!isSwara && i < lower.length && (lower[i] === 'y' || lower[i] === 'r') && c !== 'nx') {
                     if (i+1 < lower.length && /[aieéèêou]/.test(lower[i+1])) {
                         medial = lower[i];
                         i++;
@@ -455,12 +476,12 @@
                 }
 
                 let v = "";
-                if (i < lower.length && /[aieéèêou]/.test(lower[i])) {
+                if (!isSwara && i < lower.length && /[aieéèêou]/.test(lower[i])) {
                     v = lower[i];
                     i++;
                 }
 
-                if (v === "") {
+                if (v === "" && !isSwara) {
                     if (c === 'ng' && !isFirstAksara) res += 'ꦁ'; 
                     else if (c === 'r' && !isFirstAksara) res += 'ꦂ'; 
                     else if (c === 'h' && !isFirstAksara) res += 'ꦃ'; 
@@ -485,12 +506,18 @@
                     medial = ""; 
                 }
 
+                // Proteksi untuk Aksara Rekan Non-Pasangan dan Aksara Swara
+                let nonPasangan = ['kh','dz','gh','z'].includes(c) || isSwara;
+                if (nonPasangan && res.endsWith('꧀')) {
+                    res += '\u200C';
+                }
+
                 if (c === 'l' && (v === 'e' || v === 'ê') && medial === "") {
                     res += 'ꦊ'; 
                 } else if (c === 'r' && (v === 'e' || v === 'ê') && medial === "") {
                     res += 'ꦉ'; 
                 } else {
-                    let base = (isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
+                    let base = isSwara ? SWARA_MAP[c] : ((isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]);
                     res += base;
 
                     if (medial === 'y') {
@@ -504,11 +531,13 @@
                         }
                     }
 
-                    if (v === 'i') res += 'ꦶ';
-                    else if (v === 'u') res += 'ꦸ';
-                    else if (v === 'é' || v === 'è') res += 'ꦺ';
-                    else if (v === 'e' || v === 'ê') res += 'ꦼ';
-                    else if (v === 'o') res += 'ꦺꦴ';
+                    if (!isSwara) {
+                        if (v === 'i') res += 'ꦶ';
+                        else if (v === 'u') res += 'ꦸ';
+                        else if (v === 'é' || v === 'è') res += 'ꦺ';
+                        else if (v === 'e' || v === 'ê') res += 'ꦼ';
+                        else if (v === 'o') res += 'ꦺꦴ';
+                    }
                 }
                 
                 if (c !== "") isFirstAksara = false;
