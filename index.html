@@ -234,8 +234,8 @@
             'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ', 'th':'ꦛ', 'ng':'ꦔ', 'nx':'ꦔ',
             'f':'ꦥ꦳', 'v':'ꦮ꦳', 'z':'ꦗ꦳',
             'kh':'ꦏ꦳', 'dz':'ꦢ꦳', 'gh':'ꦒ꦳',
-            'kx':'ꦏ', // Kode internal anti-rekan untuk k + pasangan ha
-            'rx':'ꦫ', 'hx':'ꦲ', 'ngx':'ꦔ' // Kode bypass force-base untuk cakra/pengkal
+            'kx':'ꦏ', 
+            'rx':'ꦫ', 'hx':'ꦲ', 'ngx':'ꦔ'
         };
 
         const AKSARA_MURDA = {
@@ -301,11 +301,17 @@
                 // Aturan 1: Pangkon bertemu Nga Lelet menjadi Pasangan La + Pepet
                 lineJoined = lineJoined.replace(/꧀ꦊ/g, '꧀ꦭꦼ');
 
-                // Aturan 2: Aksara Swara & Rekan (kh,dz,gh,z) tidak bisa jadi pasangan (cegah lintas batas kata)
+                // Aturan 2: Aksara Swara & Rekan (kh,dz,gh,z) tidak bisa jadi pasangan
                 lineJoined = lineJoined.replace(/꧀([ꦄꦆꦈꦌꦎ]|[ꦏꦢꦒꦗ]꦳)/g, '꧀\u200C$1');
 
                 // Aturan 3: Mencegah Tumpuk Telu pada la dan wa 
-                lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])꧀([ꦭꦮ])/g, '$1꧀\u200C$2꧀$3');
+                // PENGECUALIAN: Pasangan pa (ꦥ) dan sa (ꦱ) diletakkan sejajar, diizinkan ditumpuk la/wa
+                lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])(꦳?)꧀([ꦭꦮ])/g, function(match, p1, p2, p3, p4) {
+                    if (p2 === 'ꦥ' || p2 === 'ꦱ') {
+                        return match; 
+                    }
+                    return p1 + '꧀\u200C' + p2 + p3 + '꧀' + p4; 
+                });
 
                 return lineJoined;
             });
