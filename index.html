@@ -138,6 +138,7 @@
             <ul>
                 <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
                 <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
+                <li><strong>Tanda Baca:</strong> Koma (,) yang didahului huruf mati cukup menggunakan <i>pangkon</i>. Titik (.) yang didahului huruf mati menggunakan <i>pangkon + pada lingsa</i>.</li>
                 <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
             </ul>
             <div class="homonym-alert">
@@ -318,8 +319,24 @@
             let isFirstAksara = true; 
 
             while (i < latin.length) {
-                if (latin[i] === ',') { res += '꧈'; i++; continue; }
-                if (latin[i] === '.') { res += '꧉'; i++; continue; }
+                // ATURAN BARU: Penyesuaian Tanda Baca Koma & Titik terhadap Sigegan (Pangkon)
+                if (latin[i] === ',') { 
+                    if (res.endsWith('꧀')) {
+                        res += '\u200C'; // ZWNJ: Pangkon menjadi koma, mencegah terbentuknya pasangan dengan kata berikutnya
+                    } else {
+                        res += '꧈'; 
+                    }
+                    i++; continue; 
+                }
+                if (latin[i] === '.') { 
+                    if (res.endsWith('꧀')) {
+                        res += '꧈\u200C'; // ZWNJ: Pangkon + Pada Lingsa (menggantikan Pada Lungsi)
+                    } else {
+                        res += '꧉'; 
+                    }
+                    i++; continue; 
+                }
+                
                 if (latin[i] >= '0' && latin[i] <= '9') {
                     res += ANGKA[parseInt(latin[i])]; i++; continue;
                 }
