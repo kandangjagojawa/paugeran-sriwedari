@@ -163,6 +163,7 @@
             <ul>
                 <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
                 <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
+                <li><strong>Proteksi Otomatis:</strong> Mesin memblokir <i>tumpuk telu</i> (memecah tumpukan pasangan la/wa dengan pangkon dan spasi), serta otomatis merender Nga Lelet (ꦊ) yang didahului huruf mati menjadi ꧀ꦭꦼ.</li>
                 <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
             </ul>
             <div class="homonym-alert">
@@ -262,7 +263,17 @@
             let hasilBaris = baris.map(line => {
                 let kataKata = line.split(/\s+/);
                 let kataJawa = kataKata.map(kata => transliterasiKata(kata));
-                return kataJawa.join(''); 
+                
+                let lineJoined = kataJawa.join(''); 
+                
+                // Aturan 1: Pangkon bertemu Nga Lelet menjadi Pasangan La + Pepet (Mencegah ketiadaan pasangan Nga Lelet)
+                lineJoined = lineJoined.replace(/꧀ꦊ/g, '꧀ꦭꦼ');
+
+                // Aturan 2: Mencegah Tumpuk Telu pada la dan wa 
+                // Jika terdeteksi [Aksara] + [Pangkon] + [Aksara] + [Pangkon] + [la/wa], pecah dengan spasi di pangkon pertama.
+                lineJoined = lineJoined.replace(/([ꦲ-ꦿ])꧀([ꦲ-ꦿ])꧀([ꦭꦮ])/g, '$1꧀ $2꧀$3');
+
+                return lineJoined;
             });
             return hasilBaris.join('\n');
         }
@@ -270,7 +281,6 @@
         function transliterasiKata(rawLatin) {
             if (!rawLatin) return "";
 
-            // 1. Eksekusi Singkatan
             if (/^([a-zA-Z]\.)+$/.test(rawLatin)) {
                 let abbr = "";
                 for (let j = 0; j < rawLatin.length; j += 2) {
@@ -286,11 +296,9 @@
             latinProcessed = latinProcessed.replace(/^(ha)?ngg/i, '$1nxg');
             latinProcessed = latinProcessed.replace(/^(ha)?ng([lrwy])/i, '$1nx$2');
 
-            // 2. Eksekusi Digraf nc -> nyc, nj -> nyj
             latinProcessed = latinProcessed.replace(/nc/g, 'nyc').replace(/nj/g, 'nyj');
             latinProcessed = latinProcessed.replace(/Nc/g, 'Nyc').replace(/Nj/g, 'Nyj');
 
-            // 3. Eksekusi Cakra Keret di Suku Kata Pertama Kata Dasar
             const prefixRegexStr = "kuma|kami|kapi|dak|tak|kok|tar|pra|ng|ny|ko|di|ha|ka|ke|sa|pa|pi|m|n|a";
             const keretRegex = new RegExp(`^(${prefixRegexStr})?([bcdfghjklmnpqrstvwxyz]*)([eê])r([bcdfghjklmnpqrstvwxyz])`, 'i');
             
@@ -299,8 +307,6 @@
                 return prefix + p2 + 'r' + p3 + p4; 
             });
 
-            // 4. Eksekusi Panambang (Akhiran) Berbasis Tanda Hubung (-)
-            // PERBAIKAN: Menginklusikan huruf beraksen (é,è,ê) pada pola deteksi kata dasar dan akhiran.
             latinProcessed = latinProcessed.replace(/([a-zA-ZéèêÉÈÊ]+)-([a-zA-ZéèêÉÈÊ]+)/g, function(match, root, suffix) {
                 if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
 
@@ -330,7 +336,6 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            // 5. Eksekusi Dwi-Vokal (Aksara Panglancar)
             let prevLatin = "";
             while (latinProcessed !== prevLatin) {
                 prevLatin = latinProcessed;
@@ -339,8 +344,6 @@
                 latinProcessed = latinProcessed.replace(/([uoUO])([aiueoéèêAIUEOÉÈÊ])/g, '$1w$2');
             }
 
-            // 6. Eksekusi Taling Tarung Palsu (Anuswara)
-            // PERBAIKAN: Menginklusikan huruf beraksen agar tidak menghalangi deteksi akhir kata.
             let wordMatch = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)([^a-zA-ZéèêÉÈÊ]*)$/);
             if (wordMatch) {
                 let wordOnly = wordMatch[1];
@@ -363,7 +366,6 @@
                 latinProcessed = wordOnly + punctuations;
             }
 
-            // 7. Proses Rendering Aksara per Suku Kata
             let res = "";
             let i = 0;
             let latin = latinProcessed;
