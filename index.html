@@ -298,7 +298,10 @@
                 // Aturan 1: Pangkon bertemu Nga Lelet menjadi Pasangan La + Pepet
                 lineJoined = lineJoined.replace(/꧀ꦊ/g, '꧀ꦭꦼ');
 
-                // Aturan 2: Mencegah Tumpuk Telu pada la dan wa 
+                // Aturan 2: Aksara Swara & Rekan (kh,dz,gh,z) tidak bisa jadi pasangan (cegah lintas batas kata)
+                lineJoined = lineJoined.replace(/꧀([ꦄꦆꦈꦌꦎ]|[ꦏꦢꦒꦗ]꦳)/g, '꧀\u200C$1');
+
+                // Aturan 3: Mencegah Tumpuk Telu pada la dan wa 
                 lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])꧀([ꦭꦮ])/g, '$1꧀\u200C$2꧀$3');
 
                 return lineJoined;
@@ -506,7 +509,7 @@
                     medial = ""; 
                 }
 
-                // Proteksi untuk Aksara Rekan Non-Pasangan dan Aksara Swara
+                // Proteksi intra-kata: ZWNJ disuntikkan sebelum Aksara Rekan Non-Pasangan / Swara
                 let nonPasangan = ['kh','dz','gh','z'].includes(c) || isSwara;
                 if (nonPasangan && res.endsWith('꧀')) {
                     res += '\u200C';
