@@ -26,12 +26,6 @@
         h1 {
             color: var(--primary);
             text-align: center;
-            margin-bottom: 0.5rem;
-        }
-        p.subtitle {
-            text-align: center;
-            color: #7f8c8d;
-            margin-top: 0;
             margin-bottom: 2rem;
         }
         .container {
@@ -89,7 +83,7 @@
         }
         #outputJawa {
             font-family: 'Noto Sans Javanese', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2rem;
             line-height: 2.2;
             background-color: #fcfdfd;
             border-left: 5px solid var(--secondary);
@@ -99,12 +93,25 @@
             word-break: break-all; 
         }
         code { background-color: #d1e8f0; padding: 2px 4px; border-radius: 4px; font-weight: bold;}
+        
+        /* Media Query untuk penyesuaian UI di layar HP */
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+            .container {
+                padding: 1rem;
+            }
+            #outputJawa {
+                font-size: 1.6rem; /* Ukuran font aksara Jawa diperkecil proporsional untuk HP */
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <h1>Paugeran Sriwedari</h1>
-    <p class="subtitle">Mesin Transliterasi Latin ke Aksara Jawa (Scriptio Continua)</p>
 
     <div class="container">
         
@@ -113,8 +120,6 @@
             <ul>
                 <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
                 <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
-                <li><strong>Otomatisasi Cakra Keret:</strong> "er" mati pada suku kata pertama kata dasar otomatis menjadi cakra keret (ꦽ). Di suku kata selain itu menjadi pepet+layar (ꦼꦂ).</li>
-                <li><strong>Ater-ater Anuswara (Awal Kalimat):</strong> Kata berawalan <i>mb, nd, ndh, nth, ngg, nc, nj</i> di awal kalimat otomatis disisipi <i>ha</i> (contoh: mbalang -> ꦲꦩ꧀ꦧꦭꦁ). Di tengah kalimat akan langsung menyambung (contoh: bisa mbalang -> ꦧꦶꦱꦩ꧀ꦧꦭꦁ).</li>
                 <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
             </ul>
             <div class="homonym-alert">
@@ -166,7 +171,6 @@
         }
 
         function transliterasiKalimat(teks) {
-            // INJEKSI AWAL KALIMAT: Menambahkan 'ha' untuk ater-ater tidak luluh dan palatalisasi di awal teks / setelah tanda baca.
             let teksDiolah = teks.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|ngg|nc|nj)/gim, function(match, p1, p2) {
                 return p1 + 'ha' + p2;
             });
@@ -196,7 +200,6 @@
 
             let latinProcessed = rawLatin;
 
-            // Memaksa 'nga' utuh (bukan cecak) khusus untuk ater-ater ngg- (baik asli maupun yang sudah disuntik ha-)
             latinProcessed = latinProcessed.replace(/^ngg/i, 'nxg').replace(/^hangg/i, 'hanxg');
 
             // 2. Eksekusi Digraf nc -> nyc, nj -> nyj
@@ -292,7 +295,6 @@
                 let c = "";
                 let jump = 0;
 
-                // Memasukkan 'nx' ke dalam deteksi 2 karakter
                 if (i+1 < lower.length && ['ng','ny','dh','th','nx'].includes(lower.substring(i, i+2))) {
                     c = lower.substring(i, i+2);
                     jump = 2;
@@ -378,4 +380,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
