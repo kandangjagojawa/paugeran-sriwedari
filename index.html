@@ -175,13 +175,13 @@
     <div class="container">
         
         <div class="typing-guide">
-            <strong>Petunjuk Penulisan:</strong>
+            <strong>PENTING! Petunjuk Penulisan:</strong>
             <ul>
-                <li><strong>Vokal & Panambang:</strong> Gunakan <code>é</code>/<code>è</code> (taling), dan <code>e</code> (pepet). Tanda hubung <code>-</code> sebelum akhiran (contoh: omah-e).</li>
+                <li><strong>Vokal:</strong> Gunakan <code>é</code>/<code>è</code> (taling), dan <code>e</code> (pepet).</li>
+                <li><strong>Panambang (akhiran):</strong> Ketik tanda hubung <code>-</code> sebelum akhiran (contoh: omah-e), untuk memastikan kata dasar diakhiri suku kata terbuka atau tertutup.</li>
                 <li><strong>Aksara Rekan:</strong> ketik <code>kh</code> (ꦏ꦳), <code>dz</code> (ꦢ꦳), <code>gh</code> (ꦒ꦳), <code>z</code> (ꦗ꦳), <code>f/v</code> (ꦥ꦳).</li>
                 <li><strong>Aksara Swara:</strong> Ketik huruf vokal kapital (<code>A, I, U, E, O</code>). <strong>Aksara Murda:</strong> Ketik konsonan Kapital (<code>N, K, T, S, P, G, B, C</code>).</li>
-                <li><strong>Pengecualian Medial:</strong> Konsonan <code>ng</code> & <code>h</code> otomatis dipisah menjadi cecak/wignyan bila bertemu r/y (kecuali pada kata <em>ningrat</em>).</li>
-                <li><strong>Memaksa Cakra/Pengkal:</strong> Untuk memaksa aksara r, ng, dan h agar bisa diberi cakra/pengkal, tambahkan <code>x</code>. Contoh: <code>rxya</code> (ꦫꦾ), <code>ngxra</code> (ꦔꦿ), <code>hxre</code> (ꦲꦽ).</li>
+                <li>Untuk memaksa aksara r, ng, dan h agar bisa diberi cakra/pengkal, tambahkan <code>x</code>. Contoh: <code>rxya</code> (ꦫꦾ), <code>ngxra</code> (ꦔꦿ), <code>hxre</code> (ꦲꦽ).</li>
             </ul>
             <div class="homonym-alert">
                 <strong style="color: var(--warning);">⚠️ AWAS HOMONIM: Ketahui Kata Dasarnya!</strong><br>
@@ -450,7 +450,6 @@
                 let c3 = i+2 < lower.length ? lower.substring(i, i+3) : "";
                 let c2 = i+1 < lower.length ? lower.substring(i, i+2) : "";
 
-                // PERBAIKAN: Menangkap modifier multi-karakter 'ngx', 'rx', 'hx', dll.
                 if (['ngx'].includes(c3)) {
                     c = c3;
                     jump = 3;
@@ -523,7 +522,6 @@
                     continue;
                 }
 
-                // Bypass jika c adalah 'rx' (modifikasi paksa r), jangan jadikan layar.
                 if (c === 'r' && medial !== "") {
                     if (isFirstAksara) {
                         res += KAMUS_AKSARA['r'] + '꧀';
