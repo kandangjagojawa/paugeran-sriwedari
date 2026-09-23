@@ -270,8 +270,8 @@
                 lineJoined = lineJoined.replace(/꧀ꦊ/g, '꧀ꦭꦼ');
 
                 // Aturan 2: Mencegah Tumpuk Telu pada la dan wa 
-                // Jika terdeteksi [Aksara] + [Pangkon] + [Aksara] + [Pangkon] + [la/wa], pecah dengan spasi di pangkon pertama.
-                lineJoined = lineJoined.replace(/([ꦲ-ꦿ])꧀([ꦲ-ꦿ])꧀([ꦭꦮ])/g, '$1꧀ $2꧀$3');
+                // Diperbaiki rentang Regex menjadi [ꦀ-꧟] yang mencakup semua aksara Jawa.
+                lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])꧀([ꦭꦮ])/g, '$1꧀ $2꧀$3');
 
                 return lineJoined;
             });
