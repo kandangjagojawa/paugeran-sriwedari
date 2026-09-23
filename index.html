@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paugeran Sriwedari - Transliterasi Aksara Jawa</title>
+    <title>PAUGERAN SRIWEDARI - Transliterasi Aksara Jawa</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&display=swap" rel="stylesheet">
     <style>
         /* Mengimpor font lokal yang akan diupload user ke GitHub */
@@ -21,6 +21,7 @@
             --surface: #ffffff;
             --text: #333333;
             --warning: #d35400;
+            --danger: #e74c3c;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -34,7 +35,17 @@
         h1 {
             color: var(--primary);
             text-align: center;
+            margin-bottom: 0.2rem;
+            letter-spacing: 1px;
+        }
+        .subtitle-jawa {
+            font-family: 'Ngayogyann', 'Noto Sans Javanese', sans-serif;
+            font-size: 2.8rem;
+            text-align: center;
+            color: var(--primary);
+            margin-top: -0.5rem;
             margin-bottom: 2rem;
+            line-height: 1.2;
         }
         .container {
             background-color: var(--surface);
@@ -107,16 +118,30 @@
             outline: none;
             padding: 0;
         }
-        .typing-guide {
+        details.typing-guide {
             background-color: #e8f4f8;
             padding: 15px;
             border-radius: 8px;
             font-size: 0.9rem;
             margin-bottom: 20px;
             border-left: 4px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+        details.typing-guide summary {
+            cursor: pointer;
+            font-weight: 600;
+            outline: none;
+            user-select: none;
+        }
+        details.typing-guide summary:hover {
+            color: var(--secondary);
+        }
+        .teks-penting {
+            color: var(--danger);
+            font-weight: bold;
         }
         .typing-guide ul {
-            margin: 5px 0 0;
+            margin: 10px 0 0;
             padding-left: 20px;
         }
         .typing-guide li {
@@ -165,33 +190,37 @@
             .header-group { flex-direction: column; align-items: flex-start; gap: 10px; }
             .right-actions { width: 100%; justify-content: flex-start; }
             #outputJawa { font-size: 1.6rem; padding: 15px; }
+            .subtitle-jawa { font-size: 2.2rem; }
         }
     </style>
 </head>
 <body>
 
-    <h1>Paugeran Sriwedari</h1>
+    <h1>PAUGERAN SRIWEDARI</h1>
+    <div class="subtitle-jawa">ꦥꦲꦸꦒꦼꦂꦫꦤ꧀ꦱꦿꦶꦮꦼꦢꦫꦶ</div>
 
     <div class="container">
         
-        <div class="typing-guide">
-            <strong>PENTING! Petunjuk Penulisan:</strong>
-            <ul>
-                <li><strong>Vokal:</strong> Gunakan <code>é</code>/<code>è</code> (taling), dan <code>e</code> (pepet).</li>
-                <li><strong>Panambang (akhiran):</strong> Ketik tanda hubung <code>-</code> sebelum akhiran (contoh: omah-e), untuk memastikan kata dasar diakhiri suku kata terbuka atau tertutup.</li>
-                <li><strong>Aksara Rekan:</strong> ketik <code>kh</code> (ꦏ꦳), <code>dz</code> (ꦢ꦳), <code>gh</code> (ꦒ꦳), <code>z</code> (ꦗ꦳), <code>f/v</code> (ꦥ꦳).</li>
-                <li><strong>Aksara Swara:</strong> Ketik huruf vokal kapital (<code>A, I, U, E, O</code>). <strong>Aksara Murda:</strong> Ketik konsonan Kapital (<code>N, K, T, S, P, G, B, C</code>).</li>
-                <li>Untuk memaksa aksara r, ng, dan h agar bisa diberi cakra/pengkal, tambahkan <code>x</code>. Contoh: <code>rxya</code> (ꦫꦾ), <code>ngxra</code> (ꦔꦿ), <code>hxre</code> (ꦲꦽ).</li>
-            </ul>
-            <div class="homonym-alert">
-                <strong style="color: var(--warning);">⚠️ AWAS HOMONIM: Ketahui Kata Dasarnya!</strong><br>
-                Berlaku untuk panambang <strong>-ake / -e</strong> (Taling) maupun <strong>-aken / -en</strong> (Pepet):
-                <ul style="margin-top: 4px;">
-                    <li>Kata dasar <strong>vokal</strong> (tamba + ake/aken): ketik <code>namba-kake</code> / <code>namba-kaken</code>.</li>
-                    <li>Kata dasar <strong>konsonan</strong> (tambak + ake/aken): ketik <code>nambak-ake</code> / <code>nambak-aken</code>.</li>
+        <details class="typing-guide" open>
+            <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
+            <div style="margin-top: 10px;">
+                <ul>
+                    <li><strong>Vokal:</strong> Gunakan <code>é</code>/<code>è</code> (taling), dan <code>e</code> (pepet).</li>
+                    <li><strong>Panambang (akhiran):</strong> Ketik tanda hubung <code>-</code> sebelum akhiran (contoh: omah-e), untuk memastikan kata dasar diakhiri suku kata terbuka atau tertutup.</li>
+                    <li><strong>Aksara Rekan:</strong> ketik <code>kh</code> (ꦏ꦳), <code>dz</code> (ꦢ꦳), <code>gh</code> (ꦒ꦳), <code>z</code> (ꦗ꦳), <code>f/v</code> (ꦥ꦳).</li>
+                    <li><strong>Aksara Swara:</strong> Ketik huruf vokal kapital (<code>A, I, U, E, O</code>). <strong>Aksara Murda:</strong> Ketik konsonan Kapital (<code>N, K, T, S, P, G, B, C</code>).</li>
+                    <li>Untuk memaksa aksara r, ng, dan h agar bisa diberi cakra/pengkal, tambahkan <code>x</code>. Contoh: <code>rxya</code> (ꦫꦾ), <code>ngxra</code> (ꦔꦿ), <code>hxre</code> (ꦲꦽ).</li>
                 </ul>
+                <div class="homonym-alert">
+                    <strong style="color: var(--warning);">⚠️ AWAS HOMONIM: Ketahui Kata Dasarnya!</strong><br>
+                    Berlaku untuk panambang <strong>-ake / -e</strong> (Taling) maupun <strong>-aken / -en</strong> (Pepet):
+                    <ul style="margin-top: 4px;">
+                        <li>Kata dasar <strong>vokal</strong> (tamba + ake/aken): ketik <code>namba-kake</code> / <code>namba-kaken</code>.</li>
+                        <li>Kata dasar <strong>konsonan</strong> (tambak + ake/aken): ketik <code>nambak-ake</code> / <code>nambak-aken</code>.</li>
+                    </ul>
+                </div>
             </div>
-        </div>
+        </details>
 
         <div class="input-group">
             <div class="header-group">
