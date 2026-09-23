@@ -180,6 +180,7 @@
                 <li><strong>Vokal & Panambang:</strong> Gunakan <code>é</code>/<code>è</code> (taling), dan <code>e</code> (pepet). Tanda hubung <code>-</code> sebelum akhiran (contoh: omah-e).</li>
                 <li><strong>Aksara Rekan:</strong> ketik <code>kh</code> (ꦏ꦳), <code>dz</code> (ꦢ꦳), <code>gh</code> (ꦒ꦳), <code>z</code> (ꦗ꦳), <code>f/v</code> (ꦥ꦳).</li>
                 <li><strong>Aksara Swara:</strong> Ketik huruf vokal kapital (<code>A, I, U, E, O</code>). <strong>Aksara Murda:</strong> Ketik konsonan Kapital (<code>N, K, T, S, P, G, B, C</code>).</li>
+                <li><strong>Pengecualian:</strong> Aksara mati <code>ng</code> dan <code>h</code> tidak bisa diberi cakra/pengkal (otomatis dipisah menjadi cecak/wignyan), kecuali pada kata <em>ningrat</em>.</li>
             </ul>
             <div class="homonym-alert">
                 <strong style="color: var(--warning);">⚠️ AWAS HOMONIM: Ketahui Kata Dasarnya!</strong><br>
@@ -312,6 +313,9 @@
         function transliterasiKata(rawLatin) {
             if (!rawLatin) return "";
 
+            // Deteksi konteks kata 'ningrat' untuk whitelist cakra pada ng
+            let isKataNingrat = rawLatin.toLowerCase().includes('ningrat');
+
             if (/^([a-zA-Z]\.)+$/.test(rawLatin)) {
                 let abbr = "";
                 for (let j = 0; j < rawLatin.length; j += 2) {
@@ -350,7 +354,6 @@
                 let vowels = ['a','i','u','e','o','é','è','ê'];
                 
                 if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kaken') && vowels.includes(lastChar)) {
-                    // PERBAIKAN: Menggunakan kxh agar tidak menabrak kode Aksara Rekan 'kh'
                     modSuffix = 'kxh' + modSuffix.substring(1); 
                 }
 
@@ -443,7 +446,6 @@
                 let jump = 0;
                 let isSwara = false;
 
-                // PERBAIKAN: Menambahkan 'kx' dalam daftar pembacaan multikarakter
                 if (i+1 < lower.length && ['ng','ny','dh','th','nx','kh','dz','gh','kx'].includes(lower.substring(i, i+2))) {
                     c = lower.substring(i, i+2);
                     jump = 2;
@@ -468,10 +470,24 @@
                 }
 
                 let medial = "";
+                // ALGORITMA PENCEKALAN MEDIAL
                 if (!isSwara && i < lower.length && (lower[i] === 'y' || lower[i] === 'r') && c !== 'nx') {
                     if (i+1 < lower.length && /[aieéèêou]/.test(lower[i+1])) {
-                        medial = lower[i];
-                        i++;
+                        let rejectMedial = false;
+                        if (c === 'ng' || c === 'h') {
+                            if (c === 'ng' && isKataNingrat && lower[i] === 'r') {
+                                rejectMedial = false; // Whitelist untuk 'ningrat'
+                            } else {
+                                rejectMedial = true;  // Tolak medial untuk ng dan h
+                            }
+                        }
+
+                        if (rejectMedial) {
+                            medial = "";
+                        } else {
+                            medial = lower[i];
+                            i++;
+                        }
                     } else if (c === 'h') {
                         c = lower[i];
                         i++;
