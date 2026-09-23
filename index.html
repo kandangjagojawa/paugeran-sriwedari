@@ -163,7 +163,7 @@
             <ul>
                 <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
                 <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
-                <li><strong>Proteksi Otomatis:</strong> Mesin memblokir <i>tumpuk telu</i> (memecah tumpukan pasangan la/wa dengan pangkon dan spasi), serta otomatis merender Nga Lelet (ꦊ) yang didahului huruf mati menjadi ꧀ꦭꦼ.</li>
+                <li><strong>Proteksi Otomatis:</strong> Mesin memblokir <i>tumpuk telu</i> secara tersembunyi (mempertahankan scriptio continua), serta otomatis merender Nga Lelet (ꦊ) yang didahului huruf mati menjadi ꧀ꦭꦼ.</li>
                 <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
             </ul>
             <div class="homonym-alert">
@@ -266,12 +266,12 @@
                 
                 let lineJoined = kataJawa.join(''); 
                 
-                // Aturan 1: Pangkon bertemu Nga Lelet menjadi Pasangan La + Pepet (Mencegah ketiadaan pasangan Nga Lelet)
+                // Aturan 1: Pangkon bertemu Nga Lelet menjadi Pasangan La + Pepet
                 lineJoined = lineJoined.replace(/꧀ꦊ/g, '꧀ꦭꦼ');
 
                 // Aturan 2: Mencegah Tumpuk Telu pada la dan wa 
-                // Diperbaiki rentang Regex menjadi [ꦀ-꧟] yang mencakup semua aksara Jawa.
-                lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])꧀([ꦭꦮ])/g, '$1꧀ $2꧀$3');
+                // ZWNJ (\u200C) digunakan untuk mempertahankan scriptio continua tanpa jeda visual
+                lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])꧀([ꦭꦮ])/g, '$1꧀\u200C$2꧀$3');
 
                 return lineJoined;
             });
