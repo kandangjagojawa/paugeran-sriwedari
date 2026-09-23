@@ -300,7 +300,8 @@
             });
 
             // 4. Eksekusi Panambang (Akhiran) Berbasis Tanda Hubung (-)
-            latinProcessed = latinProcessed.replace(/([a-zA-Z]+)-([a-zA-Z]+)/g, function(match, root, suffix) {
+            // PERBAIKAN: Menginklusikan huruf beraksen (é,è,ê) pada pola deteksi kata dasar dan akhiran.
+            latinProcessed = latinProcessed.replace(/([a-zA-ZéèêÉÈÊ]+)-([a-zA-ZéèêÉÈÊ]+)/g, function(match, root, suffix) {
                 if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
 
                 let suffixLower = suffix.toLowerCase();
@@ -339,7 +340,8 @@
             }
 
             // 6. Eksekusi Taling Tarung Palsu (Anuswara)
-            let wordMatch = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)([^a-zA-Z]*)$/);
+            // PERBAIKAN: Menginklusikan huruf beraksen agar tidak menghalangi deteksi akhir kata.
+            let wordMatch = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)([^a-zA-ZéèêÉÈÊ]*)$/);
             if (wordMatch) {
                 let wordOnly = wordMatch[1];
                 let punctuations = wordMatch[2];
