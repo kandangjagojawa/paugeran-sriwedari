@@ -142,7 +142,7 @@
             </ul>
             <div class="homonym-alert">
                 <strong style="color: var(--warning);">⚠️ AWAS HOMONIM: Ketahui Kata Dasarnya!</strong><br>
-                Berlaku untuk panambang <strong>-ake</strong> (Taling) maupun <strong>-aken</strong> (Pepet):
+                Berlaku untuk panambang <strong>-ake / -e</strong> (Taling) maupun <strong>-aken / -en</strong> (Pepet):
                 <ul style="margin-top: 4px;">
                     <li>Kata dasar <strong>vokal</strong> (tamba + ake/aken): ketik <code>namba-kake</code> / <code>namba-kaken</code>. (Merender pasangan ha).</li>
                     <li>Kata dasar <strong>konsonan</strong> (tambak + ake/aken): ketik <code>nambak-ake</code> / <code>nambak-aken</code>. (Merender konsonan dobel).</li>
@@ -251,9 +251,10 @@
             latinProcessed = latinProcessed.replace(/([a-zA-Z]+)-([a-zA-Z]+)/g, function(match, root, suffix) {
                 if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
 
-                // Memaksa -aken menjadi pepet (e), sementara akhiran lain menjadi taling (é)
-                let isAken = (suffix.toLowerCase() === 'aken' || suffix.toLowerCase() === 'kaken');
-                let modSuffix = isAken ? suffix.replace(/[eéèê]/gi, 'e') : suffix.replace(/[eéèê]/gi, 'é');
+                // Memaksa -aken dan -en menjadi pepet (e), sementara akhiran lain menjadi taling (é)
+                let suffixLower = suffix.toLowerCase();
+                let isPepetSuffix = (suffixLower === 'aken' || suffixLower === 'kaken' || suffixLower === 'en');
+                let modSuffix = isPepetSuffix ? suffix.replace(/[eéèê]/gi, 'e') : suffix.replace(/[eéèê]/gi, 'é');
 
                 let lastChar = root.slice(-1).toLowerCase();
                 let lastTwoChars = root.slice(-2).toLowerCase();
