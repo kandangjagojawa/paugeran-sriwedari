@@ -32,20 +32,26 @@
             padding: 2rem;
             line-height: 1.6;
         }
+        .title-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
         h1 {
             color: var(--primary);
-            text-align: center;
-            margin-bottom: 0.2rem;
+            margin: 0;
             letter-spacing: 1px;
+            font-size: 2rem;
         }
         .subtitle-jawa {
             font-family: 'Ngayogyann', 'Noto Sans Javanese', sans-serif;
             font-size: 2.8rem;
-            text-align: center;
             color: var(--primary);
-            margin-top: -0.5rem;
-            margin-bottom: 2rem;
-            line-height: 1.2;
+            margin: 0;
+            line-height: 1;
         }
         .container {
             background-color: var(--surface);
@@ -187,6 +193,7 @@
         @media (max-width: 600px) {
             body { padding: 1rem; }
             .container { padding: 1rem; }
+            .title-wrapper { flex-direction: column; gap: 5px; }
             .header-group { flex-direction: column; align-items: flex-start; gap: 10px; }
             .right-actions { width: 100%; justify-content: flex-start; }
             #outputJawa { font-size: 1.6rem; padding: 15px; }
@@ -196,12 +203,14 @@
 </head>
 <body>
 
-    <h1>PAUGERAN SRIWEDARI</h1>
-    <div class="subtitle-jawa">ꦥꦲꦸꦒꦼꦂꦫꦤ꧀ꦱꦿꦶꦮꦼꦢꦫꦶ</div>
+    <div class="title-wrapper">
+        <h1>PAUGERAN SRIWEDARI</h1>
+        <div class="subtitle-jawa">ꦥꦲꦸꦒꦼꦂꦫꦤ꧀ꦱꦿꦶꦮꦼꦢꦫꦶ</div>
+    </div>
 
     <div class="container">
         
-        <details class="typing-guide" open>
+        <details class="typing-guide">
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
                 <ul>
@@ -222,19 +231,7 @@
             </div>
         </details>
 
-        <div class="input-group">
-            <div class="header-group">
-                <label for="inputLatin">Teks Latin:</label>
-                <button class="action-btn" onclick="hapusSemua()">Hapus Semua</button>
-            </div>
-            <textarea id="inputLatin" placeholder="Ketik di sini..." 
-                      oninput="prosesTransliterasi()" 
-                      autocapitalize="none" 
-                      autocomplete="off" 
-                      spellcheck="false" 
-                      autocorrect="off"></textarea>
-        </div>
-
+        <!-- Kotak Output Aksara Jawa (Sekarang di atas) -->
         <div class="input-group">
             <div class="header-group">
                 <label>Hasil Aksara Jawa:</label>
@@ -254,6 +251,21 @@
             </div>
             <div id="outputJawa"></div>
         </div>
+
+        <!-- Kotak Input Teks Latin (Sekarang di bawah) -->
+        <div class="input-group">
+            <div class="header-group">
+                <label for="inputLatin">Teks Latin:</label>
+                <button class="action-btn" onclick="hapusSemua()">Hapus Semua</button>
+            </div>
+            <textarea id="inputLatin" placeholder="Ketik di sini..." 
+                      oninput="prosesTransliterasi()" 
+                      autocapitalize="none" 
+                      autocomplete="off" 
+                      spellcheck="false" 
+                      autocorrect="off"></textarea>
+        </div>
+
     </div>
         <script>
         const KAMUS_AKSARA = {
