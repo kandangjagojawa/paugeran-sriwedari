@@ -224,7 +224,8 @@
             </div>
             <div id="outputJawa"></div>
         </div>
-    </div>
+                            </div>
+
         <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
@@ -376,24 +377,25 @@
                 latinProcessed = latinProcessed.replace(/([uoUO])([aiueoéèê])/g, '$1w$2');
             }
 
+            // PERBAIKAN: Menggunakan angka 1-4 untuk placeholder agar tidak merusak huruf N, Y, D, T kapital
             let wordMatch = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)([^a-zA-ZéèêÉÈÊ]*)$/);
             if (wordMatch) {
                 let wordOnly = wordMatch[1];
                 let punctuations = wordMatch[2];
 
                 let token = wordOnly
-                    .replace(/ng/gi, 'N')
-                    .replace(/ny/gi, 'Y')
-                    .replace(/dh/gi, 'D')
-                    .replace(/th/gi, 'T');
+                    .replace(/ng/gi, '1')
+                    .replace(/ny/gi, '2')
+                    .replace(/dh/gi, '3')
+                    .replace(/th/gi, '4');
 
-                token = token.replace(/a([mnYN])([bcdfghjklpqrstvwxzNDT]+)a$/i, 'o$1$2a');
+                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz134]+)a$/i, 'o$1$2a');
 
                 wordOnly = token
-                    .replace(/N/g, 'ng')
-                    .replace(/Y/g, 'ny')
-                    .replace(/D/g, 'dh')
-                    .replace(/T/g, 'th');
+                    .replace(/1/g, 'ng')
+                    .replace(/2/g, 'ny')
+                    .replace(/3/g, 'dh')
+                    .replace(/4/g, 'th');
                 
                 latinProcessed = wordOnly + punctuations;
             }
