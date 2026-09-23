@@ -6,6 +6,14 @@
     <title>Paugeran Sriwedari - Transliterasi Aksara Jawa</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&display=swap" rel="stylesheet">
     <style>
+        /* Mengimpor font lokal yang akan diupload user ke GitHub */
+        @font-face {
+            font-family: 'Ngayogyann';
+            src: url('ngayogyann.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         :root {
             --primary: #2c3e50;
             --secondary: #18bc9c;
@@ -37,11 +45,27 @@
         .input-group {
             margin-bottom: 1.5rem;
         }
-        label {
-            display: block;
-            font-weight: 600;
+        .header-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 0.5rem;
+        }
+        label {
+            font-weight: 600;
             color: var(--primary);
+        }
+        .font-selector select {
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #dcdcdc;
+            font-size: 14px;
+            background-color: #fff;
+            cursor: pointer;
+            outline: none;
+        }
+        .font-selector select:focus {
+            border-color: var(--secondary);
         }
         .typing-guide {
             background-color: #e8f4f8;
@@ -91,20 +115,15 @@
             min-height: 120px;
             overflow-y: auto;
             word-break: break-all; 
+            transition: font-family 0.3s ease;
         }
         code { background-color: #d1e8f0; padding: 2px 4px; border-radius: 4px; font-weight: bold;}
         
         @media (max-width: 600px) {
-            body {
-                padding: 1rem;
-            }
-            .container {
-                padding: 1rem;
-            }
-            #outputJawa {
-                font-size: 1.6rem;
-                padding: 15px;
-            }
+            body { padding: 1rem; }
+            .container { padding: 1rem; }
+            .header-group { flex-direction: column; align-items: flex-start; gap: 10px; }
+            #outputJawa { font-size: 1.6rem; padding: 15px; }
         }
     </style>
 </head>
@@ -123,10 +142,10 @@
             </ul>
             <div class="homonym-alert">
                 <strong style="color: var(--warning);">⚠️ AWAS HOMONIM: Ketahui Kata Dasarnya!</strong><br>
-                Untuk menghindari salah penulisan aksara Jawa pada kata ejaan Latin yang sama (misal: <i>nambakake</i>):
+                Berlaku untuk panambang <strong>-ake</strong> (Taling) maupun <strong>-aken</strong> (Pepet):
                 <ul style="margin-top: 4px;">
-                    <li>Jika kata dasar <strong>vokal</strong> (tamba + ake): ketik <code>namba-kake</code>. (Merender pasangan ha: ꦤꦩ꧀ꦧꦏ꧀ꦲꦏꦺ).</li>
-                    <li>Jika kata dasar <strong>konsonan</strong> (tambak + ake): ketik <code>nambak-ake</code>. (Merender konsonan dobel: ꦤꦩ꧀ꦧꦏ꧀ꦏꦏꦺ).</li>
+                    <li>Kata dasar <strong>vokal</strong> (tamba + ake/aken): ketik <code>namba-kake</code> / <code>namba-kaken</code>. (Merender pasangan ha).</li>
+                    <li>Kata dasar <strong>konsonan</strong> (tambak + ake/aken): ketik <code>nambak-ake</code> / <code>nambak-aken</code>. (Merender konsonan dobel).</li>
                 </ul>
             </div>
         </div>
@@ -142,7 +161,15 @@
         </div>
 
         <div class="input-group">
-            <label>Hasil Aksara Jawa:</label>
+            <div class="header-group">
+                <label>Hasil Aksara Jawa:</label>
+                <div class="font-selector">
+                    <select id="fontSelect" onchange="ubahFont()">
+                        <option value="'Noto Sans Javanese', sans-serif">Noto Sans Javanese</option>
+                        <option value="'Ngayogyann', sans-serif">Ngayogyann</option>
+                    </select>
+                </div>
+            </div>
             <div id="outputJawa"></div>
         </div>
     </div>
@@ -163,6 +190,11 @@
 
         const ANGKA = ['꧐','꧑','꧒','꧓','꧔','꧕','꧖','꧗','꧘','꧙'];
 
+        function ubahFont() {
+            let fontTerpilih = document.getElementById('fontSelect').value;
+            document.getElementById('outputJawa').style.fontFamily = fontTerpilih;
+        }
+
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
@@ -170,7 +202,6 @@
         }
 
         function transliterasiKalimat(teks) {
-            // Injeksi 'ha' di awal kalimat untuk ater-ater anuswara (termasuk ngl, ngr, ngw, ngy)
             let teksDiolah = teks.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|ngg|nc|nj|ngl|ngr|ngw|ngy)/gim, function(match, p1, p2) {
                 return p1 + 'ha' + p2;
             });
@@ -200,7 +231,6 @@
 
             let latinProcessed = rawLatin;
 
-            // Memaksa 'nga' utuh (nx) untuk ater-ater ngg- dan ng(l/r/w/y)- 
             latinProcessed = latinProcessed.replace(/^(ha)?ngg/i, '$1nxg');
             latinProcessed = latinProcessed.replace(/^(ha)?ng([lrwy])/i, '$1nx$2');
 
@@ -221,13 +251,15 @@
             latinProcessed = latinProcessed.replace(/([a-zA-Z]+)-([a-zA-Z]+)/g, function(match, root, suffix) {
                 if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
 
-                let modSuffix = suffix.replace(/[eéèê]/gi, 'é');
+                // Memaksa -aken menjadi pepet (e), sementara akhiran lain menjadi taling (é)
+                let isAken = (suffix.toLowerCase() === 'aken' || suffix.toLowerCase() === 'kaken');
+                let modSuffix = isAken ? suffix.replace(/[eéèê]/gi, 'e') : suffix.replace(/[eéèê]/gi, 'é');
 
                 let lastChar = root.slice(-1).toLowerCase();
                 let lastTwoChars = root.slice(-2).toLowerCase();
                 let vowels = ['a','i','u','e','o','é','è','ê'];
                 
-                if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kakén') && vowels.includes(lastChar)) {
+                if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kaken') && vowels.includes(lastChar)) {
                     modSuffix = 'kh' + modSuffix.substring(1); 
                 }
 
@@ -282,7 +314,7 @@
             let i = 0;
             let latin = latinProcessed;
             let lower = latin.toLowerCase();
-            let isFirstAksara = true; // Penanda untuk memblokir sandhangan panyigeg di awal kata
+            let isFirstAksara = true; 
 
             while (i < latin.length) {
                 if (latin[i] === ',') { res += '꧈'; i++; continue; }
@@ -317,7 +349,6 @@
                 }
 
                 let medial = "";
-                // Mencegah 'nx' menyerap y/r sebagai sandhangan wyanjana (agar murni dipangkon)
                 if (i < lower.length && (lower[i] === 'y' || lower[i] === 'r') && c !== 'nx') {
                     if (i+1 < lower.length && /[aieéèêou]/.test(lower[i+1])) {
                         medial = lower[i];
@@ -335,7 +366,6 @@
                 }
 
                 if (v === "") {
-                    // ATURAN BARU: cecak, layar, wignyan dilarang keras muncul di awal kata
                     if (c === 'ng' && !isFirstAksara) res += 'ꦁ'; 
                     else if (c === 'r' && !isFirstAksara) res += 'ꦂ'; 
                     else if (c === 'h' && !isFirstAksara) res += 'ꦃ'; 
@@ -351,7 +381,6 @@
                 }
 
                 if (c === 'r' && medial !== "") {
-                    // Jika di awal kata, ra tidak boleh jadi layar
                     if (isFirstAksara) {
                         res += KAMUS_AKSARA['r'] + '꧀';
                     } else {
