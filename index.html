@@ -51,15 +51,39 @@
             align-items: center;
             margin-bottom: 0.5rem;
         }
+        .right-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
         label {
             font-weight: 600;
             color: var(--primary);
+        }
+        .action-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .action-btn:hover {
+            background-color: #1a252f;
+        }
+        .action-btn.btn-copy {
+            background-color: var(--secondary);
+        }
+        .action-btn.btn-copy:hover {
+            background-color: #128f76;
         }
         .font-selector select {
             padding: 5px 10px;
             border-radius: 6px;
             border: 1px solid #dcdcdc;
-            font-size: 14px;
+            font-size: 13px;
             background-color: #fff;
             cursor: pointer;
             outline: none;
@@ -123,6 +147,7 @@
             body { padding: 1rem; }
             .container { padding: 1rem; }
             .header-group { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .right-actions { width: 100%; justify-content: space-between; }
             #outputJawa { font-size: 1.6rem; padding: 15px; }
         }
     </style>
@@ -138,7 +163,6 @@
             <ul>
                 <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
                 <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
-                <li><strong>Tanda Baca:</strong> Koma (,) yang didahului huruf mati cukup menggunakan <i>pangkon</i>. Titik (.) yang didahului huruf mati menggunakan <i>pangkon + pada lingsa</i>.</li>
                 <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
             </ul>
             <div class="homonym-alert">
@@ -152,7 +176,10 @@
         </div>
 
         <div class="input-group">
-            <label for="inputLatin">Teks Latin:</label>
+            <div class="header-group">
+                <label for="inputLatin">Teks Latin:</label>
+                <button class="action-btn" onclick="hapusSemua()">Hapus Semua</button>
+            </div>
             <textarea id="inputLatin" placeholder="Ketik di sini..." 
                       oninput="prosesTransliterasi()" 
                       autocapitalize="none" 
@@ -164,11 +191,14 @@
         <div class="input-group">
             <div class="header-group">
                 <label>Hasil Aksara Jawa:</label>
-                <div class="font-selector">
-                    <select id="fontSelect" onchange="ubahFont()">
-                        <option value="'Noto Sans Javanese', sans-serif">Noto Sans Javanese</option>
-                        <option value="'Ngayogyann', sans-serif">Ngayogyann</option>
-                    </select>
+                <div class="right-actions">
+                    <div class="font-selector">
+                        <select id="fontSelect" onchange="ubahFont()">
+                            <option value="'Noto Sans Javanese', sans-serif">Noto Sans Javanese</option>
+                            <option value="'Ngayogyann', sans-serif">Ngayogyann</option>
+                        </select>
+                    </div>
+                    <button class="action-btn btn-copy" id="btnSalin" onclick="salinAksara()">Salin Aksara</button>
                 </div>
             </div>
             <div id="outputJawa"></div>
@@ -194,6 +224,27 @@
         function ubahFont() {
             let fontTerpilih = document.getElementById('fontSelect').value;
             document.getElementById('outputJawa').style.fontFamily = fontTerpilih;
+        }
+
+        function hapusSemua() {
+            document.getElementById('inputLatin').value = '';
+            prosesTransliterasi();
+        }
+
+        function salinAksara() {
+            let teksAksara = document.getElementById('outputJawa').innerText;
+            if (!teksAksara) return;
+            
+            navigator.clipboard.writeText(teksAksara).then(() => {
+                let btn = document.getElementById('btnSalin');
+                let originalText = btn.innerText;
+                btn.innerText = 'Tersalin!';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Gagal menyalin: ', err);
+            });
         }
 
         function prosesTransliterasi() {
@@ -252,7 +303,6 @@
             latinProcessed = latinProcessed.replace(/([a-zA-Z]+)-([a-zA-Z]+)/g, function(match, root, suffix) {
                 if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
 
-                // Memaksa -aken dan -en menjadi pepet (e), sementara akhiran lain menjadi taling (é)
                 let suffixLower = suffix.toLowerCase();
                 let isPepetSuffix = (suffixLower === 'aken' || suffixLower === 'kaken' || suffixLower === 'en');
                 let modSuffix = isPepetSuffix ? suffix.replace(/[eéèê]/gi, 'e') : suffix.replace(/[eéèê]/gi, 'é');
@@ -319,10 +369,9 @@
             let isFirstAksara = true; 
 
             while (i < latin.length) {
-                // ATURAN BARU: Penyesuaian Tanda Baca Koma & Titik terhadap Sigegan (Pangkon)
                 if (latin[i] === ',') { 
                     if (res.endsWith('꧀')) {
-                        res += '\u200C'; // ZWNJ: Pangkon menjadi koma, mencegah terbentuknya pasangan dengan kata berikutnya
+                        res += '\u200C'; 
                     } else {
                         res += '꧈'; 
                     }
@@ -330,7 +379,7 @@
                 }
                 if (latin[i] === '.') { 
                     if (res.endsWith('꧀')) {
-                        res += '꧈\u200C'; // ZWNJ: Pangkon + Pada Lingsa (menggantikan Pada Lungsi)
+                        res += '꧈\u200C'; 
                     } else {
                         res += '꧉'; 
                     }
