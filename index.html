@@ -305,7 +305,6 @@
                 lineJoined = lineJoined.replace(/꧀([ꦄꦆꦈꦌꦎ]|[ꦏꦢꦒꦗ]꦳)/g, '꧀\u200C$1');
 
                 // Aturan 3: Mencegah Tumpuk Telu pada la dan wa 
-                // PENGECUALIAN: Pasangan pa (ꦥ) dan sa (ꦱ) diletakkan sejajar, diizinkan ditumpuk la/wa
                 lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])(꦳?)꧀([ꦭꦮ])/g, function(match, p1, p2, p3, p4) {
                     if (p2 === 'ꦥ' || p2 === 'ꦱ') {
                         return match; 
@@ -334,6 +333,29 @@
             }
 
             let latinProcessed = rawLatin;
+
+            // ATURAN SANDHI INTERNAL KATA DASAR 3 SUKU KATA
+            const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
+            const nas = "(?:m|n|ng|ny)";
+
+            if (/^p[aeêEÊ]ndhawa(-[a-zA-ZéèêÉÈÊ]+)?$/i.test(latinProcessed)) {
+                // Pengecualian mutlak untuk Pandhawa (mempertahankan kapital P)
+                latinProcessed = latinProcessed.replace(/^(p)[aeêEÊ](ndhawa(?:-[a-zA-ZéèêÉÈÊ]+)?)$/i, function(match, p1, p2) {
+                    return p1 + 'a' + p2;
+                });
+            } else {
+                // Konversi huruf a menjadi pepet jika suku kata pertama diikuti aksara m, n, ng, ny mati
+                let rule2 = new RegExp(`^(${cons})?[aA](${nas})(${cons})a(${cons})a(-[a-zA-ZéèêÉÈÊ]+)?$`, 'i');
+                latinProcessed = latinProcessed.replace(rule2, (m, c1, n, c2, c3, suf) => {
+                    return (c1 || '') + 'e' + n + c2 + 'a' + c3 + 'a' + (suf || '');
+                });
+            }
+
+            // Penghapusan pepet paksa untuk kata 3 suku kata murni wyanjana
+            let rule1 = new RegExp(`^(${cons})[eêEÊ](${cons})a(${cons})a(-[a-zA-ZéèêÉÈÊ]+)?$`, 'i');
+            latinProcessed = latinProcessed.replace(rule1, (m, c1, c2, c3, suf) => {
+                return c1 + 'a' + c2 + 'a' + c3 + 'a' + (suf || '');
+            });
 
             latinProcessed = latinProcessed.replace(/^(ha)?ngg/i, '$1nxg');
             latinProcessed = latinProcessed.replace(/^(ha)?ng([lrwy])/i, '$1nx$2');
