@@ -231,7 +231,8 @@
             'p':'ꦥ', 'dh':'ꦝ', 'j':'ꦗ', 'y':'ꦪ', 'ny':'ꦚ',
             'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ', 'th':'ꦛ', 'ng':'ꦔ', 'nx':'ꦔ',
             'f':'ꦥ꦳', 'v':'ꦮ꦳', 'z':'ꦗ꦳',
-            'kh':'ꦏ꦳', 'dz':'ꦢ꦳', 'gh':'ꦒ꦳'
+            'kh':'ꦏ꦳', 'dz':'ꦢ꦳', 'gh':'ꦒ꦳',
+            'kx':'ꦏ' // Kode internal anti-rekan untuk k + pasangan ha
         };
 
         const AKSARA_MURDA = {
@@ -349,7 +350,8 @@
                 let vowels = ['a','i','u','e','o','é','è','ê'];
                 
                 if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kaken') && vowels.includes(lastChar)) {
-                    modSuffix = 'kh' + modSuffix.substring(1); 
+                    // PERBAIKAN: Menggunakan kxh agar tidak menabrak kode Aksara Rekan 'kh'
+                    modSuffix = 'kxh' + modSuffix.substring(1); 
                 }
 
                 let firstCharSuffix = modSuffix.charAt(0).toLowerCase();
@@ -366,7 +368,6 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            // Mencegah Dwi-Vokal memicu Aksara Panglancar jika huruf kedua adalah Aksara Swara Kapital
             let prevLatin = "";
             while (latinProcessed !== prevLatin) {
                 prevLatin = latinProcessed;
@@ -375,7 +376,6 @@
                 latinProcessed = latinProcessed.replace(/([uoUO])([aiueoéèê])/g, '$1w$2');
             }
 
-            // PERBAIKAN: Menggunakan angka 1-4 untuk placeholder agar tidak merusak huruf N, Y, D, T kapital
             let wordMatch = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)([^a-zA-ZéèêÉÈÊ]*)$/);
             if (wordMatch) {
                 let wordOnly = wordMatch[1];
@@ -405,7 +405,6 @@
             let isFirstAksara = true; 
 
             while (i < latin.length) {
-                // Aturan Angka: Otomatis dibungkus Pada Pangkat (꧇)
                 if (latin[i] >= '0' && latin[i] <= '9') {
                     if (!res.endsWith('꧇') && !/[꧐-꧙]$/.test(res)) {
                         res += '꧇';
@@ -444,7 +443,8 @@
                 let jump = 0;
                 let isSwara = false;
 
-                if (i+1 < lower.length && ['ng','ny','dh','th','nx','kh','dz','gh'].includes(lower.substring(i, i+2))) {
+                // PERBAIKAN: Menambahkan 'kx' dalam daftar pembacaan multikarakter
+                if (i+1 < lower.length && ['ng','ny','dh','th','nx','kh','dz','gh','kx'].includes(lower.substring(i, i+2))) {
                     c = lower.substring(i, i+2);
                     jump = 2;
                 } else if (KAMUS_AKSARA[lower[i]]) {
@@ -509,7 +509,6 @@
                     medial = ""; 
                 }
 
-                // Proteksi intra-kata: ZWNJ disuntikkan sebelum Aksara Rekan Non-Pasangan / Swara
                 let nonPasangan = ['kh','dz','gh','z'].includes(c) || isSwara;
                 if (nonPasangan && res.endsWith('꧀')) {
                     res += '\u200C';
