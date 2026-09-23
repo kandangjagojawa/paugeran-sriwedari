@@ -55,6 +55,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
         label {
             font-weight: 600;
@@ -79,17 +80,32 @@
         .action-btn.btn-copy:hover {
             background-color: #128f76;
         }
-        .font-selector select {
-            padding: 5px 10px;
+        .control-panel {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
             border-radius: 6px;
             border: 1px solid #dcdcdc;
-            font-size: 13px;
             background-color: #fff;
+        }
+        .control-panel label {
+            font-size: 12px;
+            font-weight: normal;
+            margin-bottom: 0;
+            color: #555;
+        }
+        .control-panel input[type="range"] {
+            width: 70px;
+            cursor: pointer;
+        }
+        .control-panel select {
+            border: none;
+            background: transparent;
+            font-size: 13px;
             cursor: pointer;
             outline: none;
-        }
-        .font-selector select:focus {
-            border-color: var(--secondary);
+            padding: 0;
         }
         .typing-guide {
             background-color: #e8f4f8;
@@ -139,7 +155,7 @@
             min-height: 120px;
             overflow-y: auto;
             word-break: break-all; 
-            transition: font-family 0.3s ease;
+            transition: font-family 0.3s ease, font-size 0.1s ease;
         }
         code { background-color: #d1e8f0; padding: 2px 4px; border-radius: 4px; font-weight: bold;}
         
@@ -147,7 +163,7 @@
             body { padding: 1rem; }
             .container { padding: 1rem; }
             .header-group { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .right-actions { width: 100%; justify-content: space-between; }
+            .right-actions { width: 100%; justify-content: flex-start; }
             #outputJawa { font-size: 1.6rem; padding: 15px; }
         }
     </style>
@@ -163,7 +179,6 @@
             <ul>
                 <li>Gunakan <code>é</code> atau <code>è</code> untuk taling (contoh: lélé), dan <code>e</code> untuk pepet (contoh: seger).</li>
                 <li>Gunakan tanda hubung <code>-</code> sebelum akhiran / panambang (contoh: omah-e, pangan-en).</li>
-                <li><strong>Proteksi Otomatis:</strong> Mesin memblokir <i>tumpuk telu</i> secara tersembunyi (mempertahankan scriptio continua), serta otomatis merender Nga Lelet (ꦊ) yang didahului huruf mati menjadi ꧀ꦭꦼ.</li>
                 <li>Huruf kapital memicu Aksara Murda (Fitur auto-kapital dimatikan, gunakan Shift manual).</li>
             </ul>
             <div class="homonym-alert">
@@ -193,7 +208,11 @@
             <div class="header-group">
                 <label>Hasil Aksara Jawa:</label>
                 <div class="right-actions">
-                    <div class="font-selector">
+                    <div class="control-panel">
+                        <label for="fontSizeSlider">Ukuran:</label>
+                        <input type="range" id="fontSizeSlider" min="1" max="4" step="0.1" value="2" oninput="ubahUkuranFont()">
+                    </div>
+                    <div class="control-panel">
                         <select id="fontSelect" onchange="ubahFont()">
                             <option value="'Noto Sans Javanese', sans-serif">Noto Sans Javanese</option>
                             <option value="'Ngayogyann', sans-serif">Ngayogyann</option>
@@ -225,6 +244,11 @@
         function ubahFont() {
             let fontTerpilih = document.getElementById('fontSelect').value;
             document.getElementById('outputJawa').style.fontFamily = fontTerpilih;
+        }
+
+        function ubahUkuranFont() {
+            let ukuran = document.getElementById('fontSizeSlider').value;
+            document.getElementById('outputJawa').style.fontSize = ukuran + 'rem';
         }
 
         function hapusSemua() {
