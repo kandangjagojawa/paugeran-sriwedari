@@ -226,6 +226,7 @@
         .control-col { flex: 1; display: flex; flex-direction: column; gap: 5px; }
         .control-col input, .control-col select { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
         .output-param-box { background: #e8f4f8; padding: 20px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top:15px;}
+        .param-warning { color: var(--danger); font-size: 1.05rem; font-weight: bold; background: #fdf3e7; padding: 10px 15px; border-radius: 6px; border: 1px solid #fadbd8; display: inline-block;}
         
         @media (max-width: 600px) {
             body { padding: 1rem; }
@@ -307,7 +308,7 @@
     <!-- MODUL APLIKASI PARAMASASTRA -->
     <div id="paramasastra-app" class="container" style="margin-top: 2rem;">
         <h2 style="color:var(--primary); text-align:center; margin-bottom: 0.5rem;">Aplikasi Paramasastra (Morfologi Jawa)</h2>
-        <p style="text-align:center; font-size:0.9rem; margin-bottom: 2rem;">Pembentukan kata dengan Ater-ater dan Panambang sesuai kaidah lebur & sandhi Paugeran Sriwedari.</p>
+        <p style="text-align:center; font-size:0.9rem; margin-bottom: 2rem;">Pembentukan kata dengan Ater-ater dan Panambang yang tunduk pada hukum lebur & sandhi Paugeran Sriwedari.</p>
         
         <div class="paramasastra-grid">
             <div class="control-col">
@@ -337,7 +338,7 @@
             </div>
             <div class="control-col">
                 <label>Kata Dasar</label>
-                <input type="text" id="inDasar" placeholder="Contoh: tulis, gawa, tuku..." oninput="prosesParamasastra()" autocomplete="off">
+                <input type="text" id="inDasar" placeholder="Ketik kata dasar..." oninput="prosesParamasastra()" autocomplete="off">
             </div>
             <div class="control-col">
                 <label>Panambang (Akhiran)</label>
@@ -364,7 +365,7 @@
             <div class="header-group">
                 <div>
                     <label>Bentuk Jadi (Latin):</label> 
-                    <code id="outParamLatin" style="font-size:1.2rem; color:var(--danger); padding:4px 8px;">-</code>
+                    <div id="outParamLatin" style="font-size:1.2rem; color:var(--primary); padding:4px 0px; font-weight:bold;">-</div>
                 </div>
                 <button class="action-btn btn-copy" id="btnSalinParam" onclick="salinParam()">Salin Aksara</button>
             </div>
@@ -435,7 +436,7 @@
             });
         }
 
-        /* --- FUNGSI PARAMASASTRA (MORFOLOGI) --- */
+        /* --- FUNGSI PARAMASASTRA (MORFOLOGI & VALIDASI KETAT) --- */
         function prosesParamasastra() {
             let ater = document.getElementById('selAter').value;
             let dasar = document.getElementById('inDasar').value.toLowerCase().trim();
@@ -447,32 +448,58 @@
                 return;
             }
 
-            // 1. Proses Ater-ater (Awalan) & Lebur Anuswara
+            let f = dasar.charAt(0);
+            let isVowelStart = /[aiueoéèê]/i.test(f);
+            let lastChar = dasar.slice(-1);
+            let isVowelEnd = /[aiueoéèê]/i.test(lastChar);
+            let errorMsg = "";
+
+            // 1. BLOK VALIDASI (ATURAN KETAT PAUGERAN SRIWEDARI)
+            if (ater === 'm' && !['b','p','w','m','f','v'].includes(f)) {
+                errorMsg = `Ater-ater "m-" tidak bisa dipasangkan. Kata dasar harus berawalan p, b, w, atau m.`;
+            } else if (ater === 'n' && !['d','t','j','n'].includes(f) && !dasar.startsWith('dh') && !dasar.startsWith('th')) {
+                errorMsg = `Ater-ater "n-" tidak bisa dipasangkan. Kata dasar harus berawalan d, dh, t, th, j, atau n.`;
+            } else if (ater === 'ny' && !['c','s'].includes(f) && !dasar.startsWith('ny')) {
+                errorMsg = `Ater-ater "ny-" tidak bisa dipasangkan. Kata dasar harus berawalan c, s, atau ny.`;
+            } else if (ater === 'ng' && !['g','k','l','r','y','w'].includes(f) && !isVowelStart && !dasar.startsWith('ng')) {
+                errorMsg = `Ater-ater "ng-" tidak bisa dipasangkan. Kata dasar harus berawalan k, g, l, r, y, w, atau vokal.`;
+            }
+
+            if (panam === 'ni' && !isVowelEnd) {
+                errorMsg = `Panambang "-ni" khusus untuk kata dasar berakhiran vokal (suara terbuka). Gunakan "-i" untuk konsonan.`;
+            }
+
+            // Jika melanggar aturan, eksekusi dihentikan & tampilkan peringatan
+            if (errorMsg !== "") {
+                document.getElementById('outParamLatin').innerHTML = `<div class="param-warning">⚠️ PELANGGARAN ATURAN: ${errorMsg}</div>`;
+                document.getElementById('outParamJawa').innerHTML = "";
+                return;
+            }
+
+            // 2. PROSES ATER-ATER (AWALAN)
             let terapan = dasar;
-            if(ater === 'N') {
-                let f = dasar.charAt(0);
+            if(ater === 'N') { // Mode Anuswara Otomatis
                 if(['p','w'].includes(f)) terapan = 'm' + dasar.slice(1);
                 else if(f === 'b') terapan = 'm' + dasar;
                 else if(f === 't') terapan = 'n' + dasar.slice(1);
                 else if(['d','j'].includes(f) || dasar.startsWith('dh')) terapan = 'n' + dasar;
                 else if(['c','s'].includes(f)) terapan = 'ny' + dasar.slice(1);
                 else if(f === 'k') terapan = 'ng' + dasar.slice(1);
-                else if(f === 'g' || ['l','r','y'].includes(f) || /[aieouéèê]/i.test(f)) terapan = 'ng' + dasar;
+                else if(f === 'g' || ['l','r','y'].includes(f) || isVowelStart) terapan = 'ng' + dasar;
                 else terapan = 'ng' + dasar;
             } else if (ater !== '') {
                 terapan = ater + dasar;
             }
 
-            // 2. Proses Panambang (Akhiran) & Vowel Harmony (Sandhi)
+            // 3. PROSES PANAMBANG (AKHIRAN & SANDHI)
             if (panam !== '') {
-                let lastChar = terapan.slice(-1);
-                let isVowel = /[aieouéèê]/i.test(lastChar);
+                let currentLastChar = terapan.slice(-1);
+                let currentIsVowel = /[aieouéèê]/i.test(currentLastChar);
                 
-                if (!isVowel) {
-                    // Akhiran konsonan: Sisipkan tanda hubung agar dibaca benar oleh transliterator
+                if (!currentIsVowel) {
                     terapan = terapan + '-' + panam;
                 } else {
-                    let rootVowel = lastChar;
+                    let rootVowel = currentLastChar;
                     let body = terapan.slice(0, -1);
                     
                     if (rootVowel === 'a') {
@@ -538,7 +565,7 @@
             document.getElementById('outParamJawa').innerHTML = transliterasiKalimat(terapan);
         }
 
-        /* --- ENGINE TRANSLITERASI (TETAP SAMA) --- */
+        /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
@@ -556,6 +583,7 @@
                 let kataJawa = kataKata.map(kata => transliterasiKata(kata));
                 
                 let lineJoined = kataJawa.join(''); 
+                
                 lineJoined = lineJoined.replace(/꧀ꦊ/g, '꧀ꦭꦼ');
                 lineJoined = lineJoined.replace(/꧀([ꦄꦆꦈꦌꦎ]|[ꦏꦢꦒꦗ]꦳)/g, '꧀\u200C$1');
                 lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])(꦳?)꧀([ꦭꦮ])/g, function(match, p1, p2, p3, p4) {
@@ -606,7 +634,6 @@
 
             latinProcessed = latinProcessed.replace(/^(ha)?ngg/i, '$1nxg');
             latinProcessed = latinProcessed.replace(/^(ha)?ng([lrwy])/i, '$1nx$2');
-
             latinProcessed = latinProcessed.replace(/nc/g, 'nyc').replace(/nj/g, 'nyj');
             latinProcessed = latinProcessed.replace(/Nc/g, 'Nyc').replace(/Nj/g, 'Nyj');
 
@@ -685,14 +712,10 @@
 
             while (i < latin.length) {
                 if (latin[i] >= '0' && latin[i] <= '9') {
-                    if (!res.endsWith('꧇') && !/[꧐-꧙]$/.test(res)) {
-                        res += '꧇';
-                    }
+                    if (!res.endsWith('꧇') && !/[꧐-꧙]$/.test(res)) { res += '꧇'; }
                     res += ANGKA[parseInt(latin[i])];
                     i++;
-                    if (i >= latin.length || !(latin[i] >= '0' && latin[i] <= '9')) {
-                        res += '꧇';
-                    }
+                    if (i >= latin.length || !(latin[i] >= '0' && latin[i] <= '9')) { res += '꧇'; }
                     continue;
                 }
 
@@ -743,7 +766,6 @@
                             if (c === 'ng' && isKataNingrat && lower[i] === 'r') rejectMedial = false; 
                             else rejectMedial = true;
                         }
-
                         if (rejectMedial) { medial = ""; } else { medial = lower[i]; i++; }
                     } else if (c === 'h') {
                         c = lower[i]; i++;
@@ -769,40 +791,4 @@
                 }
 
                 if (c === 'r' && medial !== "") {
-                    if (isFirstAksara) res += KAMUS_AKSARA['r'] + '꧀';
-                    else res += 'ꦂ'; 
-                    c = medial; medial = ""; 
-                }
-
-                let nonPasangan = ['kh','dz','gh','z'].includes(c) || isSwara;
-                if (nonPasangan && res.endsWith('꧀')) res += '\u200C';
-
-                if (c === 'l' && (v === 'e' || v === 'ê') && medial === "") {
-                    res += 'ꦊ'; 
-                } else if (c === 'r' && (v === 'e' || v === 'ê') && medial === "") {
-                    res += 'ꦉ'; 
-                } else {
-                    let base = isSwara ? SWARA_MAP[c] : ((isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]);
-                    res += base;
-
-                    if (medial === 'y') res += 'ꦾ';
-                    else if (medial === 'r') {
-                        if (v === 'e' || v === 'ê') { res += 'ꦽ'; v = ''; } 
-                        else res += 'ꦿ'; 
-                    }
-
-                    if (!isSwara) {
-                        if (v === 'i') res += 'ꦶ';
-                        else if (v === 'u') res += 'ꦸ';
-                        else if (v === 'é' || v === 'è') res += 'ꦺ';
-                        else if (v === 'e' || v === 'ê') res += 'ꦼ';
-                        else if (v === 'o') res += 'ꦺꦴ';
-                    }
-                }
-                if (c !== "") isFirstAksara = false;
-            }
-            return res;
-        }
-    </script>
-</body>
-</html>
+                    if (isFirstAksara) res += KAMUS_AKSARA['r'] +
