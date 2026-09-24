@@ -338,7 +338,9 @@
             </div>
             <div class="control-col">
                 <label>Kata Dasar</label>
-                <input type="text" id="inDasar" placeholder="Ketik kata dasar..." oninput="prosesParamasastra()" autocomplete="off">
+                <input type="text" id="inDasar" placeholder="Ketik kata dasar..." 
+                       oninput="this.value = this.value.toLowerCase(); prosesParamasastra();" 
+                       autocapitalize="none" autocomplete="off" spellcheck="false" autocorrect="off">
             </div>
             <div class="control-col">
                 <label>Panambang (Akhiran)</label>
@@ -375,8 +377,8 @@
             </div>
             <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
-                            </div>
-                                <script>
+                </div>
+                    <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -510,7 +512,7 @@
                 prefixAppended = ater;
             }
 
-            // 2. PROSES PANAMBANG & SANDHI
+            // 2. PROSES PANAMBANG & SANDHI (ATURAN KETAT PANAMBANG -i PADA VOKAL TERBUKA = nni -> ꦤ꧀ꦤꦶ)
             let resultLatin = "";
 
             if (panam === '') {
@@ -528,7 +530,7 @@
                     let suffixMod = panam;
 
                     if (rootVowel === 'a') {
-                        if(panam === 'i') suffixMod = 'ni';
+                        if(panam === 'i') suffixMod = 'nni';
                         else if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
                         else if(panam === 'aken') suffixMod = 'kaken';
                         else if(panam === 'an') suffixMod = 'nan';
@@ -536,9 +538,9 @@
                         else if(panam === 'ana') suffixMod = 'nana';
                         else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                     } else if (rootVowel === 'i') {
-                        if(['i', 'ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
+                        if(panam === 'i') suffixMod = 'nni';
+                        else if(['ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
                             body = body + 'e';
-                            if(panam==='i') suffixMod='ni';
                             if(['ake','aké'].includes(panam)) suffixMod='kake';
                             if(panam==='aken') suffixMod='kaken';
                             if(panam==='an') suffixMod='n';
@@ -547,9 +549,11 @@
                         } else if(panam === 'a') suffixMod = 'ya';
                         else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                     } else if (rootVowel === 'u') {
-                        if(['i', 'ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
+                        if(panam === 'i') {
                             body = body + 'o';
-                            if(panam==='i') suffixMod='ni';
+                            suffixMod = 'nni';
+                        } else if(['ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
+                            body = body + 'o';
                             if(['ake','aké'].includes(panam)) suffixMod='kake';
                             if(panam==='aken') suffixMod='kaken';
                             if(panam==='an') suffixMod='n';
@@ -558,9 +562,9 @@
                         } else if(panam === 'a') suffixMod = 'wa';
                         else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                     } else if (['e','é','è','o'].includes(rootVowel)) {
-                        if(panam === 'a') suffixMod = (rootVowel==='o'?'wa':'ya');
-                        else if(['i', 'ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
-                            if(panam==='i') suffixMod='ni';
+                        if(panam === 'i') suffixMod = 'nni';
+                        else if(panam === 'a') suffixMod = (rootVowel==='o'?'wa':'ya');
+                        else if(['ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
                             if(['ake','aké'].includes(panam)) suffixMod='kake';
                             if(panam==='aken') suffixMod='kaken';
                             if(panam==='an') suffixMod='n';
@@ -577,7 +581,7 @@
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
         }
-                                            /* --- ENGINE TRANSLITERASI UTAMA --- */
+                                /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
