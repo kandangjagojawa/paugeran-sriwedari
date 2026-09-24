@@ -454,9 +454,7 @@
         /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
         function prosesParamasastra() {
             let ater = document.getElementById('selAter').value;
-            let inputElem = document.getElementById('inDasar');
-            inputElem.value = inputElem.value.toLowerCase(); // Paksa huruf kecil
-            let dasar = inputElem.value.trim();
+            let dasar = document.getElementById('inDasar').value.toLowerCase().trim();
             let panam = document.getElementById('selPanam').value;
 
             document.getElementById('paramWarningArea').innerHTML = "";
