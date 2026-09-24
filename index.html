@@ -454,7 +454,7 @@
             let isVowelEnd = /[aiueoéèê]/i.test(lastChar);
             let errorMsg = "";
 
-            // 1. BLOK VALIDASI (ATURAN KETAT PAUGERAN SRIWEDARI)
+            // 1. BLOK VALIDASI ATURAN KETAT
             if (ater === 'm' && !['b','p','w','m','f','v'].includes(f)) {
                 errorMsg = `Ater-ater "m-" tidak bisa dipasangkan. Kata dasar harus berawalan p, b, w, atau m.`;
             } else if (ater === 'n' && !['d','t','j','n'].includes(f) && !dasar.startsWith('dh') && !dasar.startsWith('th')) {
@@ -466,19 +466,18 @@
             }
 
             if (panam === 'ni' && !isVowelEnd) {
-                errorMsg = `Panambang "-ni" khusus untuk kata dasar berakhiran vokal (suara terbuka). Gunakan "-i" untuk konsonan.`;
+                errorMsg = `Panambang "-ni" khusus untuk kata dasar berakhiran vokal. Gunakan "-i" untuk konsonan.`;
             }
 
-            // Jika melanggar aturan, eksekusi dihentikan & tampilkan peringatan
             if (errorMsg !== "") {
                 document.getElementById('outParamLatin').innerHTML = `<div class="param-warning">⚠️ PELANGGARAN ATURAN: ${errorMsg}</div>`;
                 document.getElementById('outParamJawa').innerHTML = "";
                 return;
             }
 
-            // 2. PROSES ATER-ATER (AWALAN)
+            // 2. PROSES ATER-ATER
             let terapan = dasar;
-            if(ater === 'N') { // Mode Anuswara Otomatis
+            if(ater === 'N') { 
                 if(['p','w'].includes(f)) terapan = 'm' + dasar.slice(1);
                 else if(f === 'b') terapan = 'm' + dasar;
                 else if(f === 't') terapan = 'n' + dasar.slice(1);
@@ -491,7 +490,7 @@
                 terapan = ater + dasar;
             }
 
-            // 3. PROSES PANAMBANG (AKHIRAN & SANDHI)
+            // 3. PROSES PANAMBANG
             if (panam !== '') {
                 let currentLastChar = terapan.slice(-1);
                 let currentIsVowel = /[aieouéèê]/i.test(currentLastChar);
@@ -564,8 +563,7 @@
             document.getElementById('outParamLatin').innerHTML = terapan;
             document.getElementById('outParamJawa').innerHTML = transliterasiKalimat(terapan);
         }
-
-        /* --- ENGINE TRANSLITERASI UTAMA --- */
+                    /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
@@ -612,7 +610,6 @@
             }
 
             let latinProcessed = rawLatin;
-
             const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
             const nas = "(?:m|n|ng|ny)";
 
@@ -670,7 +667,6 @@
                         consonantToDouble = lastChar;
                     }
                 }
-
                 return root + consonantToDouble + modSuffix;
             });
 
@@ -791,4 +787,40 @@
                 }
 
                 if (c === 'r' && medial !== "") {
-                    if (isFirstAksara) res += KAMUS_AKSARA['r'] +
+                    if (isFirstAksara) res += KAMUS_AKSARA['r'] + '꧀';
+                    else res += 'ꦂ'; 
+                    c = medial; medial = ""; 
+                }
+
+                let nonPasangan = ['kh','dz','gh','z'].includes(c) || isSwara;
+                if (nonPasangan && res.endsWith('꧀')) res += '\u200C';
+
+                if (c === 'l' && (v === 'e' || v === 'ê') && medial === "") {
+                    res += 'ꦊ'; 
+                } else if (c === 'r' && (v === 'e' || v === 'ê') && medial === "") {
+                    res += 'ꦉ'; 
+                } else {
+                    let base = isSwara ? SWARA_MAP[c] : ((isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]);
+                    res += base;
+
+                    if (medial === 'y') res += 'ꦾ';
+                    else if (medial === 'r') {
+                        if (v === 'e' || v === 'ê') { res += 'ꦽ'; v = ''; } 
+                        else res += 'ꦿ'; 
+                    }
+
+                    if (!isSwara) {
+                        if (v === 'i') res += 'ꦶ';
+                        else if (v === 'u') res += 'ꦸ';
+                        else if (v === 'é' || v === 'è') res += 'ꦺ';
+                        else if (v === 'e' || v === 'ê') res += 'ꦼ';
+                        else if (v === 'o') res += 'ꦺꦴ';
+                    }
+                }
+                if (c !== "") isFirstAksara = false;
+            }
+            return res;
+        }
+    </script>
+</body>
+</html>
