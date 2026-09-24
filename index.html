@@ -6,7 +6,6 @@
     <title>PAUGERAN SRIWEDARI - Transliterasi Aksara Jawa</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&display=swap" rel="stylesheet">
     <style>
-        /* Mengimpor font lokal yang akan diupload user ke GitHub */
         @font-face {
             font-family: 'Ngayogyann';
             src: url('ngayogyann.ttf') format('truetype');
@@ -226,7 +225,8 @@
         .control-col { flex: 1; display: flex; flex-direction: column; gap: 5px; }
         .control-col input, .control-col select { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
         .output-param-box { background: #e8f4f8; padding: 20px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top:15px;}
-        .param-warning { color: var(--danger); font-size: 1.05rem; font-weight: bold; background: #fdf3e7; padding: 10px 15px; border-radius: 6px; border: 1px solid #fadbd8; display: inline-block;}
+        .param-latin-input { width: 100%; height: 45px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1.1rem; font-weight: bold; color: var(--primary); box-sizing: border-box; resize: none; margin-top: 5px;}
+        .param-warning { color: var(--danger); font-size: 1rem; font-weight: bold; background: #fdf3e7; padding: 10px 15px; border-radius: 6px; border: 1px solid #fadbd8; margin-top: 5px;}
         
         @media (max-width: 600px) {
             body { padding: 1rem; }
@@ -316,10 +316,10 @@
                 <select id="selAter" onchange="prosesParamasastra()">
                     <option value="">- Tanpa Awalan -</option>
                     <option value="N">N- (Anuswara otomatis)</option>
-                    <option value="m">m-</option>
-                    <option value="n">n-</option>
-                    <option value="ng">ng-</option>
-                    <option value="ny">ny-</option>
+                    <option value="m">m- (Anuswara p/b/w/m)</option>
+                    <option value="n">n- (Anuswara t/d/j/n)</option>
+                    <option value="ng">ng- (Anuswara k/g/vokal)</option>
+                    <option value="ny">ny- (Anuswara c/s/ny)</option>
                     <option value="dak">dak- / tak-</option>
                     <option value="ko">ko- / kok-</option>
                     <option value="di">di-</option>
@@ -363,16 +363,20 @@
 
         <div class="output-param-box">
             <div class="header-group">
-                <div>
-                    <label>Bentuk Jadi (Latin):</label> 
-                    <div id="outParamLatin" style="font-size:1.2rem; color:var(--primary); padding:4px 0px; font-weight:bold;">-</div>
-                </div>
-                <button class="action-btn btn-copy" id="btnSalinParam" onclick="salinParam()">Salin Aksara</button>
+                <label for="outParamLatin">Bentuk Jadi (Latin - Bisa Diedit):</label>
+                <button class="action-btn" onclick="salinParamLatin()">Salin Teks Latin</button>
             </div>
-            <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:10px; word-break:break-all;"></div>
+            <textarea id="outParamLatin" class="param-latin-input" oninput="updateParamFromManualInput()" placeholder="Hasil bentuk jadi Latin..."></textarea>
+            <div id="paramWarningArea"></div>
+
+            <div class="header-group" style="margin-top: 15px;">
+                <label>Hasil Aksara Jawa:</label>
+                <button class="action-btn btn-copy" id="btnSalinParam" onclick="salinParamJawa()">Salin Aksara Jawa</button>
+            </div>
+            <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
-    </div>
-        <script>
+                            </div>
+                                <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -425,7 +429,13 @@
             });
         }
 
-        function salinParam() {
+        function salinParamLatin() {
+            let teksLatin = document.getElementById('outParamLatin').value;
+            if (!teksLatin) return;
+            navigator.clipboard.writeText(teksLatin);
+        }
+
+        function salinParamJawa() {
             let teksAksara = document.getElementById('outParamJawa').innerText;
             if (!teksAksara) return;
             navigator.clipboard.writeText(teksAksara).then(() => {
@@ -436,14 +446,21 @@
             });
         }
 
-        /* --- FUNGSI PARAMASASTRA (MORFOLOGI & VALIDASI KETAT) --- */
+        function updateParamFromManualInput() {
+            let val = document.getElementById('outParamLatin').value;
+            document.getElementById('outParamJawa').innerText = transliterasiKalimat(val);
+        }
+
+        /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
         function prosesParamasastra() {
             let ater = document.getElementById('selAter').value;
             let dasar = document.getElementById('inDasar').value.toLowerCase().trim();
             let panam = document.getElementById('selPanam').value;
 
+            document.getElementById('paramWarningArea').innerHTML = "";
+
             if(!dasar) {
-                document.getElementById('outParamLatin').innerHTML = "-";
+                document.getElementById('outParamLatin').value = "";
                 document.getElementById('outParamJawa').innerHTML = "";
                 return;
             }
@@ -454,116 +471,113 @@
             let isVowelEnd = /[aiueoéèê]/i.test(lastChar);
             let errorMsg = "";
 
-            // 1. BLOK VALIDASI ATURAN KETAT
+            // VALIDASI KETAT ATER-ATER
             if (ater === 'm' && !['b','p','w','m','f','v'].includes(f)) {
-                errorMsg = `Ater-ater "m-" tidak bisa dipasangkan. Kata dasar harus berawalan p, b, w, atau m.`;
+                errorMsg = `Ater-ater "m-" khusus untuk kata dasar berawalan p, b, w, m.`;
             } else if (ater === 'n' && !['d','t','j','n'].includes(f) && !dasar.startsWith('dh') && !dasar.startsWith('th')) {
-                errorMsg = `Ater-ater "n-" tidak bisa dipasangkan. Kata dasar harus berawalan d, dh, t, th, j, atau n.`;
+                errorMsg = `Ater-ater "n-" khusus untuk kata dasar berawalan d, dh, t, th, j, n.`;
             } else if (ater === 'ny' && !['c','s'].includes(f) && !dasar.startsWith('ny')) {
-                errorMsg = `Ater-ater "ny-" tidak bisa dipasangkan. Kata dasar harus berawalan c, s, atau ny.`;
+                errorMsg = `Ater-ater "ny-" khusus untuk kata dasar berawalan c, s, ny.`;
             } else if (ater === 'ng' && !['g','k','l','r','y','w'].includes(f) && !isVowelStart && !dasar.startsWith('ng')) {
-                errorMsg = `Ater-ater "ng-" tidak bisa dipasangkan. Kata dasar harus berawalan k, g, l, r, y, w, atau vokal.`;
+                errorMsg = `Ater-ater "ng-" khusus untuk kata dasar berawalan k, g, l, r, y, w, atau vokal.`;
             }
 
             if (panam === 'ni' && !isVowelEnd) {
-                errorMsg = `Panambang "-ni" khusus untuk kata dasar berakhiran vokal. Gunakan "-i" untuk konsonan.`;
+                errorMsg = `Panambang "-ni" khusus untuk kata dasar berakhiran vokal (suara terbuka).`;
             }
 
             if (errorMsg !== "") {
-                document.getElementById('outParamLatin').innerHTML = `<div class="param-warning">⚠️ PELANGGARAN ATURAN: ${errorMsg}</div>`;
+                document.getElementById('paramWarningArea').innerHTML = `<div class="param-warning">⚠️ WARNING PAUGERAN: ${errorMsg}</div>`;
+                document.getElementById('outParamLatin').value = "";
                 document.getElementById('outParamJawa').innerHTML = "";
                 return;
             }
 
-            // 2. PROSES ATER-ATER
-            let terapan = dasar;
-            if(ater === 'N') { 
-                if(['p','w'].includes(f)) terapan = 'm' + dasar.slice(1);
-                else if(f === 'b') terapan = 'm' + dasar;
-                else if(f === 't') terapan = 'n' + dasar.slice(1);
-                else if(['d','j'].includes(f) || dasar.startsWith('dh')) terapan = 'n' + dasar;
-                else if(['c','s'].includes(f)) terapan = 'ny' + dasar.slice(1);
-                else if(f === 'k') terapan = 'ng' + dasar.slice(1);
-                else if(f === 'g' || ['l','r','y'].includes(f) || isVowelStart) terapan = 'ng' + dasar;
-                else terapan = 'ng' + dasar;
+            // 1. PROSES LEBUR ANUSWARA
+            let stem = dasar;
+            let prefixAppended = "";
+
+            if (['N', 'm', 'n', 'ny', 'ng'].includes(ater)) {
+                if(['p','w'].includes(f)) stem = 'm' + dasar.slice(1);
+                else if(f === 'b') stem = 'm' + dasar;
+                else if(f === 't') stem = 'n' + dasar.slice(1);
+                else if(['d','j'].includes(f) || dasar.startsWith('dh') || dasar.startsWith('th')) stem = 'n' + dasar;
+                else if(['c','s'].includes(f)) stem = 'ny' + dasar.slice(1);
+                else if(f === 'k') stem = 'ng' + dasar.slice(1);
+                else if(f === 'g' || ['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
+                else stem = 'ng' + dasar;
             } else if (ater !== '') {
-                terapan = ater + dasar;
+                prefixAppended = ater;
             }
 
-            // 3. PROSES PANAMBANG
-            if (panam !== '') {
-                let currentLastChar = terapan.slice(-1);
-                let currentIsVowel = /[aieouéèê]/i.test(currentLastChar);
-                
-                if (!currentIsVowel) {
-                    terapan = terapan + '-' + panam;
+            // 2. PROSES PANAMBANG & SANDHI
+            let resultLatin = "";
+
+            if (panam === '') {
+                resultLatin = prefixAppended ? (prefixAppended + stem) : stem;
+            } else {
+                let stemLastChar = stem.slice(-1);
+                let stemIsVowel = /[aiueoéèê]/i.test(stemLastChar);
+
+                if (!stemIsVowel) {
+                    let formattedStem = prefixAppended ? (prefixAppended + stem) : stem;
+                    resultLatin = formattedStem + '-' + panam;
                 } else {
-                    let rootVowel = currentLastChar;
-                    let body = terapan.slice(0, -1);
-                    
+                    let rootVowel = stemLastChar;
+                    let body = stem.slice(0, -1);
+                    let suffixMod = panam;
+
                     if (rootVowel === 'a') {
-                        if(panam === 'i') terapan = body + 'ani';
-                        else if(panam === 'ake' || panam === 'aké') terapan = body + 'akaké';
-                        else if(panam === 'aken') terapan = body + 'akaken';
-                        else if(panam === 'an') terapan = body + 'anan';
-                        else if(panam === 'en') terapan = body + 'anen';
-                        else if(panam === 'ana') terapan = body + 'anana';
-                        else if(panam === 'e' || panam === 'é') terapan = body + 'ané';
-                        else if(panam === 'a') terapan = body + 'aa';
-                        else terapan = terapan + panam;
-                    }
-                    else if (rootVowel === 'i') {
+                        if(panam === 'i') suffixMod = 'ni';
+                        else if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
+                        else if(panam === 'aken') suffixMod = 'kaken';
+                        else if(panam === 'an') suffixMod = 'nan';
+                        else if(panam === 'en') suffixMod = 'nen';
+                        else if(panam === 'ana') suffixMod = 'nana';
+                        else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
+                    } else if (rootVowel === 'i') {
                         if(['i', 'ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
-                            let rep = panam;
-                            if(panam==='i') rep='ni';
-                            if(panam==='ake'||panam==='aké') rep='kaké';
-                            if(panam==='aken') rep='kaken';
-                            if(panam==='an') rep='n';
-                            if(panam==='en') rep='nen';
-                            if(panam==='ana') rep='nana';
-                            terapan = body + 'e' + rep;
-                        }
-                        else if(panam === 'a') terapan = terapan + 'ya';
-                        else if(panam === 'e' || panam === 'é') terapan = terapan + 'né';
-                        else terapan = terapan + panam;
-                    }
-                    else if (rootVowel === 'u') {
+                            body = body + 'e';
+                            if(panam==='i') suffixMod='ni';
+                            if(['ake','aké'].includes(panam)) suffixMod='kake';
+                            if(panam==='aken') suffixMod='kaken';
+                            if(panam==='an') suffixMod='n';
+                            if(panam==='en') suffixMod='nen';
+                            if(panam==='ana') suffixMod='nana';
+                        } else if(panam === 'a') suffixMod = 'ya';
+                        else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
+                    } else if (rootVowel === 'u') {
                         if(['i', 'ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
-                            let rep = panam;
-                            if(panam==='i') rep='ni';
-                            if(panam==='ake'||panam==='aké') rep='kaké';
-                            if(panam==='aken') rep='kaken';
-                            if(panam==='an') rep='n';
-                            if(panam==='en') rep='nen';
-                            if(panam==='ana') rep='nana';
-                            terapan = body + 'o' + rep;
-                        }
-                        else if(panam === 'a') terapan = terapan + 'wa';
-                        else if(panam === 'e' || panam === 'é') terapan = terapan + 'né';
-                        else terapan = terapan + panam;
-                    }
-                    else if (['e','é','è','o'].includes(rootVowel)) {
-                        if(panam === 'a') terapan = terapan + (rootVowel==='o'?'wa':'ya');
+                            body = body + 'o';
+                            if(panam==='i') suffixMod='ni';
+                            if(['ake','aké'].includes(panam)) suffixMod='kake';
+                            if(panam==='aken') suffixMod='kaken';
+                            if(panam==='an') suffixMod='n';
+                            if(panam==='en') suffixMod='nen';
+                            if(panam==='ana') suffixMod='nana';
+                        } else if(panam === 'a') suffixMod = 'wa';
+                        else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
+                    } else if (['e','é','è','o'].includes(rootVowel)) {
+                        if(panam === 'a') suffixMod = (rootVowel==='o'?'wa':'ya');
                         else if(['i', 'ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
-                            let rep = panam;
-                            if(panam==='i') rep='ni';
-                            if(panam==='ake'||panam==='aké') rep='kaké';
-                            if(panam==='aken') rep='kaken';
-                            if(panam==='an') rep='n';
-                            if(panam==='en') rep='nen';
-                            if(panam==='ana') rep='nana';
-                            terapan = terapan + rep;
-                        }
-                        else if(panam === 'e' || panam === 'é') terapan = terapan + 'né';
-                        else terapan = terapan + panam;
+                            if(panam==='i') suffixMod='ni';
+                            if(['ake','aké'].includes(panam)) suffixMod='kake';
+                            if(panam==='aken') suffixMod='kaken';
+                            if(panam==='an') suffixMod='n';
+                            if(panam==='en') suffixMod='nen';
+                            if(panam==='ana') suffixMod='nana';
+                        } else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                     }
+
+                    let fullBody = prefixAppended ? (prefixAppended + body) : body;
+                    resultLatin = fullBody + '-' + suffixMod;
                 }
             }
-            
-            document.getElementById('outParamLatin').innerHTML = terapan;
-            document.getElementById('outParamJawa').innerHTML = transliterasiKalimat(terapan);
+
+            document.getElementById('outParamLatin').value = resultLatin;
+            document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
         }
-                    /* --- ENGINE TRANSLITERASI UTAMA --- */
+                                            /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
