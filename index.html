@@ -527,49 +527,50 @@
                     let body = stem.slice(0, -1);
                     let suffixMod = panam;
 
-                    if (rootVowel === 'a') {
-                        if(panam === 'i') suffixMod = 'nni';
-                        else if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
-                        else if(panam === 'aken') suffixMod = 'kaken';
-                        else if(panam === 'an') suffixMod = 'nan';
-                        else if(panam === 'en') suffixMod = 'nen';
-                        else if(panam === 'ana') suffixMod = 'nana';
-                        else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
-                    } else if (rootVowel === 'i') {
-                        if(panam === 'i') {
-                            suffixMod = 'nni';
-                        } else if(['ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
-                            body = body + 'e';
-                            if(['ake','aké'].includes(panam)) suffixMod='kake';
-                            if(panam==='aken') suffixMod='kaken';
-                            if(panam==='an') suffixMod='n';
-                            if(panam==='en') suffixMod='nen';
-                            if(panam==='ana') suffixMod='nana';
-                        } else if(panam === 'a') suffixMod = 'ya';
-                        else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
-                    } else if (rootVowel === 'u') {
-                        if(panam === 'i') {
-                            suffixMod = 'nni';
-                        } else if(['ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
-                            body = body + 'o';
-                            if(['ake','aké'].includes(panam)) suffixMod='kake';
-                            if(panam==='aken') suffixMod='kaken';
-                            if(panam==='an') suffixMod='n';
-                            if(panam==='en') suffixMod='nen';
-                            if(panam==='ana') suffixMod='nana';
-                        } else if(panam === 'a') suffixMod = 'wa';
-                        else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
-                    } else if (['e','é','è','o'].includes(rootVowel)) {
-                        if(panam === 'i') {
-                            suffixMod = 'nni';
-                        } else if(panam === 'a') suffixMod = (rootVowel==='o'?'wa':'ya');
-                        else if(['ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
-                            if(['ake','aké'].includes(panam)) suffixMod='kake';
-                            if(panam==='aken') suffixMod='kaken';
-                            if(panam==='an') suffixMod='n';
-                            if(panam==='en') suffixMod='nen';
-                            if(panam==='ana') suffixMod='nana';
-                        } else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
+                    if (panam === 'i') {
+                        suffixMod = 'nni';
+                        if (rootVowel === 'u') body = body + 'o';
+                        else if (rootVowel === 'i') body = body + 'e';
+                        else if (rootVowel === 'a') body = body + 'a';
+                        else if (['e','é','è','o'].includes(rootVowel)) body = body + rootVowel;
+                    } else {
+                        if (rootVowel === 'a') {
+                            if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
+                            else if(panam === 'aken') suffixMod = 'kaken';
+                            else if(panam === 'an') suffixMod = 'nan';
+                            else if(panam === 'en') suffixMod = 'nen';
+                            else if(panam === 'ana') suffixMod = 'nana';
+                            else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
+                        } else if (rootVowel === 'i') {
+                            if(['ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
+                                body = body + 'e';
+                                if(['ake','aké'].includes(panam)) suffixMod='kake';
+                                if(panam==='aken') suffixMod='kaken';
+                                if(panam==='an') suffixMod='n';
+                                if(panam==='en') suffixMod='nen';
+                                if(panam==='ana') suffixMod='nana';
+                            } else if(panam === 'a') suffixMod = 'ya';
+                            else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
+                        } else if (rootVowel === 'u') {
+                            if(['ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
+                                body = body + 'o';
+                                if(['ake','aké'].includes(panam)) suffixMod='kake';
+                                if(panam==='aken') suffixMod='kaken';
+                                if(panam==='an') suffixMod='n';
+                                if(panam==='en') suffixMod='nen';
+                                if(panam==='ana') suffixMod='nana';
+                            } else if(panam === 'a') suffixMod = 'wa';
+                            else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
+                        } else if (['e','é','è','o'].includes(rootVowel)) {
+                            if(panam === 'a') suffixMod = (rootVowel==='o'?'wa':'ya');
+                            else if(['ake', 'aké', 'aken', 'an', 'en', 'ana'].includes(panam)) {
+                                if(['ake','aké'].includes(panam)) suffixMod='kake';
+                                if(panam==='aken') suffixMod='kaken';
+                                if(panam==='an') suffixMod='n';
+                                if(panam==='en') suffixMod='nen';
+                                if(panam==='ana') suffixMod='nana';
+                            } else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
+                        }
                     }
 
                     let fullBody = prefixAppended ? (prefixAppended + body) : body;
