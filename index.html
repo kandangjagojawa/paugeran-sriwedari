@@ -376,8 +376,8 @@
             </div>
             <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
-                    </div>
-                        <script>
+    </div>
+        <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -508,22 +508,24 @@
                 else if(f === 'g' || ['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
                 else stem = 'ng' + dasar;
             } else if (ater === 'pi') {
-                // pi + a/ha = pi-a... / pi-ha... (tetap), kecuali pi + ambak = pi-yambak
-                if (dasar === 'ambak') {
+                // Evaluasi khusus ater-ater pi-
+                if (dasar === 'ambak' || dasar === 'hambak') {
                     stem = 'yambak';
+                    prefixAppended = 'pi';
+                } else if (isVowelStart) {
+                    // Paksa diawali 'h' jika berawalan vokal agar transliterasi menghasilkan aksara Ha (contoh: ala -> hala -> pi-hala = ꦥꦶꦲꦭ)
+                    stem = dasar.startsWith('h') ? dasar : 'h' + dasar;
                     prefixAppended = 'pi';
                 } else {
                     prefixAppended = 'pi';
                 }
             } else if (ater === 'ma') {
-                // ma + isi = mési, ma + ilu = mélu
                 if (f === 'i') {
                     stem = 'mé' + dasar.slice(1);
                 } else {
                     prefixAppended = 'ma';
                 }
             } else if (ater === 'sa') {
-                // sa + walik = suwalik, kecuali: wengi, wulan, wis, weruh, wiji, wanci
                 const saExclusions = ['wengi', 'wulan', 'wis', 'weruh', 'wiji', 'wanci'];
                 if (f === 'w' && !saExclusions.includes(dasar)) {
                     prefixAppended = 'su';
@@ -604,7 +606,7 @@
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
         }
-                                    /* --- ENGINE TRANSLITERASI UTAMA --- */
+                    /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
