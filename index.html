@@ -259,7 +259,8 @@
     </div>
 
     <div class="container">
-        <details class="typing-guide">
+        <!-- Terbuka secara default (atribut open) -->
+        <details class="typing-guide" open>
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
                 <ul>
@@ -375,8 +376,8 @@
             </div>
             <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
-                </div>
-                    <script>
+    </div>
+        <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -493,7 +494,7 @@
                 return;
             }
 
-            // 1. PROSES LEBUR ANUSWARA
+            // 1. PROSES LEBUR ANUSWARA & ATER-ATER KHUSUS
             let stem = dasar;
             let prefixAppended = "";
 
@@ -506,6 +507,21 @@
                 else if(f === 'k') stem = 'ng' + dasar.slice(1);
                 else if(f === 'g' || ['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
                 else stem = 'ng' + dasar;
+            } else if (ater === 'ma') {
+                // ma + isi = mési, ma + ilu = mélu
+                if (f === 'i') {
+                    stem = 'mé' + dasar.slice(1);
+                } else {
+                    prefixAppended = 'ma';
+                }
+            } else if (ater === 'sa') {
+                // sa + walik = suwalik, kecuali: wengi, wulan, wis, weruh, wiji, wanci
+                const saExclusions = ['wengi', 'wulan', 'wis', 'weruh', 'wiji', 'wanci'];
+                if (f === 'w' && !saExclusions.includes(dasar)) {
+                    prefixAppended = 'su';
+                } else {
+                    prefixAppended = 'sa';
+                }
             } else if (ater !== '') {
                 prefixAppended = ater;
             }
@@ -524,7 +540,7 @@
                     resultLatin = formattedStem + '-' + panam;
                 } else {
                     let rootVowel = stemLastChar;
-                    let body = stem; // Pertahankan kata dasar utuh awal
+                    let body = stem;
                     let suffixMod = panam;
 
                     if (panam === 'i') {
@@ -542,7 +558,7 @@
                             else if(panam === 'ana') suffixMod = 'nana';
                             else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                         } else if (rootVowel === 'i') {
-                            body = stem.slice(0, -1) + 'é'; // Vokal i berubah jadi taling (é)
+                            body = stem.slice(0, -1) + 'é';
                             if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
                             else if(panam === 'aken') suffixMod = 'kaken';
                             else if(panam === 'an') suffixMod = 'nan';
@@ -580,7 +596,7 @@
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
         }
-                                /* --- ENGINE TRANSLITERASI UTAMA --- */
+                    /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
