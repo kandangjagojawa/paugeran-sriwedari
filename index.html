@@ -259,7 +259,6 @@
     </div>
 
     <div class="container">
-        <!-- Terbuka secara default (atribut open) -->
         <details class="typing-guide" open>
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
@@ -273,7 +272,6 @@
             </div>
         </details>
 
-        <!-- Kotak Output Aksara Jawa -->
         <div class="input-group">
             <div class="header-group">
                 <label>Hasil Aksara Jawa:</label>
@@ -294,7 +292,6 @@
             <div id="outputJawa"></div>
         </div>
 
-        <!-- Kotak Input Teks Latin -->
         <div class="input-group">
             <div class="header-group">
                 <label for="inputLatin">Teks Latin:</label>
@@ -376,8 +373,8 @@
             </div>
             <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
-                            </div>
-                                <script>
+    </div>
+    <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -451,7 +448,7 @@
             let val = document.getElementById('outParamLatin').value;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(val);
         }
-                                            /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
+        /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
         function prosesParamasastra() {
             let ater = document.getElementById('selAter').value;
             let dasar = document.getElementById('inDasar').value.toLowerCase().trim();
@@ -495,16 +492,21 @@
             let stem = dasar;
             let prefixAppended = "";
 
-            if (['N', 'm', 'n', 'ny', 'ng'].includes(ater)) {
+            // LOGIKA ANUSWARA & ATER-ATER PA (PA + ANUSWARA)
+            if (['N', 'm', 'n', 'ny', 'ng', 'pa'].includes(ater)) {
                 if(['p','w'].includes(f)) stem = 'm' + dasar.slice(1);
                 else if(f === 'b') stem = 'm' + dasar;
-                else if(dasar.startsWith('th')) stem = 'n' + dasar.slice(2); // LEBUR: th -> n (thothol -> nothol)
+                else if(dasar.startsWith('th')) stem = 'n' + dasar.slice(2); // LEBUR: th -> n
                 else if(f === 't') stem = 'n' + dasar.slice(1); // LEBUR: t -> n
                 else if(['d','j'].includes(f) || dasar.startsWith('dh')) stem = 'n' + dasar; // TETAP: d, dh, j
                 else if(['c','s'].includes(f)) stem = 'ny' + dasar.slice(1);
                 else if(f === 'k') stem = 'ng' + dasar.slice(1);
                 else if(f === 'g' || ['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
                 else stem = 'ng' + dasar;
+
+                if (ater === 'pa') {
+                    prefixAppended = 'pa';
+                }
             } else if (ater === 'pi') {
                 if (dasar === 'ambak' || dasar === 'hambak') {
                     stem = 'yambak';
@@ -600,8 +602,8 @@
 
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
-                }
-                                            /* --- ENGINE TRANSLITERASI UTAMA --- */
+        }
+        /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
