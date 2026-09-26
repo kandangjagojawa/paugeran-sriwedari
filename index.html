@@ -259,7 +259,7 @@
     </div>
 
     <div class="container">
-        <details class="typing-guide" open>
+        details class="typing-guide" open>
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
                 <ul>
@@ -375,7 +375,7 @@
             <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
     </div>
-        <script>
+    <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -449,7 +449,7 @@
             let val = document.getElementById('outParamLatin').value;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(val);
         }
-                    /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
+        /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
         function prosesParamasastra() {
             let ater = document.getElementById('selAter').value;
             let dasar = document.getElementById('inDasar').value.toLowerCase().trim();
@@ -570,8 +570,8 @@
                     let body = stem;
                     let suffixMod = panam;
 
-                    if (panam === 'i') {
-                        suffixMod = 'nni';
+                    if (panam === 'i' || panam === 'ana') {
+                        suffixMod = (panam === 'i') ? 'nni' : 'nana';
                         if (rootVowel === 'u') body = stem.slice(0, -1) + 'o';
                         else if (rootVowel === 'i') body = stem.slice(0, -1) + 'é';
                         else if (rootVowel === 'a') body = stem;
@@ -582,7 +582,6 @@
                             else if(panam === 'aken') suffixMod = 'kaken';
                             else if(panam === 'an') suffixMod = 'nan';
                             else if(panam === 'en') suffixMod = 'nen';
-                            else if(panam === 'ana') suffixMod = 'nana';
                             else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                             else if(panam === 'ipun') suffixMod = 'nipun';
                         } else if (rootVowel === 'i') {
@@ -591,31 +590,30 @@
                             else if(panam === 'aken') suffixMod = 'kaken';
                             else if(panam === 'an') suffixMod = 'nan';
                             else if(panam === 'en') suffixMod = 'nen';
-                            else if(panam === 'ana') suffixMod = 'nana';
                             else if(panam === 'a') suffixMod = 'ya';
                             else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                             else if(panam === 'ipun') suffixMod = 'nipun';
                         } else if (rootVowel === 'u') {
                             if(panam === 'ipun') {
-                                body = stem; // VOKAL U TETAP UTUH (paku + ipun = paku-nipun)
+                                body = stem;
                                 suffixMod = 'nipun';
-                            } else if(['ake', 'aké', 'aken', 'an', 'en', 'ana', 'e', 'é'].includes(panam)) {
+                            } else if(['ake', 'aké', 'aken', 'an', 'en'].includes(panam)) {
                                 body = stem.slice(0, -1) + 'o';
                                 if(['ake','aké'].includes(panam)) suffixMod='kake';
                                 if(panam==='aken') suffixMod='kaken';
                                 if(panam==='an') suffixMod='nan';
                                 if(panam==='en') suffixMod='nen';
-                                if(panam==='ana') suffixMod='nana';
-                                if(['e', 'é'].includes(panam)) suffixMod='ne';
+                            } else if(['e', 'é'].includes(panam)) {
+                                body = stem.slice(0, -1) + 'o';
+                                suffixMod='ne';
                             } else if(panam === 'a') suffixMod = 'wa';
                         } else if (['e','é','è','o'].includes(rootVowel)) {
                             if(panam === 'a') suffixMod = (rootVowel==='o'?'wa':'ya');
-                            else if(['ake', 'aké', 'aken', 'an', 'en', 'ana', 'e', 'é', 'ipun'].includes(panam)) {
+                            else if(['ake', 'aké', 'aken', 'an', 'en', 'e', 'é', 'ipun'].includes(panam)) {
                                 if(['ake','aké'].includes(panam)) suffixMod='kake';
                                 if(panam==='aken') suffixMod='kaken';
                                 if(panam==='an') suffixMod='nan';
                                 if(panam==='en') suffixMod='nen';
-                                if(panam==='ana') suffixMod='nana';
                                 if(['e', 'é'].includes(panam)) suffixMod='ne';
                                 if(panam==='ipun') suffixMod='nipun';
                             }
@@ -629,8 +627,8 @@
 
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
-                }
-                    /* --- ENGINE TRANSLITERASI UTAMA --- */
+        }
+        /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
