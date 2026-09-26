@@ -259,7 +259,6 @@
     </div>
 
     <div class="container">
-        <!-- Terbuka secara default (atribut open) -->
         <details class="typing-guide" open>
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
@@ -273,7 +272,6 @@
             </div>
         </details>
 
-        <!-- Kotak Output Aksara Jawa -->
         <div class="input-group">
             <div class="header-group">
                 <label>Hasil Aksara Jawa:</label>
@@ -294,7 +292,6 @@
             <div id="outputJawa"></div>
         </div>
 
-        <!-- Kotak Input Teks Latin -->
         <div class="input-group">
             <div class="header-group">
                 <label for="inputLatin">Teks Latin:</label>
@@ -376,8 +373,8 @@
             </div>
             <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
-                        </div>
-                    <script>
+    </div>
+        <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -451,8 +448,7 @@
             let val = document.getElementById('outParamLatin').value;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(val);
         }
-
-        /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
+                    /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
         function prosesParamasastra() {
             let ater = document.getElementById('selAter').value;
             let dasar = document.getElementById('inDasar').value.toLowerCase().trim();
@@ -494,7 +490,6 @@
                 return;
             }
 
-            // 1. PROSES LEBUR ANUSWARA & ATER-ATER KHUSUS
             let stem = dasar;
             let prefixAppended = "";
 
@@ -534,7 +529,7 @@
                 prefixAppended = ater;
             }
 
-            // 2. PROSES PANAMBANG & SANDHI
+            // PROSES PANAMBANG & SANDHI
             let resultLatin = "";
 
             if (panam === '') {
@@ -603,8 +598,8 @@
 
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
-        }
-                                /* --- ENGINE TRANSLITERASI UTAMA --- */
+                        }
+                    /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
@@ -612,7 +607,8 @@
         }
 
         function transliterasiKalimat(teks) {
-            let teksDiolah = teks.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|ngg|nc|nj|ngl|ngr|ngw|ngy)/gim, function(match, p1, p2) {
+            // Hapus imbuhan ngg/ngl dll dari sini, agar murni diurus oleh transliterasiKata
+            let teksDiolah = teks.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|nc|nj)/gim, function(match, p1, p2) {
                 return p1 + 'ha' + p2;
             });
 
@@ -654,12 +650,8 @@
             const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
             const nas = "(?:m|n|ng|ny)";
 
-            // LOGIKA PRE-PROCESSING KHUSUS "NG" DI AWAL KATA
-            // 1. ng + r + pepet (e/ê) -> ngre (menjadi cakra keret ꦔꦽ)
-            latinProcessed = latinProcessed.replace(/^ngr[eê]/i, 'ngre');
-            // 2. ng + r + vokal lain -> ngr... (menjadi cakra ꦔꦿ)
-            // (dibiarkan tetap ngr agar ditangani engine cakra)
-            // 3. ng + konsonan selain r -> ha + ng + konsonan (menjadi ꦲꦁ...)
+            // LOGIKA KHUSUS "NG" MATI DI AWAL KATA:
+            // ng di awal yg diikuti konsonan (SELAIN R) otomatis jadi hang (ha + cecek)
             latinProcessed = latinProcessed.replace(/^ng([bcdfghjklmnpqstvwxyz])/i, 'hang$1');
 
             if (/^p[aeêEÊ]ndhawa(-[a-zA-ZéèêÉÈÊ]+)?$/i.test(latinProcessed)) {
@@ -678,8 +670,6 @@
                 return c1 + 'a' + c2 + 'a' + c3 + 'a' + (suf || '');
             });
 
-            latinProcessed = latinProcessed.replace(/^(ha)?ngg/i, '$1nxg');
-            latinProcessed = latinProcessed.replace(/^(ha)?ng([lwy])/i, '$1nx$2');
             latinProcessed = latinProcessed.replace(/nc/g, 'nyc').replace(/nj/g, 'nyj');
             latinProcessed = latinProcessed.replace(/Nc/g, 'Nyc').replace(/Nj/g, 'Nyj');
 
