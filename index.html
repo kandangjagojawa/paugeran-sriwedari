@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -573,8 +574,8 @@
                     let suffixMod = panam;
 
                     if (panam === 'i' || panam === 'ana') {
-                        // KEMBALI KE ATURAN DOBEL (nni & nana)
-                        suffixMod = (panam === 'i') ? 'nni' : 'nana';
+                        // KEMBALI KE ATURAN DOBEL (nni & nnana)
+                        suffixMod = (panam === 'i') ? 'nni' : 'nnana';
                         if (rootVowel === 'u') body = stem.slice(0, -1) + 'o';
                         else if (rootVowel === 'i') body = stem.slice(0, -1) + 'é';
                         else if (rootVowel === 'a') body = stem;
@@ -905,3 +906,4 @@
     </script>
 </body>
 </html>
+```
