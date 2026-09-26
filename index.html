@@ -523,19 +523,19 @@
             } else if (ater === 'kuma') {
                 if (isVowelStart || f === 'r' || f === 'l') {
                     stem = dasar;
-                    prefixAppended = 'kum'; // kum + andel = kumandel, kum + ratu = kumratu
+                    prefixAppended = 'kum'; 
                 } else {
                     prefixAppended = 'kuma';
                 }
-            } else if (ater === 'pi') {
+            } else if (ater === 'pi' || ater === 'kapi') {
                 if (dasar === 'ambak' || dasar === 'hambak') {
                     stem = 'yambak';
-                    prefixAppended = 'pi';
+                    prefixAppended = ater;
                 } else if (isVowelStart) {
                     stem = dasar.startsWith('h') ? dasar : 'h' + dasar;
-                    prefixAppended = 'pi';
+                    prefixAppended = ater;
                 } else {
-                    prefixAppended = 'pi';
+                    prefixAppended = ater;
                 }
             } else if (ater === 'ma') {
                 if (f === 'i') {
