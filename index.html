@@ -259,7 +259,8 @@
     </div>
 
     <div class="container">
-        details class="typing-guide" open>
+        <!-- TYPO DIPERBAIKI DI SINI: Diberikan kurung siku buka `<` pada tag details -->
+        <details class="typing-guide" open>
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
                 <ul>
@@ -375,6 +376,7 @@
             <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
     </div>
+
     <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
@@ -449,6 +451,7 @@
             let val = document.getElementById('outParamLatin').value;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(val);
         }
+
         /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
         function prosesParamasastra() {
             let ater = document.getElementById('selAter').value;
@@ -628,6 +631,7 @@
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
         }
+
         /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
@@ -679,7 +683,6 @@
             const nas = "(?:m|n|ng|ny)";
 
             // LOGIKA KHUSUS "NG" MATI DI AWAL KATA
-            // ng yg diikuti konsonan SELAIN R/Y otomatis jadi hang (ha + cecek)
             latinProcessed = latinProcessed.replace(/^ng([bcdfghjklmnpqstvwxz])/i, 'hang$1');
 
             if (/^p[aeêEÊ]ndhawa(-[a-zA-ZéèêÉÈÊ]+)?$/i.test(latinProcessed)) {
