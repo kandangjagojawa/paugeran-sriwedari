@@ -552,6 +552,14 @@
                 } else {
                     prefixAppended = 'sa';
                 }
+            } else if (ater === 'dak') {
+                // PENANGANAN KHUSUS ATER-ATER DAK- AGAR MEMAKSA PASANGAN (TIDAK LEBUR JADI CAKRA/PENGKAL)
+                if (f === 'r' || f === 'y') {
+                    stem = 'x' + dasar; // Sisipkan penanda 'x' untuk mematikan cakra/pengkal di transliterasi
+                } else {
+                    stem = dasar;
+                }
+                prefixAppended = 'dak';
             } else if (ater !== '') {
                 prefixAppended = ater;
             }
