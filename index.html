@@ -552,14 +552,6 @@
                 } else {
                     prefixAppended = 'sa';
                 }
-            } else if (ater === 'dak') {
-                // PENANGANAN KHUSUS ATER-ATER DAK- AGAR MEMAKSA PASANGAN (TIDAK LEBUR JADI CAKRA/PENGKAL)
-                if (f === 'r' || f === 'y') {
-                    stem = 'x' + dasar; // Sisipkan penanda 'x' untuk mematikan cakra/pengkal di transliterasi
-                } else {
-                    stem = dasar;
-                }
-                prefixAppended = 'dak';
             } else if (ater !== '') {
                 prefixAppended = ater;
             }
@@ -824,6 +816,30 @@
                 
                 if (!/[a-zA-ZéèêÉÈÊ]/.test(latin[i])) {
                     res += latin[i]; i++; continue; 
+                }
+
+                // PINTO-MASUK PASTI UNTUK ATER-ATER DAK- + R / Y / RE
+                if (lower.substring(i).startsWith('dakr') || lower.substring(i).startsWith('daky')) {
+                    let isY = lower.substring(i).startsWith('daky');
+                    let sub = lower.substring(i + 3); // teks selepas 'dak'
+
+                    res += KAMUS_AKSARA['d'] + 'ꦏ꧀'; // ꦢꦏ꧀ (dak + pangkon)
+
+                    if (isY) {
+                        res += KAMUS_AKSARA['y']; // pasangan ya
+                        i += 4; // melompati 'daky'
+                    } else {
+                        // pemeriksaan sama ada ra, re/rê (pepet), atau ré/rè (taling)
+                        if (sub.startsWith('re') || sub.startsWith('rê')) {
+                            res += 'ꦉ'; // pasangan pa cerek (re)
+                            i += 5; // melompati 'dakre' atau 'dakrê'
+                        } else {
+                            res += KAMUS_AKSARA['r']; // pasangan ra
+                            i += 4; // melompati 'dakr'
+                        }
+                    }
+                    isFirstAksara = false;
+                    continue;
                 }
                 
                 let isCapital = (latin[i] >= 'A' && latin[i] <= 'Z');
