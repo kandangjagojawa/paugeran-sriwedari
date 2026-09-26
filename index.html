@@ -698,6 +698,25 @@
                 return abbr;
             }
 
+            // PENANGANAN PENUH UNTUK DAK- + R/Y (MENCEGAH H LEBIHAN & PENGKAL/CAKRA)
+            if (/^dak[ry]/i.test(rawLatin)) {
+                let isY = /^daky/i.test(rawLatin);
+                let rest = rawLatin.substring(4); // hilangkan 'dakr' atau 'daky'
+                let prefixAksara = KAMUS_AKSARA['d'] + 'ꦏ꧀'; // ꦢꦏ꧀
+                
+                if (isY) {
+                    prefixAksara += KAMUS_AKSARA['y'];
+                } else {
+                    if (/^(e|ê)/i.test(rest)) {
+                        prefixAksara += 'ꦉ'; // pasangan pa cerek (re)
+                        rest = rest.substring(1);
+                    } else {
+                        prefixAksara += KAMUS_AKSARA['r']; // pasangan ra
+                    }
+                }
+                return prefixAksara + transliterasiKata(rest);
+            }
+
             let latinProcessed = rawLatin;
             const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
             const nas = "(?:m|n|ng|ny)";
@@ -816,30 +835,6 @@
                 
                 if (!/[a-zA-ZéèêÉÈÊ]/.test(latin[i])) {
                     res += latin[i]; i++; continue; 
-                }
-
-                // PINTO-MASUK PASTI UNTUK ATER-ATER DAK- + R / Y / RE
-                if (lower.substring(i).startsWith('dakr') || lower.substring(i).startsWith('daky')) {
-                    let isY = lower.substring(i).startsWith('daky');
-                    let sub = lower.substring(i + 3); // teks selepas 'dak'
-
-                    res += KAMUS_AKSARA['d'] + 'ꦏ꧀'; // ꦢꦏ꧀ (dak + pangkon)
-
-                    if (isY) {
-                        res += KAMUS_AKSARA['y']; // pasangan ya
-                        i += 4; // melompati 'daky'
-                    } else {
-                        // pemeriksaan sama ada ra, re/rê (pepet), atau ré/rè (taling)
-                        if (sub.startsWith('re') || sub.startsWith('rê')) {
-                            res += 'ꦉ'; // pasangan pa cerek (re)
-                            i += 5; // melompati 'dakre' atau 'dakrê'
-                        } else {
-                            res += KAMUS_AKSARA['r']; // pasangan ra
-                            i += 4; // melompati 'dakr'
-                        }
-                    }
-                    isFirstAksara = false;
-                    continue;
                 }
                 
                 let isCapital = (latin[i] >= 'A' && latin[i] <= 'Z');
