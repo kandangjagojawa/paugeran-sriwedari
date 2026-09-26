@@ -259,7 +259,6 @@
     </div>
 
     <div class="container">
-        <!-- TYPO DIPERBAIKI DI SINI: Diberikan kurung siku buka `<` pada tag details -->
         <details class="typing-guide" open>
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
@@ -376,7 +375,6 @@
             <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
     </div>
-
     <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
@@ -451,7 +449,6 @@
             let val = document.getElementById('outParamLatin').value;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(val);
         }
-
         /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
         function prosesParamasastra() {
             let ater = document.getElementById('selAter').value;
@@ -574,7 +571,8 @@
                     let suffixMod = panam;
 
                     if (panam === 'i' || panam === 'ana') {
-                        suffixMod = (panam === 'i') ? 'nni' : 'nana';
+                        // KOREKSI: Gunakan 'ni' dan 'nana' (bukan nni) agar sesuai dengan Sriwedari (ora dirangkep)
+                        suffixMod = (panam === 'i') ? 'ni' : 'nana';
                         if (rootVowel === 'u') body = stem.slice(0, -1) + 'o';
                         else if (rootVowel === 'i') body = stem.slice(0, -1) + 'é';
                         else if (rootVowel === 'a') body = stem;
@@ -587,6 +585,7 @@
                             else if(panam === 'en') suffixMod = 'nen';
                             else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                             else if(panam === 'ipun') suffixMod = 'nipun';
+                            else suffixMod = panam;
                         } else if (rootVowel === 'i') {
                             body = stem.slice(0, -1) + 'é';
                             if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
@@ -596,6 +595,7 @@
                             else if(panam === 'a') suffixMod = 'ya';
                             else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                             else if(panam === 'ipun') suffixMod = 'nipun';
+                            else suffixMod = panam;
                         } else if (rootVowel === 'u') {
                             if(panam === 'ipun') {
                                 body = stem;
@@ -610,6 +610,7 @@
                                 body = stem.slice(0, -1) + 'o';
                                 suffixMod='ne';
                             } else if(panam === 'a') suffixMod = 'wa';
+                            else suffixMod = panam;
                         } else if (['e','é','è','o'].includes(rootVowel)) {
                             if(panam === 'a') suffixMod = (rootVowel==='o'?'wa':'ya');
                             else if(['ake', 'aké', 'aken', 'an', 'en', 'e', 'é', 'ipun'].includes(panam)) {
@@ -619,7 +620,9 @@
                                 if(panam==='en') suffixMod='nen';
                                 if(['e', 'é'].includes(panam)) suffixMod='ne';
                                 if(panam==='ipun') suffixMod='nipun';
-                            }
+                            } else suffixMod = panam;
+                        } else {
+                            suffixMod = panam;
                         }
                     }
 
@@ -631,7 +634,6 @@
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
         }
-
         /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
@@ -683,6 +685,7 @@
             const nas = "(?:m|n|ng|ny)";
 
             // LOGIKA KHUSUS "NG" MATI DI AWAL KATA
+            // ng yg diikuti konsonan SELAIN R/Y otomatis jadi hang (ha + cecek)
             latinProcessed = latinProcessed.replace(/^ng([bcdfghjklmnpqstvwxz])/i, 'hang$1');
 
             if (/^p[aeêEÊ]ndhawa(-[a-zA-ZéèêÉÈÊ]+)?$/i.test(latinProcessed)) {
