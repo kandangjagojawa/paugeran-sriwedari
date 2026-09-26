@@ -698,25 +698,6 @@
                 return abbr;
             }
 
-            // PENANGANAN PENUH UNTUK DAK- + R/Y (MENCEGAH H LEBIHAN & PENGKAL/CAKRA)
-            if (/^dak[ry]/i.test(rawLatin)) {
-                let isY = /^daky/i.test(rawLatin);
-                let rest = rawLatin.substring(4); // hilangkan 'dakr' atau 'daky'
-                let prefixAksara = KAMUS_AKSARA['d'] + 'ꦏ꧀'; // ꦢꦏ꧀
-                
-                if (isY) {
-                    prefixAksara += KAMUS_AKSARA['y'];
-                } else {
-                    if (/^(e|ê)/i.test(rest)) {
-                        prefixAksara += 'ꦉ'; // pasangan pa cerek (re)
-                        rest = rest.substring(1);
-                    } else {
-                        prefixAksara += KAMUS_AKSARA['r']; // pasangan ra
-                    }
-                }
-                return prefixAksara + transliterasiKata(rest);
-            }
-
             let latinProcessed = rawLatin;
             const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
             const nas = "(?:m|n|ng|ny)";
@@ -877,6 +858,12 @@
                                 else rejectMedial = true; 
                             }
                         }
+                        
+                        // PENANGANAN KHUSUS: Cegah k menjadi cakra/pengkal jika didahului "da" (bagian dari dak-)
+                        if (c === 'k' && lower.substring(i - 3, i) === 'dak') {
+                            rejectMedial = true;
+                        }
+                        
                         if (rejectMedial) { medial = ""; } else { medial = lower[i]; i++; }
                     } else if (c === 'h') {
                         c = lower[i]; i++;
