@@ -698,6 +698,25 @@
                 return abbr;
             }
 
+            // PENANGANAN PENUH UNTUK DAK- + R/Y (MENCEGAH H LEBIHAN & PENGKAL/CAKRA)
+            if (/^dak[ry]/i.test(rawLatin)) {
+                let isY = /^daky/i.test(rawLatin);
+                let rest = rawLatin.substring(4); // hilangkan 'dakr' atau 'daky'
+                let prefixAksara = KAMUS_AKSARA['d'] + 'ꦏ꧀'; // ꦢꦏ꧀
+                
+                if (isY) {
+                    prefixAksara += KAMUS_AKSARA['y'];
+                } else {
+                    if (/^(e|ê)/i.test(rest)) {
+                        prefixAksara += 'ꦉ'; // pasangan pa cerek (re)
+                        rest = rest.substring(1);
+                    } else {
+                        prefixAksara += KAMUS_AKSARA['r']; // pasangan ra
+                    }
+                }
+                return prefixAksara + transliterasiKata(rest);
+            }
+
             let latinProcessed = rawLatin;
             const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
             const nas = "(?:m|n|ng|ny)";
@@ -760,10 +779,16 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            // LOGIKA KHUSUS DAK-/TAK-/KOK- + VOKAL (TIDAK BERLAKU SASTRA LAMPAH)
-            // Memisahkan huruf 'k' dari vokal tanpa menggunakan tanda pemisah nyata,
-            // melainkan menyisipkan penanda internal kx dan hx agar langsung membentuk pasangan ha
-            latinProcessed = latinProcessed.replace(/^(dak|tak|kok)([aiueoéèê])/i, '$1xhx$2');
+            // LOGIKA KHUSUS DAK-/TAK-/KOK-/KO- + VOKAL (TIDAK BERLAKU SASTRA LAMPAH)
+            // Memisahkan suku kata tanpa tanda pemisah nyata, melainkan menyisipkan penanda internal kx dan hx 
+            // agar langsung membentuk pasangan ha atau memotong hukum panglancar
+            latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko)([aiueoéèê])/i, function(match, p1, p2) {
+                if (p1.toLowerCase() === 'ko') {
+                    return p1 + 'hx' + p2;
+                } else {
+                    return p1.slice(0, -1) + 'kxhx' + p2;
+                }
+            });
 
             let prevLatin = "";
             while (latinProcessed !== prevLatin) {
