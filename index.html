@@ -259,6 +259,7 @@
     </div>
 
     <div class="container">
+        <!-- Terbuka secara default (atribut open) -->
         <details class="typing-guide" open>
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
@@ -272,6 +273,7 @@
             </div>
         </details>
 
+        <!-- Kotak Output Aksara Jawa -->
         <div class="input-group">
             <div class="header-group">
                 <label>Hasil Aksara Jawa:</label>
@@ -292,6 +294,7 @@
             <div id="outputJawa"></div>
         </div>
 
+        <!-- Kotak Input Teks Latin -->
         <div class="input-group">
             <div class="header-group">
                 <label for="inputLatin">Teks Latin:</label>
@@ -323,6 +326,7 @@
                     <option value="di">di-</option>
                     <option value="sa">sa-</option>
                     <option value="pa">pa-</option>
+                    <option value="pating_paN">pating pa-N (Anuswara otomatis)</option>
                     <option value="pi">pi-</option>
                     <option value="pra">pra-</option>
                     <option value="pri">pri-</option>
@@ -492,7 +496,7 @@
             let stem = dasar;
             let prefixAppended = "";
 
-            // LOGIKA ANUSWARA & ATER-ATER PA (PA + ANUSWARA)
+            // LOGIKA ANUSWARA & ATER-ATER PA (Lebur)
             if (['N', 'm', 'n', 'ny', 'ng', 'pa'].includes(ater)) {
                 if(['p','w'].includes(f)) stem = 'm' + dasar.slice(1);
                 else if(f === 'b') stem = 'm' + dasar;
@@ -507,6 +511,20 @@
                 if (ater === 'pa') {
                     prefixAppended = 'pa';
                 }
+            } else if (ater === 'pating_paN') {
+                // LOGIKA PATING PA-N (Otomatis, TIDAK LEBUR)
+                let nasal = '';
+                if (['p','b','w','m','f','v'].includes(f)) {
+                    nasal = 'm';
+                } else if (['t','d','j','n'].includes(f) || dasar.startsWith('dh') || dasar.startsWith('th')) {
+                    nasal = 'n';
+                } else if (['c','s'].includes(f) || dasar.startsWith('ny')) {
+                    nasal = 'ny';
+                } else {
+                    nasal = 'ng';
+                }
+                stem = 'pa' + nasal + dasar; // Ditempel utuh tanpa memotong dasar
+                prefixAppended = 'pating ';
             } else if (ater === 'pi') {
                 if (dasar === 'ambak' || dasar === 'hambak') {
                     stem = 'yambak';
