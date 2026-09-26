@@ -760,6 +760,11 @@
                 return root + consonantToDouble + modSuffix;
             });
 
+            // LOGIKA KHUSUS DAK-/TAK-/KOK- + VOKAL (TIDAK BERLAKU SASTRA LAMPAH)
+            // Memisahkan huruf 'k' dari vokal tanpa menggunakan tanda pemisah nyata,
+            // melainkan menyisipkan penanda internal kx dan hx agar langsung membentuk pasangan ha
+            latinProcessed = latinProcessed.replace(/^(dak|tak|kok)([aiueoéèê])/i, '$1xhx$2');
+
             let prevLatin = "";
             while (latinProcessed !== prevLatin) {
                 prevLatin = latinProcessed;
@@ -859,11 +864,11 @@
                             }
                         }
                         
-                        // PENANGANAN KHUSUS: Cegah k menjadi cakra/pengkal jika didahului "da" (bagian dari dak-)
-                        if (c === 'k' && lower.substring(i - 3, i) === 'dak') {
+                        // PENANGANAN KHUSUS: Cegah k menjadi cakra/pengkal jika didahului "da" (dak-), "ta" (tak-), "ko" (kok-)
+                        if (c === 'k' && (lower.substring(i - 3, i) === 'dak' || lower.substring(i - 3, i) === 'tak' || lower.substring(i - 3, i) === 'kok')) {
                             rejectMedial = true;
                         }
-                        
+
                         if (rejectMedial) { medial = ""; } else { medial = lower[i]; i++; }
                     } else if (c === 'h') {
                         c = lower[i]; i++;
