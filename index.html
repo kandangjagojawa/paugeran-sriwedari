@@ -376,8 +376,8 @@
             </div>
             <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
-                    </div>
-                        <script>
+                        </div>
+                    <script>
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -604,7 +604,7 @@
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
         }
-                                    /* --- ENGINE TRANSLITERASI UTAMA --- */
+                                /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
             let hasil = transliterasiKalimat(teksInput);
@@ -654,8 +654,13 @@
             const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
             const nas = "(?:m|n|ng|ny)";
 
-            // RULE KHUSUS: ng mati di awal kata (ng + konsonan) diubah menjadi ha + ng (ha + cecek)
-            latinProcessed = latinProcessed.replace(/^ng([bcdfghjklmnpqrstvwxyz])/i, 'hang$1');
+            // LOGIKA PRE-PROCESSING KHUSUS "NG" DI AWAL KATA
+            // 1. ng + r + pepet (e/ê) -> ngre (menjadi cakra keret ꦔꦽ)
+            latinProcessed = latinProcessed.replace(/^ngr[eê]/i, 'ngre');
+            // 2. ng + r + vokal lain -> ngr... (menjadi cakra ꦔꦿ)
+            // (dibiarkan tetap ngr agar ditangani engine cakra)
+            // 3. ng + konsonan selain r -> ha + ng + konsonan (menjadi ꦲꦁ...)
+            latinProcessed = latinProcessed.replace(/^ng([bcdfghjklmnpqstvwxyz])/i, 'hang$1');
 
             if (/^p[aeêEÊ]ndhawa(-[a-zA-ZéèêÉÈÊ]+)?$/i.test(latinProcessed)) {
                 latinProcessed = latinProcessed.replace(/^(p)[aeêEÊ](ndhawa(?:-[a-zA-ZéèêÉÈÊ]+)?)$/i, function(match, p1, p2) {
@@ -674,7 +679,7 @@
             });
 
             latinProcessed = latinProcessed.replace(/^(ha)?ngg/i, '$1nxg');
-            latinProcessed = latinProcessed.replace(/^(ha)?ng([lrwy])/i, '$1nx$2');
+            latinProcessed = latinProcessed.replace(/^(ha)?ng([lwy])/i, '$1nx$2');
             latinProcessed = latinProcessed.replace(/nc/g, 'nyc').replace(/nj/g, 'nyj');
             latinProcessed = latinProcessed.replace(/Nc/g, 'Nyc').replace(/Nj/g, 'Nyj');
 
