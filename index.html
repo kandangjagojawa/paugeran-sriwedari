@@ -259,6 +259,7 @@
     </div>
 
     <div class="container">
+        <!-- Terbuka secara default (atribut open) -->
         <details class="typing-guide" open>
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
@@ -272,6 +273,7 @@
             </div>
         </details>
 
+        <!-- Kotak Output Aksara Jawa -->
         <div class="input-group">
             <div class="header-group">
                 <label>Hasil Aksara Jawa:</label>
@@ -292,6 +294,7 @@
             <div id="outputJawa"></div>
         </div>
 
+        <!-- Kotak Input Teks Latin -->
         <div class="input-group">
             <div class="header-group">
                 <label for="inputLatin">Teks Latin:</label>
@@ -468,7 +471,6 @@
             let isVowelEnd = /[aiueoéèê]/i.test(lastChar);
             let errorMsg = "";
 
-            // VALIDASI KETAT ATER-ATER
             if (ater === 'm' && !['b','p','w','m','f','v'].includes(f)) {
                 errorMsg = `Ater-ater "m-" khusus untuk kata dasar berawalan p, b, w, m.`;
             } else if (ater === 'n' && !['d','t','j','n'].includes(f) && !dasar.startsWith('dh') && !dasar.startsWith('th')) {
@@ -529,7 +531,6 @@
                 prefixAppended = ater;
             }
 
-            // PROSES PANAMBANG & SANDHI
             let resultLatin = "";
 
             if (panam === '') {
@@ -598,7 +599,7 @@
 
             document.getElementById('outParamLatin').value = resultLatin;
             document.getElementById('outParamJawa').innerText = transliterasiKalimat(resultLatin);
-                        }
+                }
                     /* --- ENGINE TRANSLITERASI UTAMA --- */
         function prosesTransliterasi() {
             let teksInput = document.getElementById('inputLatin').value;
@@ -607,7 +608,6 @@
         }
 
         function transliterasiKalimat(teks) {
-            // Hapus imbuhan ngg/ngl dll dari sini, agar murni diurus oleh transliterasiKata
             let teksDiolah = teks.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|nc|nj)/gim, function(match, p1, p2) {
                 return p1 + 'ha' + p2;
             });
@@ -650,9 +650,9 @@
             const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
             const nas = "(?:m|n|ng|ny)";
 
-            // LOGIKA KHUSUS "NG" MATI DI AWAL KATA:
-            // ng di awal yg diikuti konsonan (SELAIN R) otomatis jadi hang (ha + cecek)
-            latinProcessed = latinProcessed.replace(/^ng([bcdfghjklmnpqstvwxyz])/i, 'hang$1');
+            // LOGIKA KHUSUS "NG" MATI DI AWAL KATA
+            // ng yg diikuti konsonan SELAIN R/Y otomatis jadi hang (ha + cecek)
+            latinProcessed = latinProcessed.replace(/^ng([bcdfghjklmnpqstvwxz])/i, 'hang$1');
 
             if (/^p[aeêEÊ]ndhawa(-[a-zA-ZéèêÉÈÊ]+)?$/i.test(latinProcessed)) {
                 latinProcessed = latinProcessed.replace(/^(p)[aeêEÊ](ndhawa(?:-[a-zA-ZéèêÉÈÊ]+)?)$/i, function(match, p1, p2) {
@@ -797,9 +797,16 @@
                 if (!isSwara && i < lower.length && (lower[i] === 'y' || lower[i] === 'r')) {
                     if (i+1 < lower.length && /[aieéèêou]/.test(lower[i+1])) {
                         let rejectMedial = false;
-                        if (c === 'ng' || c === 'h') {
-                            if (c === 'ng' && isKataNingrat && lower[i] === 'r') rejectMedial = false; 
-                            else rejectMedial = true;
+                        if (c === 'h') {
+                            rejectMedial = true;
+                        } else if (c === 'ng') {
+                            // LOGIKA IZIN CAKRA / PENGKAL UNTUK NG
+                            if (isFirstAksara) {
+                                rejectMedial = false; // Boleh pakai cakra/pengkal di awal kata
+                            } else {
+                                if (isKataNingrat && lower[i] === 'r') rejectMedial = false; 
+                                else rejectMedial = true; // Jadi cecek jika di tengah kata
+                            }
                         }
                         if (rejectMedial) { medial = ""; } else { medial = lower[i]; i++; }
                     } else if (c === 'h') {
