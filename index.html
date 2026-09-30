@@ -590,10 +590,27 @@
                             suffixMod = 'a';
                         }
                     } else {
-                        if (rootVowel === 'a') {
+                        // ATURAN SPESIFIK UNTUK AKHIRAN -AN
+                        if (panam === 'an') {
+                            if (stem === 'uji') {
+                                body = stem;
+                                suffixMod = 'an'; // Pengecualian serapan -> ujian
+                            } else if (rootVowel === 'a') {
+                                body = stem;
+                                suffixMod = 'n'; // waca + n -> wacan
+                            } else if (rootVowel === 'i') {
+                                body = stem.slice(0, -1) + 'è';
+                                suffixMod = 'n'; // dadi -> dadè + n -> dadèn
+                            } else if (rootVowel === 'u') {
+                                body = stem.slice(0, -1) + 'o';
+                                suffixMod = 'n'; // tuku -> tuko + n -> tukon
+                            } else if (['e','é','è','o'].includes(rootVowel)) {
+                                body = stem;
+                                suffixMod = 'nan'; // ombé -> ombé + nan -> ombénan
+                            }
+                        } else if (rootVowel === 'a') {
                             if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
                             else if(panam === 'aken') suffixMod = 'kaken';
-                            else if(panam === 'an') suffixMod = 'nan';
                             else if(panam === 'en') suffixMod = 'nen';
                             else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                             else if(panam === 'ipun') suffixMod = 'nipun';
@@ -602,7 +619,6 @@
                             body = stem.slice(0, -1) + 'é';
                             if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
                             else if(panam === 'aken') suffixMod = 'kaken';
-                            else if(panam === 'an') suffixMod = 'nan';
                             else if(panam === 'en') suffixMod = 'nen';
                             else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
                             else if(panam === 'ipun') suffixMod = 'nipun';
@@ -611,21 +627,19 @@
                             if(panam === 'ipun') {
                                 body = stem;
                                 suffixMod = 'nipun';
-                            } else if(['ake', 'aké', 'aken', 'an', 'en'].includes(panam)) {
+                            } else if(['ake', 'aké', 'aken', 'en'].includes(panam)) {
                                 body = stem.slice(0, -1) + 'o';
                                 if(['ake','aké'].includes(panam)) suffixMod='kake';
                                 if(panam==='aken') suffixMod='kaken';
-                                if(panam==='an') suffixMod='nan';
                                 if(panam==='en') suffixMod='nen';
                             } else if(['e', 'é'].includes(panam)) {
                                 body = stem.slice(0, -1) + 'o';
                                 suffixMod='ne';
                             } else suffixMod = panam;
                         } else if (['e','é','è','o'].includes(rootVowel)) {
-                            if(['ake', 'aké', 'aken', 'an', 'en', 'e', 'é', 'ipun'].includes(panam)) {
+                            if(['ake', 'aké', 'aken', 'en', 'e', 'é', 'ipun'].includes(panam)) {
                                 if(['ake','aké'].includes(panam)) suffixMod='kake';
                                 if(panam==='aken') suffixMod='kaken';
-                                if(panam==='an') suffixMod='nan';
                                 if(panam==='en') suffixMod='nen';
                                 if(['e', 'é'].includes(panam)) suffixMod='ne';
                                 if(panam==='ipun') suffixMod='nipun';
@@ -693,17 +707,17 @@
             // PENANGANAN PENUH UNTUK DAK- + R/Y (MENCEGAH H LEBIHAN & PENGKAL/CAKRA)
             if (/^dak[ry]/i.test(rawLatin)) {
                 let isY = /^daky/i.test(rawLatin);
-                let rest = rawLatin.substring(4); // hilangkan 'dakr' atau 'daky'
-                let prefixAksara = KAMUS_AKSARA['d'] + 'ꦏ꧀'; // ꦢꦏ꧀
+                let rest = rawLatin.substring(4); 
+                let prefixAksara = KAMUS_AKSARA['d'] + 'ꦏ꧀'; 
                 
                 if (isY) {
                     prefixAksara += KAMUS_AKSARA['y'];
                 } else {
                     if (/^(e|ê)/i.test(rest)) {
-                        prefixAksara += 'ꦉ'; // pasangan pa cerek (re)
+                        prefixAksara += 'ꦉ'; 
                         rest = rest.substring(1);
                     } else {
-                        prefixAksara += KAMUS_AKSARA['r']; // pasangan ra
+                        prefixAksara += KAMUS_AKSARA['r']; 
                     }
                 }
                 return prefixAksara + transliterasiKata(rest);
@@ -771,9 +785,6 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            // LOGIKA KHUSUS DAK-/TAK-/KOK-/KO-/DI- + VOKAL (TIDAK BERLAKU SASTRA LAMPAH)
-            // Memisahkan suku kata tanpa tanda pemisah nyata, melainkan menyisipkan penanda internal kx dan hx 
-            // agar langsung membentuk pasangan ha atau memotong hukum panglancar
             latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di)([aiueoéèê])/i, function(match, p1, p2) {
                 let p1Lower = p1.toLowerCase();
                 if (p1Lower === 'ko' || p1Lower === 'di') {
@@ -802,7 +813,6 @@
                     .replace(/dh/gi, '3')
                     .replace(/th/gi, '4');
 
-                // PERBAIKAN: Taling tarung palsu opsional ekstensi "ha" pada belakang agar berlaku di akhiran -a
                 token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz134]+)a(h?a)?$/i, 'o$1$2a$3');
 
                 wordOnly = token
@@ -883,7 +893,6 @@
                             }
                         }
                         
-                        // PENANGANAN KHUSUS: Cegah k menjadi cakra/pengkal jika didahului "da" (dak-), "ta" (tak-), "ko" (kok-)
                         if (c === 'k' && (lower.substring(i - 3, i) === 'dak' || lower.substring(i - 3, i) === 'tak' || lower.substring(i - 3, i) === 'kok')) {
                             rejectMedial = true;
                         }
