@@ -802,7 +802,8 @@
                     .replace(/dh/gi, '3')
                     .replace(/th/gi, '4');
 
-                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz134]+)a$/i, 'o$1$2a');
+                // PERBAIKAN: Taling tarung palsu opsional ekstensi "a" (a?) pada belakang agar berlaku di akhiran -a
+                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz134]+)a(a?)$/i, 'o$1$2a$3');
 
                 wordOnly = token
                     .replace(/1/g, 'ng')
