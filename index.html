@@ -351,10 +351,6 @@
                     <option value="ana">-ana</option>
                     <option value="ake">-aké</option>
                     <option value="aken">-aken</option>
-                    <option value="na">-na</option>
-                    <option value="ni">-ni</option>
-                    <option value="ku">-ku</option>
-                    <option value="mu">-mu</option>
                     <option value="ipun">-ipun</option>
                 </select>
             </div>
@@ -479,10 +475,6 @@
                 errorMsg = `Ater-ater "ny-" khusus untuk kata dasar berawalan c, s, ny.`;
             } else if (ater === 'ng' && !['g','k','l','r','y','w'].includes(f) && !isVowelStart && !dasar.startsWith('ng')) {
                 errorMsg = `Ater-ater "ng-" khusus untuk kata dasar berawalan k, g, l, r, y, w, atau vokal.`;
-            }
-
-            if (panam === 'ni' && !isVowelEnd) {
-                errorMsg = `Panambang "-ni" khusus untuk kata dasar berakhiran vokal (suara terbuka).`;
             }
 
             if (errorMsg !== "") {
@@ -779,11 +771,12 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            // LOGIKA KHUSUS DAK-/TAK-/KOK-/KO- + VOKAL (TIDAK BERLAKU SASTRA LAMPAH)
+            // LOGIKA KHUSUS DAK-/TAK-/KOK-/KO-/DI- + VOKAL (TIDAK BERLAKU SASTRA LAMPAH)
             // Memisahkan suku kata tanpa tanda pemisah nyata, melainkan menyisipkan penanda internal kx dan hx 
             // agar langsung membentuk pasangan ha atau memotong hukum panglancar
-            latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko)([aiueoéèê])/i, function(match, p1, p2) {
-                if (p1.toLowerCase() === 'ko') {
+            latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di)([aiueoéèê])/i, function(match, p1, p2) {
+                let p1Lower = p1.toLowerCase();
+                if (p1Lower === 'ko' || p1Lower === 'di') {
                     return p1 + 'hx' + p2;
                 } else {
                     return p1.slice(0, -1) + 'kxhx' + p2;
