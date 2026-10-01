@@ -572,22 +572,22 @@
                         else if (rootVowel === 'a') body = stem;
                         else if (['e','é','è','o'].includes(rootVowel)) body = stem;
                     } else if (panam === 'a') {
-                        // HUKUM PANGLANCAR
-                        let prevChar = stem.length > 1 ? stem.slice(-2, -1).toLowerCase() : '';
-                        
-                        if (rootVowel === 'i' || rootVowel === 'é' || rootVowel === 'è') {
-                            body = stem; // Vokal tetap i atau é/è
-                            suffixMod = 'ya'; // Panambang menjadi ya
-                        } else if (rootVowel === 'u' || rootVowel === 'o') {
-                            body = stem; // Vokal tetap u atau o
-                            if (prevChar === 'w') {
-                                suffixMod = 'a'; // Suku kata terbuka u/o dg konsonan w, panambang tetap ha (ditulis a)
-                            } else {
-                                suffixMod = 'wa'; // Panambang menjadi wa
-                            }
+                        // HUKUM PANGLANCAR + 4 KATA PENGECUALIAN KHUSUS
+                        const explicitHaWords = ['priyé', 'priyayi', 'tawu', 'suwowo'];
+                        if (explicitHaWords.includes(stem)) {
+                            body = stem;
+                            suffixMod = 'ha';
                         } else {
-                            body = stem; 
-                            suffixMod = 'a';
+                            if (rootVowel === 'i' || rootVowel === 'é' || rootVowel === 'è') {
+                                body = stem; // Vokal tetap i atau é/è
+                                suffixMod = 'ya'; // Panambang menjadi ya
+                            } else if (rootVowel === 'u' || rootVowel === 'o') {
+                                body = stem; // Vokal tetap u atau o
+                                suffixMod = 'wa'; // Panambang menjadi wa
+                            } else {
+                                body = stem; 
+                                suffixMod = 'a';
+                            }
                         }
                     } else {
                         // ATURAN SPESIFIK UNTUK AKHIRAN -AN
@@ -708,7 +708,7 @@
             if (/^dak[ry]/i.test(rawLatin)) {
                 let isY = /^daky/i.test(rawLatin);
                 let rest = rawLatin.substring(4); 
-                let prefixAksara = KAMUS_AKSARA['d'] + 'ꦏ꧀'; 
+                let prefixAksara = KAMUS_AKSARA['d'] + 'ꦏꀀ'; 
                 
                 if (isY) {
                     prefixAksara += KAMUS_AKSARA['y'];
@@ -761,7 +761,6 @@
                 if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
 
                 let suffixLower = suffix.toLowerCase();
-                // PENAMBAHAN 'nen' KE DALAM PENGECEKAN AKHIRAN PEPET
                 let isPepetSuffix = (suffixLower === 'aken' || suffixLower === 'kaken' || suffixLower === 'en' || suffixLower === 'nen');
                 let modSuffix = isPepetSuffix ? suffix.replace(/[eéèê]/gi, 'e') : suffix.replace(/[eéèê]/gi, 'é');
 
@@ -814,8 +813,7 @@
                     .replace(/dh/gi, '3')
                     .replace(/th/gi, '4');
 
-                // PERBAIKAN: Menghapus angka '1' (ng) dari grup konsonan kedua agar vokal 'a' sebelum akhiran ganda (ngng) tidak keliru dianggap taling tarung palsu.
-                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz34]+)a$/i, 'o$1$2a');
+                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz34]+)a(h?a)?$/i, 'o$1$2a$3');
 
                 wordOnly = token
                     .replace(/1/g, 'ng')
