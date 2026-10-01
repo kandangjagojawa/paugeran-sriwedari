@@ -814,8 +814,8 @@
                     .replace(/dh/gi, '3')
                     .replace(/th/gi, '4');
 
-                // PERBAIKAN DIKEMBALIKAN: Taling tarung palsu opsional ekstensi "ha" pada belakang agar berlaku di akhiran -a
-                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz134]+)a(h?a)?$/i, 'o$1$2a$3');
+                // PERBAIKAN: Menghapus angka '1' (ng) dari grup konsonan kedua agar vokal 'a' sebelum akhiran ganda (ngng) tidak keliru dianggap taling tarung palsu.
+                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz34]+)a$/i, 'o$1$2a');
 
                 wordOnly = token
                     .replace(/1/g, 'ng')
