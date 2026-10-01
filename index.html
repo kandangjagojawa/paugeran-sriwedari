@@ -761,6 +761,7 @@
                 if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
 
                 let suffixLower = suffix.toLowerCase();
+                // PENAMBAHAN 'nen' KE DALAM PENGECEKAN AKHIRAN PEPET
                 let isPepetSuffix = (suffixLower === 'aken' || suffixLower === 'kaken' || suffixLower === 'en' || suffixLower === 'nen');
                 let modSuffix = isPepetSuffix ? suffix.replace(/[eéèê]/gi, 'e') : suffix.replace(/[eéèê]/gi, 'é');
 
@@ -813,8 +814,8 @@
                     .replace(/dh/gi, '3')
                     .replace(/th/gi, '4');
 
-                // PERBAIKAN: Mengembalikan sandi taling tarung palsu khusus untuk kata murni (tanpa diakhiri a tambahan/panambang)
-                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz134]+)a$/i, 'o$1$2a');
+                // PERBAIKAN DIKEMBALIKAN: Taling tarung palsu opsional ekstensi "ha" pada belakang agar berlaku di akhiran -a
+                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz134]+)a(h?a)?$/i, 'o$1$2a$3');
 
                 wordOnly = token
                     .replace(/1/g, 'ng')
