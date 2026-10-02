@@ -566,7 +566,6 @@
                 let stemIsVowel = /[aiueoéèê]/i.test(stemLastChar);
                 
                 // PENANDA KHUSUS: HANYA Tanggap Bawa Ka- / Na- / In- (seselan in) yang bertemu akhiran -i 
-                // Ater-ater lain (seperti n, di, m, dll) kembali normal.
                 let isTanggapI = (panam === 'i' && (ater === 'ka' || ater === 'in'));
 
                 if (!stemIsVowel) {
@@ -816,8 +815,8 @@
                 if (vowels.includes(firstCharSuffix)) {
                     if (['ng', 'ny', 'dh', 'th'].includes(lastTwoChars)) {
                         consonantToDouble = lastTwoChars;
-                    } else if (!vowels.includes(lastChar)) {
-                        consonantToDouble = lastChar;
+                    } else if (!vowels.includes(lastChar) && lastChar !== 'y' && lastChar !== 'w') {
+                        consonantToDouble = lastChar; // Pengecualian y dan w agar tidak dobel
                     }
                 }
                 return root + consonantToDouble + modSuffix;
