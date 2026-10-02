@@ -565,12 +565,13 @@
                 let stemLastChar = stem.slice(-1);
                 let stemIsVowel = /[aiueoéèê]/i.test(stemLastChar);
                 
-                // PENANDA KHUSUS: Tanggap Bawa Ka- / Na- / In- bertemu akhiran -i
-                let isTanggapI = (panam === 'i' && ['ka', 'in', 'n', 'N', 'm', 'ng', 'ny'].includes(ater));
+                // PENANDA KHUSUS: HANYA Tanggap Bawa Ka- / Na- / In- (seselan in) yang bertemu akhiran -i 
+                // Ater-ater lain (seperti n, di, m, dll) kembali normal.
+                let isTanggapI = (panam === 'i' && (ater === 'ka' || ater === 'in'));
 
                 if (!stemIsVowel) {
                     let formattedStem = prefixAppended ? (prefixAppended + stem) : stem;
-                    // Bila konsonan tertutup, tanggap -i menjadi -an (misal: tinulis-an)
+                    // Bila konsonan tertutup, khusus ka-/in- bertemu -i menjadi -an (misal: tinulis-an, katulis-an)
                     let currentPanam = isTanggapI ? 'an' : panam;
                     resultLatin = formattedStem + '-' + currentPanam;
                 } else {
@@ -579,7 +580,7 @@
                     let suffixMod = panam;
 
                     if (isTanggapI) {
-                        // TANGGAP BAWA KA-/IN-/N- BERTEMU -I PADA VOKAL TERBUKA -> -NNAN
+                        // TANGGAP BAWA KA-/IN- BERTEMU -I PADA VOKAL TERBUKA -> -NNAN
                         if (rootVowel === 'a') {
                             body = stem;
                             suffixMod = 'nnan';
@@ -594,7 +595,7 @@
                             suffixMod = 'nnan';
                         }
                     } else if (panam === 'i' || panam === 'ana') {
-                        // KEMBALI KE ATURAN DOBEL (nni & nnana) UNTUK -I REGULER
+                        // KEMBALI KE ATURAN DOBEL (nni & nnana) UNTUK -I REGULER PADA UMUMNYA
                         suffixMod = (panam === 'i') ? 'nni' : 'nnana';
                         if (rootVowel === 'u') body = stem.slice(0, -1) + 'o';
                         else if (rootVowel === 'i') body = stem.slice(0, -1) + 'é';
