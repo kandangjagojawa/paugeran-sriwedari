@@ -564,29 +564,43 @@
             } else {
                 let stemLastChar = stem.slice(-1);
                 let stemIsVowel = /[aiueoéèê]/i.test(stemLastChar);
-
-                // INTERSEPSI AKHIRAN -I KHUSUS UNTUK ATER-ATER TANGGAP (KA-, N-, IN-)
-                let effectivePanam = panam;
-                if (panam === 'i' && (ater === 'ka' || ater === 'n' || ater === 'in')) {
-                    effectivePanam = 'an'; // Diberlakukan meniru panambang -an
-                }
+                
+                // PENANDA KHUSUS: Tanggap Bawa Ka- / Na- / In- bertemu akhiran -i
+                let isTanggapI = (panam === 'i' && ['ka', 'in', 'n', 'N', 'm', 'ng', 'ny'].includes(ater));
 
                 if (!stemIsVowel) {
                     let formattedStem = prefixAppended ? (prefixAppended + stem) : stem;
-                    resultLatin = formattedStem + '-' + effectivePanam;
+                    // Bila konsonan tertutup, tanggap -i menjadi -an (misal: tinulis-an)
+                    let currentPanam = isTanggapI ? 'an' : panam;
+                    resultLatin = formattedStem + '-' + currentPanam;
                 } else {
                     let rootVowel = stemLastChar;
                     let body = stem;
-                    let suffixMod = effectivePanam;
+                    let suffixMod = panam;
 
-                    if (effectivePanam === 'i' || effectivePanam === 'ana') {
+                    if (isTanggapI) {
+                        // TANGGAP BAWA KA-/IN-/N- BERTEMU -I PADA VOKAL TERBUKA -> -NNAN
+                        if (rootVowel === 'a') {
+                            body = stem;
+                            suffixMod = 'nnan';
+                        } else if (rootVowel === 'i') {
+                            body = stem.slice(0, -1) + 'è';
+                            suffixMod = 'nnan';
+                        } else if (rootVowel === 'u') {
+                            body = stem.slice(0, -1) + 'o';
+                            suffixMod = 'nnan';
+                        } else if (['e','é','è','o'].includes(rootVowel)) {
+                            body = stem;
+                            suffixMod = 'nnan';
+                        }
+                    } else if (panam === 'i' || panam === 'ana') {
                         // KEMBALI KE ATURAN DOBEL (nni & nnana) UNTUK -I REGULER
-                        suffixMod = (effectivePanam === 'i') ? 'nni' : 'nnana';
+                        suffixMod = (panam === 'i') ? 'nni' : 'nnana';
                         if (rootVowel === 'u') body = stem.slice(0, -1) + 'o';
                         else if (rootVowel === 'i') body = stem.slice(0, -1) + 'é';
                         else if (rootVowel === 'a') body = stem;
                         else if (['e','é','è','o'].includes(rootVowel)) body = stem;
-                    } else if (effectivePanam === 'a') {
+                    } else if (panam === 'a') {
                         // HUKUM PANGLANCAR + PENGECUALIAN HARDCODE KHUSUS
                         const explicitHaWords = ['priyé', 'priyayi', 'tawu', 'suwowo'];
                         if (explicitHaWords.includes(stem)) {
@@ -605,8 +619,8 @@
                             }
                         }
                     } else {
-                        // ATURAN SPESIFIK UNTUK AKHIRAN -AN (DIKEMBALIKAN KE ATURAN BAKU)
-                        if (effectivePanam === 'an') {
+                        // ATURAN SPESIFIK UNTUK AKHIRAN -AN
+                        if (panam === 'an') {
                             if (stem === 'uji') {
                                 body = stem;
                                 suffixMod = 'an'; // Pengecualian serapan -> ujian
@@ -624,51 +638,51 @@
                                 suffixMod = 'nan'; // ombénan
                             }
                         } else if (rootVowel === 'a') {
-                            if(['ake', 'aké'].includes(effectivePanam)) suffixMod = 'kake';
-                            else if(effectivePanam === 'aken') suffixMod = 'kaken';
-                            else if(effectivePanam === 'en') suffixMod = 'nen';
-                            else if(['e', 'é'].includes(effectivePanam)) suffixMod = 'ne';
-                            else if(effectivePanam === 'ipun') suffixMod = 'nipun';
-                            else suffixMod = effectivePanam;
+                            if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
+                            else if(panam === 'aken') suffixMod = 'kaken';
+                            else if(panam === 'en') suffixMod = 'nen';
+                            else if(['e', 'é'].includes(panam)) suffixMod = 'ne';
+                            else if(panam === 'ipun') suffixMod = 'nipun';
+                            else suffixMod = panam;
                         } else if (rootVowel === 'i') {
                             // KHUSUS UNTUK PANAMBANG -E/-É DAN -IPUN AGAR VOKAL 'i' TETAP
-                            if (['e', 'é', 'ipun'].includes(effectivePanam)) {
+                            if (['e', 'é', 'ipun'].includes(panam)) {
                                 body = stem;
-                                if (effectivePanam === 'ipun') suffixMod = 'nipun';
+                                if (panam === 'ipun') suffixMod = 'nipun';
                                 else suffixMod = 'ne';
                             } else {
                                 body = stem.slice(0, -1) + 'é';
-                                if(['ake', 'aké'].includes(effectivePanam)) suffixMod = 'kake';
-                                else if(effectivePanam === 'aken') suffixMod = 'kaken';
-                                else if(effectivePanam === 'en') suffixMod = 'nen';
-                                else suffixMod = effectivePanam;
+                                if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
+                                else if(panam === 'aken') suffixMod = 'kaken';
+                                else if(panam === 'en') suffixMod = 'nen';
+                                else suffixMod = panam;
                             }
                         } else if (rootVowel === 'u') {
                             // KHUSUS UNTUK PANAMBANG -E/-É DAN -IPUN AGAR VOKAL 'u' TETAP
-                            if (effectivePanam === 'ipun') {
+                            if (panam === 'ipun') {
                                 body = stem;
                                 suffixMod = 'nipun';
-                            } else if (['e', 'é'].includes(effectivePanam)) {
+                            } else if (['e', 'é'].includes(panam)) {
                                 body = stem;
                                 suffixMod = 'ne';
-                            } else if (['ake', 'aké', 'aken', 'en'].includes(effectivePanam)) {
+                            } else if (['ake', 'aké', 'aken', 'en'].includes(panam)) {
                                 body = stem.slice(0, -1) + 'o';
-                                if(['ake','aké'].includes(effectivePanam)) suffixMod='kake';
-                                if(effectivePanam==='aken') suffixMod='kaken';
-                                if(effectivePanam==='en') suffixMod='nen';
+                                if(['ake','aké'].includes(panam)) suffixMod='kake';
+                                if(panam==='aken') suffixMod='kaken';
+                                if(panam==='en') suffixMod='nen';
                             } else {
-                                suffixMod = effectivePanam;
+                                suffixMod = panam;
                             }
                         } else if (['e','é','è','o'].includes(rootVowel)) {
-                            if(['ake', 'aké', 'aken', 'en', 'e', 'é', 'ipun'].includes(effectivePanam)) {
-                                if(['ake','aké'].includes(effectivePanam)) suffixMod='kake';
-                                if(effectivePanam==='aken') suffixMod='kaken';
-                                if(effectivePanam==='en') suffixMod='nen';
-                                if(['e', 'é'].includes(effectivePanam)) suffixMod='ne';
-                                if(effectivePanam==='ipun') suffixMod='nipun';
-                            } else suffixMod = effectivePanam;
+                            if(['ake', 'aké', 'aken', 'en', 'e', 'é', 'ipun'].includes(panam)) {
+                                if(['ake','aké'].includes(panam)) suffixMod='kake';
+                                if(panam==='aken') suffixMod='kaken';
+                                if(panam==='en') suffixMod='nen';
+                                if(['e', 'é'].includes(panam)) suffixMod='ne';
+                                if(panam==='ipun') suffixMod='nipun';
+                            } else suffixMod = panam;
                         } else {
-                            suffixMod = effectivePanam;
+                            suffixMod = panam;
                         }
                     }
 
