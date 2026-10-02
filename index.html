@@ -616,16 +616,16 @@
                             else if(panam === 'ipun') suffixMod = 'nipun';
                             else suffixMod = panam;
                         } else if (rootVowel === 'i') {
-                            // PERUBAHAN BARU KHUSUS UNTUK PANAMBANG -E/-É AGAR VOKAL 'i' TETAP
-                            if (['e', 'é'].includes(panam)) {
+                            // PERUBAHAN BARU KHUSUS UNTUK PANAMBANG -E/-É DAN -IPUN AGAR VOKAL 'i' TETAP
+                            if (['e', 'é', 'ipun'].includes(panam)) {
                                 body = stem;
-                                suffixMod = 'ne';
+                                if (panam === 'ipun') suffixMod = 'nipun';
+                                else suffixMod = 'ne';
                             } else {
                                 body = stem.slice(0, -1) + 'é';
                                 if(['ake', 'aké'].includes(panam)) suffixMod = 'kake';
                                 else if(panam === 'aken') suffixMod = 'kaken';
                                 else if(panam === 'en') suffixMod = 'nen';
-                                else if(panam === 'ipun') suffixMod = 'nipun';
                                 else suffixMod = panam;
                             }
                         } else if (rootVowel === 'u') {
