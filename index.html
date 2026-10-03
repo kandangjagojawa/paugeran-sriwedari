@@ -263,10 +263,11 @@
             <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
             <div style="margin-top: 10px;">
                 <ul>
-                    <li><strong>Vokal:</strong> Gunakan <code>é</code>/<code>è</code> (taling), dan <code>e</code> (pepet).</li>
+                    <li><strong>Vokal:</strong> Gunakan <code>é</code>/<code>è</code> (taling), atau ketik <code>e'</code> menggunakan kibor fisik untuk taling, dan <code>e</code> (pepet).</li>
                     <li><strong>Panambang (akhiran):</strong> Ketik tanda hubung <code>-</code> sebelum akhiran (contoh: omah-e), untuk memastikan kata dasar diakhiri suku kata terbuka atau tertutup.</li>
                     <li><strong>Aksara Rekan:</strong> ketik <code>kh</code> (ꦏ꦳), <code>dz</code> (ꦢ꦳), <code>gh</code> (ꦒ꦳), <code>z</code> (ꦗ꦳), <code>f/v</code> (ꦥ꦳).</li>
-                    <li><strong>Aksara Swara:</strong> Ketik huruf vokal kapital (<code>A, I, U, E, O</code>). <strong>Aksara Murda:</strong> Ketik konsonan Kapital (<code>N, K, T, S, P, G, B, C</code>).</li>
+                    <li><strong>Aksara Swara:</strong> Ketik huruf vokal kapital (<code>A, I, U, E, O</code>).</li>
+                    <li><strong>Aksara Murda:</strong> Ketik konsonan Kapital (<code>N, K, T, S, P, G, B, C, J</code>) serta <code>NY</code> untuk Nya Murda (ꦘ - U+A998). Khusus Ja Murda (ꦙ - U+A999) menggunakan kapital <code>J</code>.</li>
                     <li>Untuk memaksa aksara r, ng, dan h agar bisa diberi cakra/pengkal, tambahkan <code>x</code>. Contoh: <code>rxya</code> (ꦫꦾ), <code>ngxra</code> (ꦔꦿ), <code>hxre</code> (ꦲꦽ).</li>
                 </ul>
             </div>
@@ -386,7 +387,7 @@
 
         const AKSARA_MURDA = {
             'n':'ꦟ', 'k':'ꦑ', 't':'ꦡ', 's':'ꦯ', 'p':'ꦦ',
-            'g':'ꦓ', 'b':'ꦨ', 'c':'ꦖ'
+            'g':'ꦓ', 'b':'ꦨ', 'c':'ꦖ', 'ny':'ꦘ', 'j':'ꦙ'
         };
 
         const SWARA_MAP = {
@@ -451,7 +452,9 @@
         /* --- FUNGSI PARAMASASTRA (MORFOLOGI PAUGERAN SRIWEDARI) --- */
         function prosesParamasastra() {
             let ater = document.getElementById('selAter').value;
-            let dasar = document.getElementById('inDasar').value.toLowerCase().trim();
+            let dasarRaw = document.getElementById('inDasar').value.trim();
+            // Mendukung ketikan e' sebagai é pada input kata dasar
+            let dasar = dasarRaw.replace(/e'/g, 'é').replace(/E'/g, 'É').toLowerCase();
             let panam = document.getElementById('selPanam').value;
 
             document.getElementById('paramWarningArea').innerHTML = "";
@@ -703,7 +706,10 @@
         }
 
         function transliterasiKalimat(teks) {
-            let teksDiolah = teks.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|nc|nj)/gim, function(match, p1, p2) {
+            // Konversi otomatis e' menjadi é untuk kemudahan kibor fisik
+            let teksDiolah = teks.replace(/e'/g, 'é').replace(/E'/g, 'É');
+
+            teksDiolah = teksDiolah.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|nc|nj)/gim, function(match, p1, p2) {
                 return p1 + 'ha' + p2;
             });
 
@@ -816,7 +822,7 @@
                     if (['ng', 'ny', 'dh', 'th'].includes(lastTwoChars)) {
                         consonantToDouble = lastTwoChars;
                     } else if (!vowels.includes(lastChar) && lastChar !== 'y' && lastChar !== 'w') {
-                        consonantToDouble = lastChar; // Pengecualian y dan w agar tidak dobel
+                        consonantToDouble = lastChar; 
                     }
                 }
                 return root + consonantToDouble + modSuffix;
@@ -888,26 +894,39 @@
                 if (!/[a-zA-ZéèêÉÈÊ]/.test(latin[i])) {
                     res += latin[i]; i++; continue; 
                 }
-                
-                let isCapital = (latin[i] >= 'A' && latin[i] <= 'Z');
+
                 let c = "";
                 let jump = 0;
                 let isSwara = false;
+                let isMurda = false;
 
-                let c3 = i+2 < lower.length ? lower.substring(i, i+3) : "";
-                let c2 = i+1 < lower.length ? lower.substring(i, i+2) : "";
+                let c3_raw = i+2 < latin.length ? latin.substring(i, i+3) : "";
+                let c2_raw = i+1 < latin.length ? latin.substring(i, i+2) : "";
+                let c1_raw = latin[i];
 
-                if (['ngx'].includes(c3)) {
+                let c3 = c3_raw.toLowerCase();
+                let c2 = c2_raw.toLowerCase();
+                let c1 = c1_raw.toLowerCase();
+
+                // DUKUNGAN AKSARA MURDA (NY & J Murda, dll)
+                if (c2_raw === 'NY' && AKSARA_MURDA['ny']) {
+                    c = 'ny'; jump = 2; isMurda = true;
+                } else if (c1_raw === 'J' && AKSARA_MURDA['j']) {
+                    c = 'j'; jump = 1; isMurda = true;
+                } else if (['ngx'].includes(c3)) {
                     c = c3; jump = 3;
                 } else if (['ng','ny','dh','th','nx','kh','dz','gh','kx','rx','hx'].includes(c2)) {
                     c = c2; jump = 2;
-                } else if (KAMUS_AKSARA[lower[i]]) {
-                    c = lower[i]; jump = 1;
-                } else if (['A','I','U','E','O','É','È','Ê'].includes(latin[i])) {
-                    c = latin[i]; isSwara = true; jump = 1;
+                } else if (KAMUS_AKSARA[c1]) {
+                    c = c1; jump = 1;
+                    if (c1_raw >= 'A' && c1_raw <= 'Z' && AKSARA_MURDA[c1]) {
+                        isMurda = true;
+                    }
+                } else if (['A','I','U','E','O','É','È','Ê'].includes(c1_raw)) {
+                    c = c1_raw; isSwara = true; jump = 1;
                 }
 
-                if (c === "" && /[aieéèêou]/.test(lower[i])) {
+                if (c === "" && /[aieéèêou]/.test(c1)) {
                     c = "h"; jump = 0;
                 } else if (c !== "") {
                     i += jump;
@@ -950,7 +969,7 @@
                     else if (c === 'r' && !isFirstAksara) res += 'ꦂ'; 
                     else if (c === 'h' && !isFirstAksara) res += 'ꦃ'; 
                     else if (c !== "") {
-                        let base = (isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
+                        let base = isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
                         res += base + '꧀'; 
                     }
                     if (medial !== "") res += KAMUS_AKSARA[medial] + '꧀';
@@ -972,7 +991,7 @@
                 } else if (c === 'r' && (v === 'e' || v === 'ê') && medial === "") {
                     res += 'ꦉ'; 
                 } else {
-                    let base = isSwara ? SWARA_MAP[c] : ((isCapital && AKSARA_MURDA[c]) ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]);
+                    let base = isSwara ? SWARA_MAP[c] : (isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]);
                     res += base;
 
                     if (medial === 'y') res += 'ꦾ';
