@@ -722,6 +722,13 @@
                 
                 lineJoined = lineJoined.replace(/꧀ꦊ/g, '꧀ꦭꦼ');
                 lineJoined = lineJoined.replace(/꧀([ꦄꦆꦈꦌꦎ]|[ꦏꦢꦒꦗ]꦳)/g, '꧀\u200C$1');
+
+                // ATURAN KHUSUS: Pencegahan Tumpuk Pasangan Antarkata
+                // Mengubah konsonan mati di akhir kata pertama jika bertemu konsonan rangkap (pasangan + cakra/pengkal) di awal kata kedua
+                lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])(꦳?)[꧀ꦿꦾꦽ]/g, function(match, p1, p2, p3) {
+                    return p1 + '꧀\u200C' + p2 + p3;
+                });
+
                 lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])(꦳?)꧀([ꦭꦮ])/g, function(match, p1, p2, p3, p4) {
                     if (p2 === 'ꦥ' || p2 === 'ꦱ') return match; 
                     return p1 + '꧀\u200C' + p2 + p3 + '꧀' + p4; 
@@ -854,7 +861,7 @@
                 let wordOnly = wordMatch[1];
                 let punctuations = wordMatch[2];
 
-                // PERBAIKAN FATAL: Mempertahankan kapitalisasi secara mutlak sebelum konversi A -> O
+                // Mempertahankan kapitalisasi secara mutlak sebelum konversi A -> O
                 let token = wordOnly
                     .replace(/ng/g, '1').replace(/Ng/g, '5').replace(/NG/g, '!')
                     .replace(/ny/g, '2').replace(/Ny/g, '6').replace(/NY/g, '@')
@@ -914,7 +921,7 @@
                 let c2 = c2_raw.toLowerCase();
                 let c1 = c1_raw.toLowerCase();
 
-                // PERBAIKAN: Mengecek Aksara Murda menggunakan string yang belum diubah (c1_raw & c2_raw)
+                // Mengecek Aksara Murda menggunakan string yang belum diubah (c1_raw & c2_raw)
                 if ((c2_raw === 'NY' || c2_raw === 'Ny') && AKSARA_MURDA['ny']) {
                     c = 'ny'; jump = 2; isMurda = true;
                 } else if (c1_raw === 'J' && AKSARA_MURDA['j']) {
