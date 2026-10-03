@@ -772,6 +772,8 @@
 
             // LOGIKA KHUSUS "NG" MATI DI AWAL KATA
             latinProcessed = latinProcessed.replace(/^ng([bcdfghjklmnpqstvwxz])/i, 'hang$1');
+            latinProcessed = latinProcessed.replace(/^Ng([bcdfghjklmnpqstvwxz])/i, 'Hang$1');
+            latinProcessed = latinProcessed.replace(/^NG([bcdfghjklmnpqstvwxz])/i, 'HANG$1');
 
             if (/^p[aeêEÊ]ndhawa(-[a-zA-ZéèêÉÈÊ]+)?$/i.test(latinProcessed)) {
                 latinProcessed = latinProcessed.replace(/^(p)[aeêEÊ](ndhawa(?:-[a-zA-ZéèêÉÈÊ]+)?)$/i, function(match, p1, p2) {
@@ -789,8 +791,10 @@
                 return c1 + 'a' + c2 + 'a' + c3 + 'a' + (suf || '');
             });
 
+            // Perbaikan replace case-preserving NC dan NJ
             latinProcessed = latinProcessed.replace(/nc/g, 'nyc').replace(/nj/g, 'nyj');
             latinProcessed = latinProcessed.replace(/Nc/g, 'Nyc').replace(/Nj/g, 'Nyj');
+            latinProcessed = latinProcessed.replace(/NC/g, 'NYC').replace(/NJ/g, 'NYJ');
 
             const prefixRegexStr = "kuma|kami|kapi|dak|tak|kok|tar|pra|ng|ny|ko|di|ha|ka|ke|sa|pa|pi|m|n|a";
             const keretRegex = new RegExp(`^(${prefixRegexStr})?([bcdfghjklmnpqrstvwxyz]*)([eê])r([bcdfghjklmnpqrstvwxyz])`, 'i');
@@ -850,19 +854,22 @@
                 let wordOnly = wordMatch[1];
                 let punctuations = wordMatch[2];
 
+                // PERBAIKAN FATAL: Mempertahankan kapitalisasi secara mutlak sebelum konversi A -> O
                 let token = wordOnly
-                    .replace(/ng/gi, '1')
-                    .replace(/ny/gi, '2')
-                    .replace(/dh/gi, '3')
-                    .replace(/th/gi, '4');
+                    .replace(/ng/g, '1').replace(/Ng/g, '5').replace(/NG/g, '!')
+                    .replace(/ny/g, '2').replace(/Ny/g, '6').replace(/NY/g, '@')
+                    .replace(/dh/g, '3').replace(/Dh/g, '7').replace(/DH/g, '#')
+                    .replace(/th/g, '4').replace(/Th/g, '8').replace(/TH/g, '$');
 
-                token = token.replace(/a([mn12])([bcdfghjklpqrstvwxz34]+)a(h?a)?$/i, 'o$1$2a$3');
+                // Hukum Panyigeg dieksekusi melalui sandi yang aman dari kapitalisasi
+                token = token.replace(/a([mnMN125!6@])([bcdfghjklpqrstvwxzBCDFGHJKLPQRSTVWXZ347#8$]+)a(h?a)?$/i, 'o$1$2a$3');
 
+                // Dikembalikan ke string aslinya dengan wujud kapitalisasi utuh
                 wordOnly = token
-                    .replace(/1/g, 'ng')
-                    .replace(/2/g, 'ny')
-                    .replace(/3/g, 'dh')
-                    .replace(/4/g, 'th');
+                    .replace(/1/g, 'ng').replace(/5/g, 'Ng').replace(/!/g, 'NG')
+                    .replace(/2/g, 'ny').replace(/6/g, 'Ny').replace(/@/g, 'NY')
+                    .replace(/3/g, 'dh').replace(/7/g, 'Dh').replace(/#/g, 'DH')
+                    .replace(/4/g, 'th').replace(/8/g, 'Th').replace(/\$/g, 'TH');
                 
                 latinProcessed = wordOnly + punctuations;
             }
@@ -898,6 +905,7 @@
                 let isSwara = false;
                 let isMurda = false;
 
+                // Mengambil nilai murni beserta kapitalisasinya
                 let c3_raw = i+2 < latin.length ? latin.substring(i, i+3) : "";
                 let c2_raw = i+1 < latin.length ? latin.substring(i, i+2) : "";
                 let c1_raw = latin[i];
@@ -906,7 +914,7 @@
                 let c2 = c2_raw.toLowerCase();
                 let c1 = c1_raw.toLowerCase();
 
-                // PERBAIKAN PEMINDAIAN AKSARA MURDA (MENJAGA CAPITALIZATION ORIGINAL)
+                // PERBAIKAN: Mengecek Aksara Murda menggunakan string yang belum diubah (c1_raw & c2_raw)
                 if ((c2_raw === 'NY' || c2_raw === 'Ny') && AKSARA_MURDA['ny']) {
                     c = 'ny'; jump = 2; isMurda = true;
                 } else if (c1_raw === 'J' && AKSARA_MURDA['j']) {
