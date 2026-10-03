@@ -870,8 +870,6 @@
             let res = "";
             let i = 0;
             let latin = latinProcessed;
-            let lower = latin.toLowerCase();
-            let isFirstAksara = true; 
 
             while (i < latin.length) {
                 if (latin[i] >= '0' && latin[i] <= '9') {
@@ -908,7 +906,7 @@
                 let c2 = c2_raw.toLowerCase();
                 let c1 = c1_raw.toLowerCase();
 
-                // DUKUNGAN AKSARA MURDA (NY & J Murda, dll)
+                // PERBAIKAN PEMINDAIAN AKSARA MURDA (MENJAGA CAPITALIZATION ORIGINAL)
                 if ((c2_raw === 'NY' || c2_raw === 'Ny') && AKSARA_MURDA['ny']) {
                     c = 'ny'; jump = 2; isMurda = true;
                 } else if (c1_raw === 'J' && AKSARA_MURDA['j']) {
@@ -934,9 +932,10 @@
                     res += latin[i]; i++; continue;
                 }
 
+                let lowerLatin = latin.toLowerCase();
                 let medial = "";
-                if (!isSwara && i < lower.length && (lower[i] === 'y' || lower[i] === 'r')) {
-                    if (i+1 < lower.length && /[aieéèêou]/.test(lower[i+1])) {
+                if (!isSwara && i < lowerLatin.length && (lowerLatin[i] === 'y' || lowerLatin[i] === 'r')) {
+                    if (i+1 < lowerLatin.length && /[aieéèêou]/.test(lowerLatin[i+1])) {
                         let rejectMedial = false;
                         if (c === 'h') {
                             rejectMedial = true;
@@ -944,24 +943,24 @@
                             if (isFirstAksara) {
                                 rejectMedial = false; 
                             } else {
-                                if (isKataNingrat && lower[i] === 'r') rejectMedial = false; 
+                                if (isKataNingrat && lowerLatin[i] === 'r') rejectMedial = false; 
                                 else rejectMedial = true; 
                             }
                         }
                         
-                        if (c === 'k' && (lower.substring(i - 3, i) === 'dak' || lower.substring(i - 3, i) === 'tak' || lower.substring(i - 3, i) === 'kok')) {
+                        if (c === 'k' && (lowerLatin.substring(i - 3, i) === 'dak' || lowerLatin.substring(i - 3, i) === 'tak' || lowerLatin.substring(i - 3, i) === 'kok')) {
                             rejectMedial = true;
                         }
 
-                        if (rejectMedial) { medial = ""; } else { medial = lower[i]; i++; }
+                        if (rejectMedial) { medial = ""; } else { medial = lowerLatin[i]; i++; }
                     } else if (c === 'h') {
-                        c = lower[i]; i++;
+                        c = lowerLatin[i]; i++;
                     }
                 }
 
                 let v = "";
-                if (!isSwara && i < lower.length && /[aieéèêou]/.test(lower[i])) {
-                    v = lower[i]; i++;
+                if (!isSwara && i < lowerLatin.length && /[aieéèêou]/.test(lowerLatin[i])) {
+                    v = lowerLatin[i]; i++;
                 }
 
                 if (v === "" && !isSwara) {
