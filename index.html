@@ -246,7 +246,7 @@
     <div class="header-container">
         <div class="title-wrapper">
             <h1>PAUGERAN SRIWEDARI</h1>
-            <div class="subtitle-jawa">ꦥꦲꦸꦒꦼꦂꦫꦤ꧀ꦱꦿꦶꦮꦼꦢꦫꦶ</div>
+            <div class="subtitle-jawa">ꦥꦲꦸꦒꦼꦂꦫꦤ꧀ꦱꦿꦶꦮꦼꦢꦫ궶</div>
         </div>
         <div class="btn-group-header">
             <button onclick="scrollToParamasastra()" class="btn-external-link btn-paramasastra">
@@ -723,13 +723,11 @@
                 lineJoined = lineJoined.replace(/꧀ꦊ/g, '꧀ꦭꦼ');
                 lineJoined = lineJoined.replace(/꧀([ꦄꦆꦈꦌꦎ]|[ꦏꦢꦒꦗ]꦳)/g, '꧀\u200C$1');
 
-                // ATURAN KHUSUS: Pencegahan Tumpuk Pasangan Antarkata
-                // Mengubah konsonan mati di akhir kata pertama jika bertemu konsonan rangkap (pasangan + cakra/pengkal) di awal kata kedua
-                lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])(꦳?)[꧀ꦿꦾꦽ]/g, function(match, p1, p2, p3) {
-                    return p1 + '꧀\u200C' + p2 + p3;
-                });
-
-                lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])(꦳?)꧀([ꦭꦮ])/g, function(match, p1, p2, p3, p4) {
+                // ATURAN BAKU: Pencegahan Tumpuk Tiga (Pasangan Ganda Antarkata)
+                // Jika akhir kata A berakhir konsonan mati (꧀), lalu kata B diawali Pasangan Pasangan (konsonan + konsonan selain r/y),
+                // maka konsonan mati di akhir kata A dipangku (꧀\u200C), dan konsonan rangkap kata B dipasangkan secara independen.
+                lineJoined = lineJoined.replace(/([ꦀ-꧟])꧀([ꦀ-꧟])(꦳?)꧀([ꦀ-꧟])/g, function(match, p1, p2, p3, p4) {
+                    // Kecualikan bila kata kedua diawali pasangan la (ꦭ) atau wa (ꦮ) yang sudah ditangani secara khusus
                     if (p2 === 'ꦥ' || p2 === 'ꦱ') return match; 
                     return p1 + '꧀\u200C' + p2 + p3 + '꧀' + p4; 
                 });
