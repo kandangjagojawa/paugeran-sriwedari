@@ -267,7 +267,7 @@
                     <li><strong>Panambang (akhiran):</strong> Ketik tanda hubung <code>-</code> sebelum akhiran (contoh: omah-e), untuk memastikan kata dasar diakhiri suku kata terbuka atau tertutup.</li>
                     <li><strong>Aksara Rekan:</strong> ketik <code>kh</code> (ꦏ꦳), <code>dz</code> (ꦢ꦳), <code>gh</code> (ꦒ꦳), <code>z</code> (ꦗ꦳), <code>f/v</code> (ꦥ꦳).</li>
                     <li><strong>Aksara Swara:</strong> Ketik huruf vokal kapital (<code>A, I, U, E, O</code>).</li>
-                    <li><strong>Aksara Murda:</strong> Ketik konsonan Kapital (<code>N, K, T, S, P, G, B, C, J</code>) serta <code>NY</code> untuk Nya Murda (ꦘ - U+A998). Khusus Ja Murda (ꦙ - U+A999) menggunakan kapital <code>J</code>.</li>
+                    <li><strong>Aksara Murda:</strong> Ketik konsonan Kapital (<code>N, K, T, S, P, G, B, C, J</code>) serta <code>NY</code> untuk Nya Murda (ꦘ). Khusus Ja Murda (ꦙ) menggunakan kapital <code>J</code>.</li>
                     <li>Untuk memaksa aksara r, ng, dan h agar bisa diberi cakra/pengkal, tambahkan <code>x</code>. Contoh: <code>rxya</code> (ꦫꦾ), <code>ngxra</code> (ꦔꦿ), <code>hxre</code> (ꦲꦽ).</li>
                 </ul>
             </div>
@@ -909,7 +909,7 @@
                 let c1 = c1_raw.toLowerCase();
 
                 // DUKUNGAN AKSARA MURDA (NY & J Murda, dll)
-                if (c2_raw === 'NY' && AKSARA_MURDA['ny']) {
+                if ((c2_raw === 'NY' || c2_raw === 'Ny') && AKSARA_MURDA['ny']) {
                     c = 'ny'; jump = 2; isMurda = true;
                 } else if (c1_raw === 'J' && AKSARA_MURDA['j']) {
                     c = 'j'; jump = 1; isMurda = true;
