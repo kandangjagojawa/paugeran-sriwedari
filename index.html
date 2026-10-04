@@ -466,7 +466,6 @@
 
             let f = dasar.charAt(0);
             let isVowelStart = /[aiueoéèê]/i.test(f);
-            let lastChar = dasar.slice(-1);
             let errorMsg = "";
 
             if (ater === 'm' && !['b','p','w','m','f','v'].includes(f)) {
@@ -489,15 +488,30 @@
             let stem = dasar;
             let prefixAppended = "";
 
+            // PENANGANAN KHUSUS ATER-ATER ANUSWARA (Poin 1, 2, & 3)
             if (['N', 'm', 'n', 'ny', 'ng', 'pa'].includes(ater)) {
-                if(['p','w'].includes(f)) stem = 'm' + dasar.slice(1);
+                let secondChar = dasar.charAt(1);
+                let isCakraOrKeret = (secondChar === 'r');
+
+                // ATURAN 1: Kata dasar berawalan konsonan + r (cakra/cakra keret) -> hang-
+                if (isCakraOrKeret && !isVowelStart) {
+                    prefixAppended = 'hang';
+                    stem = dasar;
+                }
+                // ATURAN 2: Kata dasar berawalan g -> hang-
+                else if (f === 'g') {
+                    prefixAppended = 'hang';
+                    stem = dasar;
+                }
+                // ATURAN 3: Kata dasar berawalan ja/ca/sa/ny -> hany- / hanj-
+                else if (['p','w'].includes(f)) stem = 'm' + dasar.slice(1);
                 else if(f === 'b') stem = 'm' + dasar;
                 else if(dasar.startsWith('th')) stem = 'n' + dasar.slice(2); 
                 else if(f === 't') stem = 'n' + dasar.slice(1); 
                 else if(['d','j'].includes(f) || dasar.startsWith('dh')) stem = 'n' + dasar; 
                 else if(['c','s'].includes(f)) stem = 'ny' + dasar.slice(1);
                 else if(f === 'k') stem = 'ng' + dasar.slice(1);
-                else if(f === 'g' || ['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
+                else if(['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
                 else stem = 'ng' + dasar;
 
                 if (ater === 'pa') {
@@ -688,6 +702,7 @@
         function transliterasiKalimat(teks) {
             let teksDiolah = teks.replace(/e'/g, 'é').replace(/E'/g, 'É');
 
+            // ATURAN 3 PAUGERAN: Memastikan Anuswara "hanja/hany" pada suku kata terbuka tetap "ha" nglegena (ꦲꦚ꧀ꦗꦒ)
             teksDiolah = teksDiolah.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|nc|nj)/gim, function(match, p1, p2) {
                 return p1 + 'ha' + p2;
             });
@@ -750,21 +765,26 @@
             const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
             const nas = "(?:m|n|ng|ny)";
 
-            if (/^p[aeêEÊ]ndhawa(-[a-zA-ZéèêÉÈÊ]+)?$/i.test(latinProcessed)) {
-                latinProcessed = latinProcessed.replace(/^(p)[aeêEÊ](ndhawa(?:-[a-zA-ZéèêÉÈÊ]+)?)$/i, function(match, p1, p2) {
-                    return p1 + 'a' + p2;
-                });
-            } else {
-                let rule2 = new RegExp(`^(${cons})?[aA](${nas})(${cons})a(${cons})a(-[a-zA-ZéèêÉÈÊ]+)?$`, 'i');
-                latinProcessed = latinProcessed.replace(rule2, (m, c1, n, c2, c3, suf) => {
-                    return (c1 || '') + 'e' + n + c2 + 'a' + c3 + 'a' + (suf || '');
+            // KHUSUS PENCEGAHAN BENTROK ANUSWARA "HANJA/HANYA": KECUALIKAN DARI PERUBAHAN VOKAL A -> E
+            let isAnuswaraHanja = /^hanj[aA]|^hany[aA]/i.test(latinProcessed);
+
+            if (!isAnuswaraHanja) {
+                if (/^p[aeêEÊ]ndhawa(-[a-zA-ZéèêÉÈÊ]+)?$/i.test(latinProcessed)) {
+                    latinProcessed = latinProcessed.replace(/^(p)[aeêEÊ](ndhawa(?:-[a-zA-ZéèêÉÈÊ]+)?)$/i, function(match, p1, p2) {
+                        return p1 + 'a' + p2;
+                    });
+                } else {
+                    let rule2 = new RegExp(`^(${cons})?[aA](${nas})(${cons})a(${cons})a(-[a-zA-ZéèêÉÈÊ]+)?$`, 'i');
+                    latinProcessed = latinProcessed.replace(rule2, (m, c1, n, c2, c3, suf) => {
+                        return (c1 || '') + 'e' + n + c2 + 'a' + c3 + 'a' + (suf || '');
+                    });
+                }
+
+                let rule1 = new RegExp(`^(${cons})[eêEÊ](${cons})a(${cons})a(-[a-zA-ZéèêÉÈÊ]+)?$`, 'i');
+                latinProcessed = latinProcessed.replace(rule1, (m, c1, c2, c3, suf) => {
+                    return c1 + 'a' + c2 + 'a' + c3 + 'a' + (suf || '');
                 });
             }
-
-            let rule1 = new RegExp(`^(${cons})[eêEÊ](${cons})a(${cons})a(-[a-zA-ZéèêÉÈÊ]+)?$`, 'i');
-            latinProcessed = latinProcessed.replace(rule1, (m, c1, c2, c3, suf) => {
-                return c1 + 'a' + c2 + 'a' + c3 + 'a' + (suf || '');
-            });
 
             latinProcessed = latinProcessed.replace(/nc/g, 'nyc').replace(/nj/g, 'nyj');
             latinProcessed = latinProcessed.replace(/Nc/g, 'Nyc').replace(/Nj/g, 'Nyj');
@@ -834,7 +854,9 @@
                     .replace(/dh/g, '3').replace(/Dh/g, '7').replace(/DH/g, '#')
                     .replace(/th/g, '4').replace(/Th/g, '8').replace(/TH/g, '$');
 
-                token = token.replace(/a([mnMN125!6@])([bcdfghjklpqrstvwxzBCDFGHJKLPQRSTVWXZ347#8$]+)a(h?a)?$/i, 'o$1$2a$3');
+                if (!isAnuswaraHanja) {
+                    token = token.replace(/a([mnMN125!6@])([bcdfghjklpqrstvwxzBCDFGHJKLPQRSTVWXZ347#8$]+)a(h?a)?$/i, 'o$1$2a$3');
+                }
 
                 wordOnly = token
                     .replace(/1/g, 'ng').replace(/5/g, 'Ng').replace(/!/g, 'NG')
@@ -937,12 +959,11 @@
                     v = lowerLatin[i]; i++;
                 }
 
-                // PENGAMAN KETAT PENYIGEG WANDA:
-                // Mengecek apakah huruf sebelumnya adalah Pangkon, Cecek, Layar, Wignyan, atau ZWNJ.
-                // Jika YA, maka sandhangan TIDAK BOLEH menempel (tidak bisa berdiri sendiri).
-                let canTakeSandhangan = !/([꧀ꦁꦂꦃ\u200C])$/.test(res);
+                // ATURAN MUTLAK PENYIGEG WANDA:
+                // Mengunci agar Cecek (ꦁ), Wignyan (ꦃ), dan Layar (ꦂ) TIDAK BISA BERDIRI SENDIRI.
+                // Sandhangan panyigeg wanda hanya diizinkan jika menempel pada aksara sebelumnya.
+                let canTakeSandhangan = !/([꧀ꦁꦂꦃ\u200C]|^)$/.test(res);
 
-                // ATURAN MEDIAL (CAKRA/PENGKAL) UNTUK NG, R, H DI TENGAH/AKHIR
                 if (medial !== "") {
                     let isExplicitX = (c3_raw.toLowerCase() === 'ngx' || c2_raw.toLowerCase() === 'hx' || c2_raw.toLowerCase() === 'rx' || c2_raw.toLowerCase() === 'kx');
                     
@@ -959,7 +980,6 @@
                     }
                 }
 
-                // ATURAN KONSONAN MATI (TANPA VOKAL)
                 if (v === "" && !isSwara) {
                     if (c === 'ng' && !isFirstAksara && canTakeSandhangan) res += 'ꦁ'; 
                     else if (c === 'r' && !isFirstAksara && canTakeSandhangan) res += 'ꦂ'; 
