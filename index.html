@@ -488,30 +488,22 @@
             let stem = dasar;
             let prefixAppended = "";
 
-            // PENANGANAN KHUSUS ATER-ATER ANUSWARA (Poin 1, 2, & 3)
+            // LOGIKA ANUSWARA MURNI (N-) MENGUKUTI KAIDAH LULUH & KONSISTENSI PAUGERAN
             if (['N', 'm', 'n', 'ny', 'ng', 'pa'].includes(ater)) {
-                let secondChar = dasar.charAt(1);
-                let isCakraOrKeret = (secondChar === 'r');
-
-                // ATURAN 1: Kata dasar berawalan konsonan + r (cakra/cakra keret) -> hang-
-                if (isCakraOrKeret && !isVowelStart) {
+                // ATURAN SAKRAL: Khusus kata dasar berawalan 'g' saja yang mendapat 'hang-'
+                if (f === 'g') {
                     prefixAppended = 'hang';
                     stem = dasar;
-                }
-                // ATURAN 2: Kata dasar berawalan g -> hang-
-                else if (f === 'g') {
-                    prefixAppended = 'hang';
-                    stem = dasar;
-                }
-                // ATURAN 3: Kata dasar berawalan ja/ca/sa/ny -> hany- / hanj-
+                } 
                 else if (['p','w'].includes(f)) stem = 'm' + dasar.slice(1);
-                else if(f === 'b') stem = 'm' + dasar;
-                else if(dasar.startsWith('th')) stem = 'n' + dasar.slice(2); 
-                else if(f === 't') stem = 'n' + dasar.slice(1); 
-                else if(['d','j'].includes(f) || dasar.startsWith('dh')) stem = 'n' + dasar; 
-                else if(['c','s'].includes(f)) stem = 'ny' + dasar.slice(1);
-                else if(f === 'k') stem = 'ng' + dasar.slice(1);
-                else if(['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
+                else if (f === 'b') stem = 'm' + dasar;
+                else if (dasar.startsWith('th')) stem = 'n' + dasar.slice(2); 
+                else if (f === 't') stem = 'n' + dasar.slice(1); 
+                else if (['d','j'].includes(f) || dasar.startsWith('dh')) stem = 'n' + dasar; 
+                // C / S / NY tetap luluh menjadi ny-, meskipun diikuti konsonan r (cakra/keret) -> srudug -> nyrudug
+                else if (['c','s'].includes(f) || dasar.startsWith('ny')) stem = 'ny' + dasar.slice(dasar.startsWith('ny') ? 2 : 1);
+                else if (f === 'k') stem = 'ng' + dasar.slice(1);
+                else if (['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
                 else stem = 'ng' + dasar;
 
                 if (ater === 'pa') {
@@ -702,7 +694,7 @@
         function transliterasiKalimat(teks) {
             let teksDiolah = teks.replace(/e'/g, 'é').replace(/E'/g, 'É');
 
-            // ATURAN 3 PAUGERAN: Memastikan Anuswara "hanja/hany" pada suku kata terbuka tetap "ha" nglegena (ꦲꦚ꧀ꦗꦒ)
+            // MEMASTIKAN ANUSWARA "HANJA/HANYA" TERBUKA TETAP "HA" NGLEGENA (ꦲꦚ꧀ꦗꦒ)
             teksDiolah = teksDiolah.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|nc|nj)/gim, function(match, p1, p2) {
                 return p1 + 'ha' + p2;
             });
@@ -765,7 +757,6 @@
             const cons = "(?:dh|th|ng|ny|kh|dz|gh|kx|rx|hx|ngx|[bcdfghjklmnpqrstvwxyz])";
             const nas = "(?:m|n|ng|ny)";
 
-            // KHUSUS PENCEGAHAN BENTROK ANUSWARA "HANJA/HANYA": KECUALIKAN DARI PERUBAHAN VOKAL A -> E
             let isAnuswaraHanja = /^hanj[aA]|^hany[aA]/i.test(latinProcessed);
 
             if (!isAnuswaraHanja) {
@@ -961,7 +952,6 @@
 
                 // ATURAN MUTLAK PENYIGEG WANDA:
                 // Mengunci agar Cecek (ꦁ), Wignyan (ꦃ), dan Layar (ꦂ) TIDAK BISA BERDIRI SENDIRI.
-                // Sandhangan panyigeg wanda hanya diizinkan jika menempel pada aksara sebelumnya.
                 let canTakeSandhangan = !/([꧀ꦁꦂꦃ\u200C]|^)$/.test(res);
 
                 if (medial !== "") {
