@@ -351,6 +351,7 @@
                     <option value="en">-en</option>
                     <option value="an">-an</option>
                     <option value="ana">-ana</option>
+                    <option value="na">-na</option>
                     <option value="ake">-aké</option>
                     <option value="aken">-aken</option>
                     <option value="ipun">-ipun</option>
@@ -488,9 +489,7 @@
             let stem = dasar;
             let prefixAppended = "";
 
-            // LOGIKA ANUSWARA MURNI (N-) MENGUKUTI KAIDAH LULUH & KONSISTENSI PAUGERAN
             if (['N', 'm', 'n', 'ny', 'ng', 'pa'].includes(ater)) {
-                // ATURAN SAKRAL: Khusus kata dasar berawalan 'g' saja yang mendapat 'hang-'
                 if (f === 'g') {
                     prefixAppended = 'hang';
                     stem = dasar;
@@ -500,7 +499,6 @@
                 else if (dasar.startsWith('th')) stem = 'n' + dasar.slice(2); 
                 else if (f === 't') stem = 'n' + dasar.slice(1); 
                 else if (['d','j'].includes(f) || dasar.startsWith('dh')) stem = 'n' + dasar; 
-                // C / S / NY tetap luluh menjadi ny-, meskipun diikuti konsonan r (cakra/keret) -> srudug -> nyrudug
                 else if (['c','s'].includes(f) || dasar.startsWith('ny')) stem = 'ny' + dasar.slice(dasar.startsWith('ny') ? 2 : 1);
                 else if (f === 'k') stem = 'ng' + dasar.slice(1);
                 else if (['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
@@ -615,6 +613,21 @@
                                 body = stem; suffixMod = 'a';
                             }
                         }
+                    } else if (panam === 'na') {
+                        // ATURAN PANAMBANG -NA UNTUK SUKU KATA TERAKHIR VOKAL TERBUKA
+                        if (rootVowel === 'a') {
+                            body = stem;
+                            suffixMod = 'kna';
+                        } else if (rootVowel === 'i') {
+                            body = stem.slice(0, -1) + 'é';
+                            suffixMod = 'kna';
+                        } else if (rootVowel === 'u') {
+                            body = stem.slice(0, -1) + 'o';
+                            suffixMod = 'kna';
+                        } else if (['e','é','è','o'].includes(rootVowel)) {
+                            body = stem;
+                            suffixMod = 'kna';
+                        }
                     } else {
                         if (panam === 'an') {
                             if (stem === 'uji') {
@@ -694,7 +707,6 @@
         function transliterasiKalimat(teks) {
             let teksDiolah = teks.replace(/e'/g, 'é').replace(/E'/g, 'É');
 
-            // MEMASTIKAN ANUSWARA "HANJA/HANYA" TERBUKA TETAP "HA" NGLEGENA (ꦲꦚ꧀ꦗꦒ)
             teksDiolah = teksDiolah.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|nc|nj)/gim, function(match, p1, p2) {
                 return p1 + 'ha' + p2;
             });
@@ -950,8 +962,6 @@
                     v = lowerLatin[i]; i++;
                 }
 
-                // ATURAN MUTLAK PENYIGEG WANDA:
-                // Mengunci agar Cecek (ꦁ), Wignyan (ꦃ), dan Layar (ꦂ) TIDAK BISA BERDIRI SENDIRI.
                 let canTakeSandhangan = !/([꧀ꦁꦂꦃ\u200C]|^)$/.test(res);
 
                 if (medial !== "") {
