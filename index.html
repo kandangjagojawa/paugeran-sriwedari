@@ -350,7 +350,7 @@
                     <option value="e">-e / -é</option>
                     <option value="en">-en</option>
                     <option value="an">-an</option>
-                    <option value="an_e">-an + -é (-anné)</option>
+                    <option value="an_e">-an + -é (-anné / -nnanné)</option>
                     <option value="ana">-ana</option>
                     <option value="na">-na</option>
                     <option value="ake">-aké</option>
@@ -576,7 +576,7 @@
                 if (!stemIsVowel) {
                     let formattedStem = prefixAppended ? (prefixAppended + stem) : stem;
                     if (panam === 'an_e') {
-                        // FORMAT UNTUK KONSONAN MATI: OPÉN + AN + É -> OPÉN-ANNÉ (ꦲꦺꦴꦥꦺꦤ꧀ꦤꦤ꧀ꦤꦺ)
+                        // FORMAT UNTUK KONSONAN MATI: OPÉN + AN + É -> OPÉN-ANNÉ
                         resultLatin = formattedStem + '-anné';
                     } else {
                         let currentPanam = isTanggapI ? 'an' : panam;
@@ -637,16 +637,14 @@
                         }
                     } else if (panam === 'an_e') {
                         // FORMAT UNTUK VOKAL TERBUKA: GABUNGAN -AN + -E
-                        if (stem === 'uji') {
-                            body = stem; suffixMod = 'anné'; 
-                        } else if (rootVowel === 'a') {
-                            body = stem; suffixMod = 'nné'; 
+                        if (rootVowel === 'a') {
+                            body = stem; suffixMod = 'nnanné'; 
                         } else if (rootVowel === 'i') {
-                            body = stem.slice(0, -1) + 'è'; suffixMod = 'nné'; 
+                            body = stem.slice(0, -1) + 'è'; suffixMod = 'nnanné'; 
                         } else if (rootVowel === 'u') {
-                            body = stem.slice(0, -1) + 'o'; suffixMod = 'nné'; 
+                            body = stem.slice(0, -1) + 'o'; suffixMod = 'nnanné'; 
                         } else if (['e','é','è','o'].includes(rootVowel)) {
-                            body = stem; suffixMod = 'nanné'; 
+                            body = stem; suffixMod = 'nnanné'; 
                         }
                     } else {
                         if (panam === 'an') {
