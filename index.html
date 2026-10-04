@@ -207,7 +207,7 @@
             border-color: var(--secondary);
         }
         #outputJawa {
-            font-family: 'Noto Sans Javanese', sans-serif;
+            font-family: 'Ngayogyann', 'Noto Sans Javanese', sans-serif;
             font-size: 2rem;
             line-height: 2.2;
             background-color: #fcfdfd;
@@ -216,7 +216,7 @@
             min-height: 120px;
             overflow-y: auto;
             word-break: break-all; 
-            transition: font-family 0.3s ease, font-size 0.1s ease;
+            transition: font-family 0.3s ease, font-size 0.1s ease, line-height 0.1s ease;
         }
         code { background-color: #d1e8f0; padding: 2px 4px; border-radius: 4px; font-weight: bold;}
         
@@ -282,9 +282,13 @@
                         <input type="range" id="fontSizeSlider" min="1" max="4" step="0.1" value="2" oninput="ubahUkuranFont()">
                     </div>
                     <div class="control-panel">
+                        <label for="lineHeightSlider">Jarak Baris:</label>
+                        <input type="range" id="lineHeightSlider" min="1" max="4" step="0.1" value="2.2" oninput="ubahJarakBaris()">
+                    </div>
+                    <div class="control-panel">
                         <select id="fontSelect" onchange="ubahFont()">
+                            <option value="'Ngayogyann', sans-serif" selected>Ngayogyann</option>
                             <option value="'Noto Sans Javanese', sans-serif">Noto Sans Javanese</option>
-                            <option value="'Ngayogyann', sans-serif">Ngayogyann</option>
                         </select>
                     </div>
                     <button class="action-btn btn-copy" id="btnSalin" onclick="salinAksara()">Salin Aksara</button>
@@ -372,7 +376,7 @@
                 <label>Hasil Aksara Jawa:</label>
                 <button class="action-btn btn-copy" id="btnSalinParam" onclick="salinParamJawa()">Salin Aksara Jawa</button>
             </div>
-            <div id="outParamJawa" style="font-family:'Noto Sans Javanese', sans-serif; font-size:2.5rem; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
+            <div id="outParamJawa" style="font-family:'Ngayogyann', 'Noto Sans Javanese', sans-serif; font-size:2.5rem; line-height:2.2; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
         </div>
     </div>
 
@@ -413,6 +417,12 @@
         function ubahUkuranFont() {
             let ukuran = document.getElementById('fontSizeSlider').value;
             document.getElementById('outputJawa').style.fontSize = ukuran + 'rem';
+        }
+
+        function ubahJarakBaris() {
+            let lineH = document.getElementById('lineHeightSlider').value;
+            document.getElementById('outputJawa').style.lineHeight = lineH;
+            document.getElementById('outParamJawa').style.lineHeight = lineH;
         }
 
         function hapusSemua() {
