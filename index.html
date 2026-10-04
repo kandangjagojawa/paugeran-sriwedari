@@ -493,7 +493,7 @@
             }
 
             if (errorMsg !== "") {
-                document.getElementById('paramWarningArea').innerHTML = `<div class="param-warning">⚠️ WARNING PAUGERAN: ${errorMsg}</div>`;
+                document.getElementById('paramWarningArea').innerHTML = `<div class="param-warning">⚠️️ WARNING PAUGERAN: ${errorMsg}</div>`;
                 document.getElementById('outParamLatin').value = "";
                 document.getElementById('outParamJawa').innerHTML = "";
                 return;
@@ -864,20 +864,25 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            // PROTEKSI PENGECUALIAN UNTUK KATA DASAR (TAKON, DAKON, KOKI, DIAN, DLL)
+            // PROTEKSI PENGECUALIAN SUPER-KOMPLEKS UNTUK KATA DASAR BERIMBUHAN
             let wordMatchForExc = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)/);
             let isPrefixException = false;
             
             if (wordMatchForExc) {
-                // Pola regex ini menyaring kata yang memang kata dasar murni, 
-                // baik tunggal maupun jika mendapat akhiran (seperti takon + i -> takoni)
-                const excPattern = /^(takar|takam|taki|takut|takur|takon|takong|dakar|dakah|daki|daku|dakon|koka|koki|kokun|koker|koko|kokok|kokoh|kokol|koas|koala|koali|koin|koordin|koperasi|dian|diar|dialog|diana|diaper|diastol|diat|diuretik|diet|dieng|diesel|dioda|diorama|dion|dioksida)(a|i|e|é|è|ê|en|an|ana|na|ake|aké|aken|ipun)?$/i;
+                // List lengkap kata dasar kebal sandhi (yang berpotensi disalahpahami sbg ater-ater dak, tak, kok, ko, di, ka, ke)
+                const excBases = "takar|takam|taki|takik|takut|takur|takon|takong|dakar|dakah|daki|daku|dakon|koka|koki|kokun|koker|koko|kokok|kokoh|kokol|koas|koala|koali|koalisi|koin|koordin|koordinasi|koperasi|dian|diar|diare|dialog|diana|diaper|diastol|diat|diuretik|diet|dieng|diesel|dioda|diorama|dion|dioksida|kain|kaos|kaok|kaum|kail|kait|kais|kaing|keong|keok";
+                // List rakitan akhiran (termasuk an+e, dan efek perangkapan konsonan ganda)
+                const excSuffixes = "a|i|e|é|è|ê|en|an|ana|na|ake|aké|aken|ipun|anné|nné|nnanné";
+                
+                // Pola regex: mengecek [KATA DASAR] + [OPSIONAL 1 HURUF KEMBAR] + [OPSIONAL AKHIRAN]
+                const excPattern = new RegExp(`^(${excBases})([a-zA-Z]?(${excSuffixes}))?$`, 'i');
+                
                 if (excPattern.test(wordMatchForExc[1])) {
                     isPrefixException = true;
                 }
             }
 
-            // Aturan sandhi sisipan 'ha' HANYA dijalankan apabila KATA TERSEBUT BUKAN bagian dari daftar pengecualian di atas
+            // Aturan sandhi sisipan 'ha' HANYA dijalankan apabila KATA TERSEBUT BUKAN pengecualian
             if (!isPrefixException) {
                 latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di|ka|ke)([aiueoéèê])/i, function(match, p1, p2) {
                     let p1Lower = p1.toLowerCase();
