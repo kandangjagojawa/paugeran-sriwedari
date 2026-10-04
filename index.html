@@ -246,7 +246,7 @@
     <div class="header-container">
         <div class="title-wrapper">
             <h1>PAUGERAN SRIWEDARI</h1>
-            <div class="subtitle-jawa">ꦥꦲꦸꦒꦼꦂꦫꦤ꧀ꦱꦿꦶꦮꦼꦢꦫ궶</div>
+            <div class="subtitle-jawa">ꦥꦲꦸꦒꦼꦂꦫꦤ꧀ꦱꦿꦶꦮꦼꦢꦫꦶ</div>
         </div>
         <div class="btn-group-header">
             <button onclick="scrollToParamasastra()" class="btn-external-link btn-paramasastra">
@@ -947,17 +947,24 @@
 
                 let lowerLatin = latin.toLowerCase();
                 let medial = "";
+                
+                // PENGATURAN KETAT: Memastikan ng dan h di awal kata berhak diberi cakra/pengkal
                 if (!isSwara && i < lowerLatin.length && (lowerLatin[i] === 'y' || lowerLatin[i] === 'r')) {
                     if (i+1 < lowerLatin.length && /[aieéèêou]/.test(lowerLatin[i+1])) {
                         let rejectMedial = false;
+                        
                         if (c === 'h') {
-                            rejectMedial = true;
+                            if (isFirstAksara) {
+                                rejectMedial = false; // h awal kata + r/y -> Ha + cakra/pengkal
+                            } else {
+                                rejectMedial = true; // Wignyan tengah/akhir tidak bisa diberi cakra/pengkal
+                            }
                         } else if (c === 'ng') {
                             if (isFirstAksara) {
-                                rejectMedial = false; 
+                                rejectMedial = false; // ng awal kata + r/y -> Nga + cakra/pengkal
                             } else {
                                 if (isKataNingrat && lowerLatin[i] === 'r') rejectMedial = false; 
-                                else rejectMedial = true; 
+                                else rejectMedial = true; // Cecek tengah/akhir tidak bisa diberi cakra/pengkal
                             }
                         }
                         
@@ -965,9 +972,12 @@
                             rejectMedial = true;
                         }
 
-                        if (rejectMedial) { medial = ""; } else { medial = lowerLatin[i]; i++; }
-                    } else if (c === 'h') {
-                        c = lowerLatin[i]; i++;
+                        if (rejectMedial) { 
+                            medial = ""; 
+                        } else { 
+                            medial = lowerLatin[i]; 
+                            i++; 
+                        }
                     }
                 }
 
@@ -990,9 +1000,13 @@
                 }
 
                 if (c === 'r' && medial !== "") {
-                    if (isFirstAksara) res += KAMUS_AKSARA['r'] + '꧀';
-                    else res += 'ꦂ'; 
-                    c = medial; medial = ""; 
+                    // r di awal kata dibiarkan jatuh ke output normal cakra/pengkal (ꦫꦾ / ꦫꦿ)
+                    // Jika di tengah/akhir kata ia menjadi layar (ꦂ)
+                    if (!isFirstAksara) {
+                        res += 'ꦂ'; 
+                        c = medial; 
+                        medial = ""; 
+                    }
                 }
 
                 let nonPasangan = ['kh','dz','gh','z'].includes(c) || isSwara;
