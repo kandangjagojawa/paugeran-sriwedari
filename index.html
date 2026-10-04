@@ -376,10 +376,11 @@
     </div>
 
     <script>
+        // PERUBAHAN KHUSUS: dh dipetakan ke U+A9A3 (JAVANESE LETTER DA MAHAPRANA ꦣ)
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
-            'p':'ꦥ', 'dh':'ꦝ', 'j':'ꦗ', 'y':'ꦪ', 'ny':'ꦚ',
+            'p':'ꦥ', 'dh':'\uA9A3', 'j':'ꦗ', 'y':'ꦪ', 'ny':'ꦚ',
             'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ', 'th':'ꦛ', 'ng':'ꦔ', 'nx':'ꦔ',
             'f':'ꦥ꦳', 'v':'ꦮ꦳', 'z':'ꦗ꦳',
             'kh':'ꦏ꦳', 'dz':'ꦢ꦳', 'gh':'ꦒ꦳',
@@ -388,7 +389,7 @@
 
         const AKSARA_MURDA = {
             'n':'ꦟ', 'k':'ꦑ', 't':'ꦡ', 's':'ꦯ', 'p':'ꦦ',
-            'g':'ꦓ', 'b':'ꦨ', 'c':'ꦖ', 'ny':'ꦘ', 'j':'ꦙ'
+            'g':'ꦓ', 'b':'ꦨ', 'c':'ꦖ', 'ny':'ꦘ', 'j':'ꦙ', 'dh':'\uA9A3'
         };
 
         const SWARA_MAP = {
@@ -614,7 +615,6 @@
                             }
                         }
                     } else if (panam === 'na') {
-                        // ATURAN PANAMBANG -NA UNTUK SUKU KATA TERAKHIR VOKAL TERBUKA
                         if (rootVowel === 'a') {
                             body = stem;
                             suffixMod = 'kna';
