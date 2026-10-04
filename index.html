@@ -350,6 +350,7 @@
                     <option value="e">-e / -é</option>
                     <option value="en">-en</option>
                     <option value="an">-an</option>
+                    <option value="an_e">-an + -é (-an-é)</option>
                     <option value="ana">-ana</option>
                     <option value="na">-na</option>
                     <option value="ake">-aké</option>
@@ -574,8 +575,12 @@
 
                 if (!stemIsVowel) {
                     let formattedStem = prefixAppended ? (prefixAppended + stem) : stem;
-                    let currentPanam = isTanggapI ? 'an' : panam;
-                    resultLatin = formattedStem + '-' + currentPanam;
+                    if (panam === 'an_e') {
+                        resultLatin = formattedStem + '-an-é';
+                    } else {
+                        let currentPanam = isTanggapI ? 'an' : panam;
+                        resultLatin = formattedStem + '-' + currentPanam;
+                    }
                 } else {
                     let rootVowel = stemLastChar;
                     let body = stem;
@@ -628,6 +633,19 @@
                         } else if (['e','é','è','o'].includes(rootVowel)) {
                             body = stem;
                             suffixMod = 'kna';
+                        }
+                    } else if (panam === 'an_e') {
+                        // ATURAN GABUNGAN PANAMBANG -AN + -E (TALING)
+                        if (stem === 'uji') {
+                            body = stem; suffixMod = 'an-é'; 
+                        } else if (rootVowel === 'a') {
+                            body = stem; suffixMod = 'n-é'; 
+                        } else if (rootVowel === 'i') {
+                            body = stem.slice(0, -1) + 'è'; suffixMod = 'n-é'; 
+                        } else if (rootVowel === 'u') {
+                            body = stem.slice(0, -1) + 'o'; suffixMod = 'n-é'; 
+                        } else if (['e','é','è','o'].includes(rootVowel)) {
+                            body = stem; suffixMod = 'nan-é'; 
                         }
                     } else {
                         if (panam === 'an') {
