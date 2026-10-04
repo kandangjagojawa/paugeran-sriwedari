@@ -376,7 +376,7 @@
     </div>
 
     <script>
-        // DH menggunakan Da Mahaprana U+A9A3 (ꦣ)
+        // DH Legena menggunakan Da Mahaprana U+A9A3 (ꦣ)
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -387,7 +387,7 @@
             'kx':'ꦏ', 'rx':'ꦫ', 'hx':'ꦲ', 'ngx':'ꦔ'
         };
 
-        // Pasangan DH khusus menggunakan Pasangan Da Murda U+A99D (꧀ꦝ)
+        // Pasangan DH MUTLAK menggunakan Da Murda U+A99D (꧀ꦝ)
         const AKSARA_MURDA = {
             'n':'ꦟ', 'k':'ꦑ', 't':'ꦡ', 's':'ꦯ', 'p':'ꦦ',
             'g':'ꦓ', 'b':'ꦨ', 'c':'ꦖ', 'ny':'ꦘ', 'j':'ꦙ', 'dh':'ꦝ'
@@ -728,6 +728,10 @@
                     return p1 + '꧀\u200C' + p2 + p3 + '꧀' + p4; 
                 });
 
+                // INTEGRASI MUTLAK PAUGERAN SRIWEDARI:
+                // Memastikan secara global bahwa SETIAP pasangan Da Mahaprana (꧀ꦣ) DIPAKSA berubah menjadi Pasangan Da Murda (꧀ꦝ)
+                lineJoined = lineJoined.replace(/꧀ꦣ/g, '꧀ꦝ');
+
                 return lineJoined;
             });
             return hasilBaris.join('\n');
@@ -986,14 +990,7 @@
                     else if (c === 'r' && !isFirstAksara && canTakeSandhangan) res += 'ꦂ'; 
                     else if (c === 'h' && !isFirstAksara && canTakeSandhangan) res += 'ꦃ'; 
                     else if (c !== "") {
-                        // LOGIKA KHUSUS PAUGERAN SRIWEDARI UNTUK PASANGAN DH
-                        // Jika dh berada di belakang Pangkon (menjadi Pasangan), gunakan Pasangan Da Murda ꧀ꦝ
-                        let base = "";
-                        if (c === 'dh' && res.endsWith('꧀')) {
-                            base = AKSARA_MURDA['dh'];
-                        } else {
-                            base = isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
-                        }
+                        let base = (c === 'dh' && res.endsWith('꧀')) ? AKSARA_MURDA['dh'] : (isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]);
                         res += base + '꧀'; 
                     }
                     
@@ -1010,14 +1007,7 @@
                 } else if (c === 'r' && (v === 'e' || v === 'ê') && medial === "") {
                     res += 'ꦉ'; 
                 } else {
-                    // LOGIKA KHUSUS PAUGERAN SRIWEDARI UNTUK PASANGAN DH
-                    // Jika dh berada di belakang Pangkon (menjadi Pasangan), gunakan Pasangan Da Murda ꧀ꦝ
-                    let base = "";
-                    if (c === 'dh' && res.endsWith('꧀')) {
-                        base = AKSARA_MURDA['dh'];
-                    } else {
-                        base = isSwara ? SWARA_MAP[c] : (isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]);
-                    }
+                    let base = (c === 'dh' && res.endsWith('꧀')) ? AKSARA_MURDA['dh'] : (isSwara ? SWARA_MAP[c] : (isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]));
                     res += base;
 
                     if (medial === 'y') res += 'ꦾ';
