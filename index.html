@@ -725,6 +725,11 @@
         function transliterasiKalimat(teks) {
             let teksDiolah = teks.replace(/e'/g, 'é').replace(/E'/g, 'É');
 
+            // ATURAN ANUSWARA + KATA DASAR BERAWALAN G (ngg- -> hangg-)
+            teksDiolah = teksDiolah.replace(/\bngg/gi, function(match) {
+                return (match[0] === 'N' || match[0] === 'H') ? 'Hangg' : 'hangg';
+            });
+
             teksDiolah = teksDiolah.replace(/(^|[\.\?!]\s*)(mb|ndh|nd|nth|nc|nj)/gim, function(match, p1, p2) {
                 return p1 + 'ha' + p2;
             });
