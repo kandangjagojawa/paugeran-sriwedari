@@ -586,7 +586,6 @@
                 if (!stemIsVowel) {
                     let formattedStem = prefixAppended ? (prefixAppended + stem) : stem;
                     if (panam === 'an_e') {
-                        // FORMAT UNTUK KONSONAN MATI: OPÉN + AN + É -> OPÉN-ANNÉ
                         resultLatin = formattedStem + '-anné';
                     } else {
                         let currentPanam = isTanggapI ? 'an' : panam;
@@ -646,7 +645,6 @@
                             suffixMod = 'kna';
                         }
                     } else if (panam === 'an_e') {
-                        // FORMAT UNTUK VOKAL TERBUKA: GABUNGAN -AN + -E
                         if (rootVowel === 'a') {
                             body = stem; suffixMod = 'nnanné'; 
                         } else if (rootVowel === 'i') {
@@ -866,14 +864,30 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di)([aiueoéèê])/i, function(match, p1, p2) {
-                let p1Lower = p1.toLowerCase();
-                if (p1Lower === 'ko' || p1Lower === 'di') {
-                    return p1 + 'hx' + p2;
-                } else {
-                    return p1.slice(0, -1) + 'kxhx' + p2;
+            // PROTEKSI PENGECUALIAN UNTUK KATA DASAR (TAKON, DAKON, KOKI, DIAN, DLL)
+            let wordMatchForExc = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)/);
+            let isPrefixException = false;
+            
+            if (wordMatchForExc) {
+                // Pola regex ini menyaring kata yang memang kata dasar murni, 
+                // baik tunggal maupun jika mendapat akhiran (seperti takon + i -> takoni)
+                const excPattern = /^(takar|takam|taki|takut|takur|takon|takong|dakar|dakah|daki|daku|dakon|koka|koki|kokun|koker|koko|kokok|kokoh|kokol|koas|koala|koali|koin|koordin|koperasi|dian|diar|dialog|diana|diaper|diastol|diat|diuretik|diet|dieng|diesel|dioda|diorama|dion|dioksida)(a|i|e|é|è|ê|en|an|ana|na|ake|aké|aken|ipun)?$/i;
+                if (excPattern.test(wordMatchForExc[1])) {
+                    isPrefixException = true;
                 }
-            });
+            }
+
+            // Aturan sandhi sisipan 'ha' HANYA dijalankan apabila KATA TERSEBUT BUKAN bagian dari daftar pengecualian di atas
+            if (!isPrefixException) {
+                latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di|ka|ke)([aiueoéèê])/i, function(match, p1, p2) {
+                    let p1Lower = p1.toLowerCase();
+                    if (p1Lower === 'ko' || p1Lower === 'di' || p1Lower === 'ka' || p1Lower === 'ke') {
+                        return p1 + 'hx' + p2;
+                    } else {
+                        return p1.slice(0, -1) + 'kxhx' + p2;
+                    }
+                });
+            }
 
             let prevLatin = "";
             while (latinProcessed !== prevLatin) {
