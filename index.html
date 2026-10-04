@@ -376,7 +376,7 @@
     </div>
 
     <script>
-        // PERUBAHAN KHUSUS: dh dipetakan ke U+A9A3 (JAVANESE LETTER DA MAHAPRANA ꦣ)
+        // DH menggunakan Da Mahaprana U+A9A3 (ꦣ)
         const KAMUS_AKSARA = {
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -387,9 +387,10 @@
             'kx':'ꦏ', 'rx':'ꦫ', 'hx':'ꦲ', 'ngx':'ꦔ'
         };
 
+        // Pasangan DH khusus menggunakan Pasangan Da Murda U+A99D (꧀ꦝ)
         const AKSARA_MURDA = {
             'n':'ꦟ', 'k':'ꦑ', 't':'ꦡ', 's':'ꦯ', 'p':'ꦦ',
-            'g':'ꦓ', 'b':'ꦨ', 'c':'ꦖ', 'ny':'ꦘ', 'j':'ꦙ', 'dh':'\uA9A3'
+            'g':'ꦓ', 'b':'ꦨ', 'c':'ꦖ', 'ny':'ꦘ', 'j':'ꦙ', 'dh':'ꦝ'
         };
 
         const SWARA_MAP = {
@@ -985,7 +986,14 @@
                     else if (c === 'r' && !isFirstAksara && canTakeSandhangan) res += 'ꦂ'; 
                     else if (c === 'h' && !isFirstAksara && canTakeSandhangan) res += 'ꦃ'; 
                     else if (c !== "") {
-                        let base = isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
+                        // LOGIKA KHUSUS PAUGERAN SRIWEDARI UNTUK PASANGAN DH
+                        // Jika dh berada di belakang Pangkon (menjadi Pasangan), gunakan Pasangan Da Murda ꧀ꦝ
+                        let base = "";
+                        if (c === 'dh' && res.endsWith('꧀')) {
+                            base = AKSARA_MURDA['dh'];
+                        } else {
+                            base = isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c];
+                        }
                         res += base + '꧀'; 
                     }
                     
@@ -1002,7 +1010,14 @@
                 } else if (c === 'r' && (v === 'e' || v === 'ê') && medial === "") {
                     res += 'ꦉ'; 
                 } else {
-                    let base = isSwara ? SWARA_MAP[c] : (isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]);
+                    // LOGIKA KHUSUS PAUGERAN SRIWEDARI UNTUK PASANGAN DH
+                    // Jika dh berada di belakang Pangkon (menjadi Pasangan), gunakan Pasangan Da Murda ꧀ꦝ
+                    let base = "";
+                    if (c === 'dh' && res.endsWith('꧀')) {
+                        base = AKSARA_MURDA['dh'];
+                    } else {
+                        base = isSwara ? SWARA_MAP[c] : (isMurda ? AKSARA_MURDA[c] : KAMUS_AKSARA[c]);
+                    }
                     res += base;
 
                     if (medial === 'y') res += 'ꦾ';
