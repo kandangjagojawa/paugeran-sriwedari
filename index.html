@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PAUGERAN SRIWEDARI - Transliterasi Aksara Jawa</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Noto Sans Javanese & PT Serif -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <style>
         @font-face {
             font-family: 'Ngayogyann';
@@ -21,6 +22,7 @@
             --text: #333333;
             --warning: #d35400;
             --danger: #e74c3c;
+            --accent: #8e44ad;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -89,6 +91,12 @@
         }
         .btn-paramasastra:hover {
             background-color: #1a252f;
+        }
+        .btn-pedoman {
+            background-color: var(--accent);
+        }
+        .btn-pedoman:hover {
+            background-color: #712791;
         }
         .container {
             background-color: var(--surface);
@@ -228,6 +236,46 @@
         .param-latin-input { width: 100%; height: 45px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1.1rem; font-weight: bold; color: var(--primary); box-sizing: border-box; resize: none; margin-top: 5px;}
         .param-warning { color: var(--danger); font-size: 1rem; font-weight: bold; background: #fdf3e7; padding: 10px 15px; border-radius: 6px; border: 1px solid #fadbd8; margin-top: 5px;}
         
+        /* Gaya Khusus Panel Pedoman (Font PT Serif) */
+        .pedoman-panel {
+            font-family: 'PT Serif', Georgia, serif;
+            background-color: #fffaf0;
+            border: 1px solid #f0e4d2;
+            border-left: 6px solid var(--accent);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: #2c2c2c;
+        }
+        .pedoman-panel h2 {
+            font-family: 'PT Serif', Georgia, serif;
+            color: var(--accent);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e8d8c3;
+            padding-bottom: 0.5rem;
+        }
+        .pedoman-panel ol {
+            padding-left: 1.4rem;
+            margin-bottom: 0;
+        }
+        .pedoman-panel li {
+            margin-bottom: 1.2rem;
+        }
+        .pedoman-panel strong {
+            color: #1a1a1a;
+        }
+        .pedoman-example {
+            background-color: #f5ebe0;
+            padding: 8px 14px;
+            border-radius: 6px;
+            margin-top: 6px;
+            font-size: 0.98rem;
+        }
+
         @media (max-width: 600px) {
             body { padding: 1rem; }
             .container { padding: 1rem; }
@@ -249,6 +297,9 @@
             <div class="subtitle-jawa">ꦥꦲꦸꦒꦼꦂꦫꦤ꧀ꦱꦿꦶꦮꦼꦢꦫꦶ</div>
         </div>
         <div class="btn-group-header">
+            <button onclick="togglePedoman()" class="btn-external-link btn-pedoman">
+                Pedoman Paugeran Sriwedari 📖
+            </button>
             <button onclick="scrollToParamasastra()" class="btn-external-link btn-paramasastra">
                 Morfologi Ater-ater 👇
             </button>
@@ -259,6 +310,34 @@
                 Game & Aplikasi Aksara Jawa Lainnya ➔
             </a>
         </div>
+    </div>
+
+    <!-- PANEL LEMBARAN PEDOMAN PAUGERAN SRIWEDARI (TAMPIL/SEMBUNYI) -->
+    <div id="pedoman-section" class="pedoman-panel" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Pedoman Transliterasi & Paugeran Sriwedari</h2>
+            <button onclick="togglePedoman()" class="action-btn" style="background-color: var(--danger); padding: 4px 10px; margin-bottom: 1rem;">Tutup ✖</button>
+        </div>
+        <ol>
+            <li>
+                <strong>Penulisan Tembung Andhahan (Kata Berimbuhan / Turunan)</strong><br>
+                Apabila Anda ragu mengenai tata cara pembentukan kata berimbuhan (<em>Tembung Andhahan</em>) yang sesuai dengan kaidah Paugeran Sriwedari, manfaatkan fitur <strong>Aplikasi Paramasastra (Morfologi Jawa)</strong>.<br>
+                <em>Petunjuk:</em> Masukkan kata dasar pada kolom yang tersedia, pilih <em>ater-ater</em> (awalan) dan/atau <em>panambang</em> (akhiran) sesuai kebutuhan. Setelah bentuk Latin yang baku terbentuk otomatis, klik tombol <strong>Salin Teks Latin</strong> lalu tempelkan (<em>paste</em>) pada kolom input transliterasi utama di bagian atas.
+            </li>
+            <li>
+                <strong>Penulisan Tembung Dwipurwa (Pengulangan Suku Kata Awal)</strong><br>
+                Apabila Anda ragu dalam membentuk kata ulang dwipurwa (<em>Tembung Dwipurwa</em>), gunakan modul <strong>Pembentukan Tembung Dwipurwa</strong>.<br>
+                <em>Petunjuk:</em> Cukup ketik kata dasar yang hendak diubah. Sistem akan memproses peluluhan konsonan dan vokal secara otomatis. Tekan tombol <strong>Salin Teks Latin</strong> lalu tempelkan (<em>paste</em>) pada kolom input transliterasi utama di bagian atas.
+            </li>
+            <li>
+                <strong>Kaidah Pengucapan dan Transliterasi Latin Tembung Dwipurwa</strong><br>
+                Meskipun aksara Jawa untuk <em>Tembung Dwipurwa</em> tetap mempertahankan aksara <em>legena</em> sesuai kata dasarnya (tanpa mengubah sandhangan vokal pada bentuk aksara Jawanya), dalam <strong>ejaan Latin resmi maupun pengucapannya, suku kata awal hasil dwipurwa tersebut selalu dibaca dan ditulis menggunakan vokal pepet (<code>e</code>)</strong>.
+                <div class="pedoman-example">
+                    • Kata dasar <strong>lara</strong> &rarr; Aksara Jawa: ꦭꦭꦫ &rarr; Penulisan Latin & Pengucapan: <strong>lelara</strong><br>
+                    • Kata dasar <strong>jaka</strong> &rarr; Aksara Jawa: ꦗꦗꦏ &rarr; Penulisan Latin & Pengucapan: <strong>jejaka</strong>
+                </div>
+            </li>
+        </ol>
     </div>
 
     <div class="container">
@@ -434,6 +513,16 @@
 
         const ANGKA = ['꧐','꧑','꧒','꧓','꧔','꧕','꧖','꧗','꧘','꧙'];
 
+        function togglePedoman() {
+            let p = document.getElementById('pedoman-section');
+            if (p.style.display === 'none' || p.style.display === '') {
+                p.style.display = 'block';
+                p.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                p.style.display = 'none';
+            }
+        }
+
         function scrollToParamasastra() {
             document.getElementById('paramasastra-app').scrollIntoView({ behavior: 'smooth' });
         }
@@ -597,7 +686,7 @@
             }
 
             if (errorMsg !== "") {
-                document.getElementById('paramWarningArea').innerHTML = `<div class="param-warning">⚠ WARNING PAUGERAN: ${errorMsg}</div>`;
+                document.getElementById('paramWarningArea').innerHTML = `<div class="param-warning">⚠️ WARNING PAUGERAN: ${errorMsg}</div>`;
                 document.getElementById('outParamLatin').value = "";
                 document.getElementById('outParamJawa').innerHTML = "";
                 return;
@@ -968,8 +1057,6 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            // PROTEKSI EKSTREM: MELINDUNGI SEMUA VARIAN DWIPURWA DAN KATA DASAR
-            // Pengecualian menggunakan ".*" agar seluruh kata yang berawalan kombinasi ini terhindar dari pemecahan ater-ater keliru.
             let wordMatchForExc = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)/);
             let isPrefixException = false;
             
@@ -1096,8 +1183,6 @@
                     if (i+1 < lowerLatin.length && /[aieéèêou]/.test(lowerLatin[i+1])) {
                         let rejectMedial = false;
                         
-                        // KOREKSI UTAMA 1: Pencegah cakra (pangkon otomatis) HANYA berlaku untuk dak- dan tak-
-                        // kok- sengaja dihapus agar dwipurwa kokrodhong, kokruyuk, dll. tetap utuh mendapat cakra/pengkal
                         if (c === 'k' && (lowerLatin.substring(i - 3, i) === 'dak' || lowerLatin.substring(i - 3, i) === 'tak')) {
                             rejectMedial = true;
                         }
