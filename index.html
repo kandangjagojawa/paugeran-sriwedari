@@ -522,14 +522,12 @@
                 let vokal = dasar[vokalIndex];
                 let awalan = dasar.substring(0, vokalIndex);
                 
-                let konsonan = "h"; // default apabila murni vokal awalan (misal: isi -> ha+isi)
+                let konsonan = "h"; 
                 if (awalan !== "") {
-                    // Matcher tunggal khusus konsonan yang bisa disertai wyanjana [rylw]
                     let match = awalan.match(/^(dh|th|ng|ny|kh|dz|gh|sh|[bcdfghjklmnpqrstvwxyz])([rylw])?$/);
                     if (match) {
                         konsonan = match[1];
                     } else {
-                        // Matcher kompleks bagi kata khusus (menyerap semua kluster konsonan hingga huruf terakhir sebagai wyanjana opsional)
                         let matchComplex = awalan.match(/^((?:dh|th|ng|ny|kh|dz|gh|sh|[bcdfghjklmnpqrstvwxyz])+?)([rylw])?$/);
                         if (matchComplex) {
                             konsonan = matchComplex[1];
@@ -539,7 +537,6 @@
                     }
                 }
                 
-                // Pembentukan Dwipurwa murni dari hasil filter konsonan dan vokal suku kata awal
                 let prefix = konsonan + vokal;
                 resultLatin = prefix + dasar;
             }
@@ -971,14 +968,14 @@
                 return root + consonantToDouble + modSuffix;
             });
 
-            // PROTEKSI PENGECUALIAN SUPER-KOMPLEKS UNTUK KATA DASAR BERIMBUHAN
+            // PROTEKSI EKSTREM: MELINDUNGI SEMUA VARIAN DWIPURWA DAN KATA DASAR
+            // Pengecualian menggunakan ".*" agar seluruh kata yang berawalan kombinasi ini terhindar dari pemecahan ater-ater keliru.
             let wordMatchForExc = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)/);
             let isPrefixException = false;
             
             if (wordMatchForExc) {
-                const excBases = "takar|takam|taki|takik|takut|takur|takon|takong|dakar|dakah|daki|daku|dakon|koka|koki|kokun|koker|koko|kokok|kokoh|kokol|koas|koala|koali|koalisi|koin|koordin|koordinasi|koperasi|dian|diar|diare|dialog|diana|diaper|diastol|diat|diuretik|diet|dieng|diesel|dioda|diorama|dion|dioksida|kain|kaos|kaok|kaum|kail|kait|kais|kaing|keong|keok";
-                const excSuffixes = "a|i|e|é|è|ê|en|an|ana|na|ake|aké|aken|ipun|anné|nné|nnanné";
-                const excPattern = new RegExp(`^(${excBases})([a-zA-Z]?(${excSuffixes}))?$`, 'i');
+                const excBases = "taka.*|taki.*|taku.*|take.*|také.*|takè.*|takê.*|tako.*|daka.*|daki.*|daku.*|dake.*|daké.*|dakè.*|dakê.*|dako.*|koka.*|koki.*|koku.*|koke.*|koké.*|kokè.*|kokê.*|koko.*|koas.*|koala.*|koali.*|koin.*|koord.*|koper.*|dian.*|diar.*|diare.*|dialog.*|diana.*|diaper.*|diastol.*|diat.*|diuretik.*|diet.*|dieng.*|diesel.*|dioda.*|diorama.*|dion.*|dioksida.*|kain.*|kaos.*|kaok.*|kaum.*|kail.*|kait.*|kais.*|kaing.*|keong.*|keok.*";
+                const excPattern = new RegExp(`^(${excBases})$`, 'i');
                 if (excPattern.test(wordMatchForExc[1])) {
                     isPrefixException = true;
                 }
@@ -1099,7 +1096,9 @@
                     if (i+1 < lowerLatin.length && /[aieéèêou]/.test(lowerLatin[i+1])) {
                         let rejectMedial = false;
                         
-                        if (c === 'k' && (lowerLatin.substring(i - 3, i) === 'dak' || lowerLatin.substring(i - 3, i) === 'tak' || lowerLatin.substring(i - 3, i) === 'kok')) {
+                        // KOREKSI UTAMA 1: Pencegah cakra (pangkon otomatis) HANYA berlaku untuk dak- dan tak-
+                        // kok- sengaja dihapus agar dwipurwa kokrodhong, kokruyuk, dll. tetap utuh mendapat cakra/pengkal
+                        if (c === 'k' && (lowerLatin.substring(i - 3, i) === 'dak' || lowerLatin.substring(i - 3, i) === 'tak')) {
                             rejectMedial = true;
                         }
 
