@@ -832,7 +832,7 @@
                             body = stem;
                             suffixMod = 'ha';
                         } else {
-                            if (rootVowel === 'i' || rootVowel === 'é' || rootVowel === 'è') {
+                            if (rootVowel === 'i') {
                                 body = stem; suffixMod = 'ya'; 
                             } else if (rootVowel === 'u' || rootVowel === 'o') {
                                 body = stem; suffixMod = 'wa'; 
@@ -861,7 +861,9 @@
                             body = stem.slice(0, -1) + 'è'; suffixMod = 'nnanné'; 
                         } else if (rootVowel === 'u') {
                             body = stem.slice(0, -1) + 'o'; suffixMod = 'nnanné'; 
-                        } else if (['e','é','è','o'].includes(rootVowel)) {
+                        } else if (['e','é','è'].includes(rootVowel)) {
+                            body = stem; suffixMod = 'anné'; 
+                        } else if (rootVowel === 'o') {
                             body = stem; suffixMod = 'nnanné'; 
                         }
                     } else {
@@ -874,7 +876,9 @@
                                 body = stem.slice(0, -1) + 'è'; suffixMod = 'n'; 
                             } else if (rootVowel === 'u') {
                                 body = stem.slice(0, -1) + 'o'; suffixMod = 'n'; 
-                            } else if (['e','é','è','o'].includes(rootVowel)) {
+                            } else if (['e','é','è'].includes(rootVowel)) {
+                                body = stem; suffixMod = 'an'; 
+                            } else if (rootVowel === 'o') {
                                 body = stem; suffixMod = 'nan'; 
                             }
                         } else if (rootVowel === 'a') {
