@@ -713,7 +713,9 @@
             let prefixAppended = "";
 
             if (['N', 'm', 'n', 'ny', 'ng', 'pa'].includes(ater)) {
-                if (f === 'g') {
+                if (dasar.startsWith('ng') || dasar.startsWith('ny') || f === 'm' || f === 'n') {
+                    stem = dasar;
+                } else if (f === 'g') {
                     prefixAppended = 'hang';
                     stem = dasar;
                 } 
@@ -722,7 +724,7 @@
                 else if (dasar.startsWith('th')) stem = 'n' + dasar.slice(2); 
                 else if (f === 't') stem = 'n' + dasar.slice(1); 
                 else if (['d','j'].includes(f) || dasar.startsWith('dh')) stem = 'n' + dasar; 
-                else if (['c','s'].includes(f) || dasar.startsWith('ny')) stem = 'ny' + dasar.slice(dasar.startsWith('ny') ? 2 : 1);
+                else if (['c','s'].includes(f)) stem = 'ny' + dasar.slice(1);
                 else if (f === 'k') stem = 'ng' + dasar.slice(1);
                 else if (['l','r','y'].includes(f) || isVowelStart) stem = 'ng' + dasar;
                 else stem = 'ng' + dasar;
@@ -732,7 +734,9 @@
                 }
             } else if (ater === 'pating_paN') {
                 let nasal = '';
-                if (['p','b','w','m','f','v'].includes(f)) {
+                if (dasar.startsWith('ng') || dasar.startsWith('ny') || f === 'm' || f === 'n') {
+                    nasal = '';
+                } else if (['p','b','w','m','f','v'].includes(f)) {
                     nasal = 'm';
                 } else if (['t','d','j','n'].includes(f) || dasar.startsWith('dh') || dasar.startsWith('th')) {
                     nasal = 'n';
