@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAUGERAN SRIWEDARI - Transliterasi Aksara Jawa</title>
+    <!-- Google Fonts: Noto Sans Javanese & PT Serif -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Ngayogyann';
+            src: url('ngayogyann.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #18bc9c;
+            --bg: #f4f6f7;
+            --surface: #ffffff;
+            --text: #333333;
+            --warning: #d35400;
+            --danger: #e74c3c;
+            --accent: #8e44ad;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .header-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .title-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+        h1 {
+            color: var(--primary);
+            margin: 0;
+            letter-spacing: 1px;
+            font-size: 1.4rem; 
+        }
+        .subtitle-jawa {
+            font-family: 'Ngayogyann', 'Noto Sans Javanese', sans-serif;
+            font-size: 2.1rem;
+            color: var(--primary);
+            margin: 0;
+            line-height: 1;
+        }
+        .btn-group-header {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn-external-link {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-external-link:hover {
+            background-color: #128f76;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        .btn-paramasastra {
+            background-color: var(--primary);
+        }
+        .btn-paramasastra:hover {
+            background-color: #1a252f;
+        }
+        .btn-pedoman {
+            background-color: var(--accent);
+        }
+        .btn-pedoman:hover {
+            background-color: #712791;
+        }
+        .container {
+            background-color: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        .header-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .right-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .action-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .action-btn:hover {
+            background-color: #1a252f;
+        }
+        .action-btn.btn-copy {
+            background-color: var(--secondary);
+        }
+        .action-btn.btn-copy:hover {
+            background-color: #128f76;
+        }
+        .control-panel {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #dcdcdc;
+            background-color: #fff;
+        }
+        .control-panel label {
+            font-size: 12px;
+            font-weight: normal;
+            margin-bottom: 0;
+            color: #555;
+        }
+        .control-panel input[type="range"] {
+            width: 70px;
+            cursor: pointer;
+        }
+        .control-panel select {
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            padding: 0;
+        }
+        details.typing-guide {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+        details.typing-guide summary {
+            cursor: pointer;
+            font-weight: 600;
+            outline: none;
+            user-select: none;
+        }
+        details.typing-guide summary:hover {
+            color: var(--secondary);
+        }
+        .teks-penting {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        .typing-guide ul {
+            margin: 10px 0 0;
+            padding-left: 20px;
+        }
+        .typing-guide li {
+            margin-bottom: 6px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid #dcdcdc;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: monospace;
+            box-sizing: border-box;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        #outputJawa {
+            font-family: 'Ngayogyann', 'Noto Sans Javanese', sans-serif;
+            font-size: 2rem;
+            line-height: 2.2;
+            background-color: #fcfdfd;
+            border-left: 5px solid var(--secondary);
+            padding: 20px;
+            min-height: 120px;
+            overflow-y: auto;
+            word-break: break-all; 
+            transition: font-family 0.3s ease, font-size 0.1s ease, line-height 0.1s ease;
+        }
+        code { background-color: #d1e8f0; padding: 2px 4px; border-radius: 4px; font-weight: bold;}
+        
+        /* Gaya Khusus Paramasastra & Dwipurwa */
+        .paramasastra-grid { display: flex; gap: 15px; margin-bottom: 20px; }
+        .control-col { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .control-col input, .control-col select { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+        .output-param-box { background: #e8f4f8; padding: 20px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top:15px;}
+        .param-latin-input { width: 100%; height: 45px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1.1rem; font-weight: bold; color: var(--primary); box-sizing: border-box; resize: none; margin-top: 5px;}
+        .param-warning { color: var(--danger); font-size: 1rem; font-weight: bold; background: #fdf3e7; padding: 10px 15px; border-radius: 6px; border: 1px solid #fadbd8; margin-top: 5px;}
+        
+        /* Gaya Khusus Panel Pedoman (Font PT Serif) */
+        .pedoman-panel {
+            font-family: 'PT Serif', Georgia, serif;
+            background-color: #fffaf0;
+            border: 1px solid #f0e4d2;
+            border-left: 6px solid var(--accent);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: #2c2c2c;
+        }
+        .pedoman-panel h2 {
+            font-family: 'PT Serif', Georgia, serif;
+            color: var(--accent);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e8d8c3;
+            padding-bottom: 0.5rem;
+        }
+        .pedoman-panel ol {
+            padding-left: 1.4rem;
+            margin-bottom: 0;
+        }
+        .pedoman-panel li {
+            margin-bottom: 1.2rem;
+        }
+        .pedoman-panel strong {
+            color: #1a1a1a;
+        }
+        .pedoman-example {
+            background-color: #f5ebe0;
+            padding: 8px 14px;
+            border-radius: 6px;
+            margin-top: 6px;
+            font-size: 0.98rem;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            .container { padding: 1rem; }
+            .title-wrapper { flex-direction: column; gap: 5px; }
+            .header-group { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .right-actions { width: 100%; justify-content: flex-start; }
+            #outputJawa { font-size: 1.6rem; padding: 15px; }
+            .subtitle-jawa { font-size: 1.65rem; }
+            h1 { font-size: 1.2rem; }
+            .paramasastra-grid { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="title-wrapper">
+            <h1>PAUGERAN SRIWEDARI</h1>
+            <div class="subtitle-jawa">ꦥꦲꦸꦒꦼꦂꦫꦤ꧀ꦱꦿꦶꦮꦼꦢꦫ궶</div>
+        </div>
+        <div class="btn-group-header">
+            <button onclick="togglePedoman()" class="btn-external-link btn-pedoman">
+                Pedoman Paugeran Sriwedari 📖
+            </button>
+            <button onclick="scrollToParamasastra()" class="btn-external-link btn-paramasastra">
+                Aplikasi Paramasastra (Morfologi Jawa) 👇
+            </button>
+            <button onclick="scrollToDwipurwa()" class="btn-external-link btn-paramasastra">
+                Tembung Dwipurwa 👇
+            </button>
+            <a href="https://kandangjagojawa.github.io/" target="_blank" rel="noopener noreferrer" class="btn-external-link">
+                Game & Aplikasi Aksara Jawa Lainnya ➔
+            </a>
+        </div>
+    </div>
+
+    <!-- PANEL LEMBARAN PEDOMAN PAUGERAN SRIWEDARI (TAMPIL/SEMBUNYI) -->
+    <div id="pedoman-section" class="pedoman-panel" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Pedoman Transliterasi & Paugeran Sriwedari</h2>
+            <button onclick="togglePedoman()" class="action-btn" style="background-color: var(--danger); padding: 4px 10px; margin-bottom: 1rem;">Tutup ✖</button>
+        </div>
+        <ol>
+            <li>
+                <strong>Penulisan Tembung Andhahan (Kata Berimbuhan / Turunan)</strong><br>
+                Apabila Anda ragu mengenai tata cara pembentukan kata berimbuhan (<em>Tembung Andhahan</em>) yang sesuai dengan kaidah Paugeran Sriwedari, manfaatkan fitur <strong>Aplikasi Paramasastra (Morfologi Jawa)</strong>.<br>
+                <em>Petunjuk:</em> Masukkan kata dasar pada kolom yang tersedia, pilih <em>ater-ater</em> (awalan) dan/atau <em>panambang</em> (akhiran) sesuai kebutuhan. Setelah bentuk Latin yang baku terbentuk otomatis, klik tombol <strong>Salin Teks Latin</strong> lalu tempelkan (<em>paste</em>) pada kolom input transliterasi utama di bagian atas.
+            </li>
+            <li>
+                <strong>Penulisan Tembung Dwipurwa (Pengulangan Suku Kata Awal)</strong><br>
+                Apabila Anda ragu dalam membentuk kata ulang dwipurwa (<em>Tembung Dwipurwa</em>), gunakan modul <strong>Pembentukan Tembung Dwipurwa</strong>.<br>
+                <em>Petunjuk:</em> Cukup ketik kata dasar yang hendak diubah. Sistem akan memproses peluluhan konsonan dan vokal secara otomatis. Tekan tombol <strong>Salin Teks Latin</strong> lalu tempelkan (<em>paste</em>) pada kolom input transliterasi utama di bagian atas.
+            </li>
+            <li>
+                <strong>Kaidah Pengucapan dan Transliterasi Latin Tembung Dwipurwa</strong><br>
+                Meskipun aksara Jawa untuk <em>Tembung Dwipurwa</em> tetap mempertahankan aksara <em>legena</em> sesuai kata dasarnya (tanpa mengubah sandhangan vokal pada bentuk aksara Jawanya), dalam <strong>ejaan Latin resmi maupun pengucapannya, suku kata awal hasil dwipurwa tersebut selalu dibaca dan ditulis menggunakan vokal pepet (<code>e</code>)</strong>.
+                <div class="pedoman-example">
+                    • Kata dasar <strong>lara</strong> &rarr; Aksara Jawa: ꦭꦭꦫ &rarr; Penulisan Latin & Pengucapan: <strong>lelara</strong><br>
+                    • Kata dasar <strong>jaka</strong> &rarr; Aksara Jawa: ꦗꦗꦏ &rarr; Penulisan Latin & Pengucapan: <strong>jejaka</strong><br>
+                    • Kata dasar <strong>liru</strong> &rarr; Aksara Jawa: ꦭꦶꦭꦶꦫꦸ &rarr; Penulisan Latin & Pengucapan: <strong>leliru</strong><br>
+                    • Kata dasar <strong>suguh</strong> &rarr; Aksara Jawa: ꦱꦸꦱꦸꦒꦸꦃ &rarr; Penulisan Latin & Pengucapan: <strong>sesuguh</strong><br>
+                    • Kata dasar <strong>tamba</strong> &rarr; Aksara Jawa: ꦠꦠꦺꦴꦩ꧀ꦧ &rarr; Penulisan Latin & Pengucapan: <strong>tetamba</strong><br>
+                    • Kata dasar <strong>warta</strong> &rarr; Aksara Jawa: ꦮꦮꦂꦠ &rarr; Penulisan Latin & Pengucapan: <strong>wewarta</strong><br>
+                    • Kata dasar <strong>lungguh</strong> &rarr; Aksara Jawa: ꦭꦸꦭꦸꦁꦒꦸꦃ &rarr; Penulisan Latin & Pengucapan: <strong>lelungguh</strong><br>
+                    • Kata dasar <strong>lumban</strong> &rarr; Aksara Jawa: ꦭꦸꦭꦸꦩ꧀ꦧꦤ꧀ &rarr; Penulisan Latin & Pengucapan: <strong>lelumban</strong>
+                </div>
+            </li>
+            <li>
+                <strong>Penulisan Tembung Dwipurwa Berimbuhan (Kombinasi Dwipurwa &amp; Imbuhan)</strong><br>
+                Apabila Anda hendak membentuk kata ulang dwipurwa yang juga disertai dengan imbuhan (<em>ater-ater</em> dan/atau <em>panambang</em>), ikuti alur langkah berikut:
+                <ul style="margin-top: 6px; padding-left: 1.2rem; list-style-type: disc;">
+                    <li>Ketik kata dasar pada modul <strong>Pembentukan Tembung Dwipurwa</strong>.</li>
+                    <li>Klik tombol <strong>Salin Teks Latin</strong> pada modul Dwipurwa.</li>
+                    <li>Tempelkan (<em>paste</em>) hasil teks tersebut ke kolom <strong>Kata Dasar</strong> pada modul <strong>Aplikasi Paramasastra (Morfologi Jawa)</strong>.</li>
+                    <li>Pilih <em>ater-ater</em> (awalan) dan/atau <em>panambang</em> (akhiran) yang diinginkan.</li>
+                    <li>Klik tombol <strong>Salin Teks Latin</strong> pada modul Paramasastra, lalu tempelkan (<em>paste</em>) pada kolom input transliterasi utama di bagian atas.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <div class="container">
+        <details class="typing-guide" open>
+            <summary><span class="teks-penting">PENTING!</span> Petunjuk Penulisan <em>(Klik untuk sembunyikan/tampilkan)</em></summary>
+            <div style="margin-top: 10px;">
+                <ul>
+                    <li><strong>Vokal:</strong> Gunakan <code>é</code>/<code>è</code> (taling), atau ketik <code>e'</code> menggunakan kibor fisik untuk taling, dan <code>e</code> (pepet).</li>
+                    <li><strong>Panambang (akhiran):</strong> Ketik tanda hubung <code>-</code> sebelum akhiran (contoh: omah-e), untuk memastikan kata dasar diakhiri suku kata terbuka atau tertutup.</li>
+                    <li><strong>Aksara Rekan:</strong> ketik <code>kh</code> (ꦏ꦳), <code>dz</code> (ꦢ꦳), <code>gh</code> (ꦒ꦳), <code>z</code> (ꦗ꦳), <code>f/v</code> (ꦥ꦳).</li>
+                    <li><strong>Aksara Swara:</strong> Ketik huruf vokal kapital (<code>A, I, U, E, O</code>).</li>
+                    <li><strong>Aksara Murda:</strong> Ketik konsonan Kapital (<code>N, K, T, S, P, G, B, J, NY</code>).</li>
+                    <li>Untuk memaksa aksara r, ng, dan h agar bisa diberi cakra/pengkal, tambahkan <code>x</code>. Contoh: <code>rxya</code> (ꦫꦾ), <code>ngxra</code> (ꦔꦿ), <code>hxre</code> (ꦲꦽ).</li>
+                </ul>
+            </div>
+        </details>
+
+        <div class="input-group">
+            <div class="header-group">
+                <label>Hasil Aksara Jawa:</label>
+                <div class="right-actions">
+                    <div class="control-panel">
+                        <label for="fontSizeSlider">Ukuran:</label>
+                        <input type="range" id="fontSizeSlider" min="1" max="4" step="0.1" value="2" oninput="ubahUkuranFont()">
+                    </div>
+                    <div class="control-panel">
+                        <label for="lineHeightSlider">Jarak Baris:</label>
+                        <input type="range" id="lineHeightSlider" min="1" max="4" step="0.1" value="2.2" oninput="ubahJarakBaris()">
+                    </div>
+                    <div class="control-panel">
+                        <select id="fontSelect" onchange="ubahFont()">
+                            <option value="'Ngayogyann', sans-serif" selected>Ngayogyann</option>
+                            <option value="'Noto Sans Javanese', sans-serif">Noto Sans Javanese</option>
+                        </select>
+                    </div>
+                    <button class="action-btn btn-copy" id="btnSalin" onclick="salinAksara()">Salin Aksara</button>
+                </div>
+            </div>
+            <div id="outputJawa"></div>
+        </div>
+
+        <div class="input-group">
+            <div class="header-group">
+                <label for="inputLatin">Teks Latin:</label>
+                <button class="action-btn" onclick="hapusSemua()">Hapus Semua</button>
+            </div>
+            <textarea id="inputLatin" placeholder="Ketik di sini..." 
+                      oninput="prosesTransliterasi()" 
+                      autocapitalize="none" autocomplete="off" spellcheck="false" autocorrect="off"></textarea>
+        </div>
+    </div>
+
+    <!-- MODUL APLIKASI PARAMASASTRA -->
+    <div id="paramasastra-app" class="container" style="margin-top: 2rem;">
+        <h2 style="color:var(--primary); text-align:center; margin-bottom: 0.5rem;">Aplikasi Paramasastra (Morfologi Jawa)</h2>
+        <p style="text-align:center; font-size:0.9rem; margin-bottom: 2rem;">Pembentukan kata dengan Ater-ater dan Panambang yang tunduk pada hukum lebur & sandhi Paugeran Sriwedari.</p>
+        
+        <div class="paramasastra-grid">
+            <div class="control-col">
+                <label>Ater-ater (Awalan)</label>
+                <select id="selAter" onchange="prosesParamasastra()">
+                    <option value="">- Tanpa Awalan -</option>
+                    <option value="N">N- (Anuswara otomatis)</option>
+                    <option value="m">m- (Anuswara p/b/w/m)</option>
+                    <option value="n">n- (Anuswara t/d/j/n)</option>
+                    <option value="ng">ng- (Anuswara k/g/vokal)</option>
+                    <option value="ny">ny- (Anuswara c/s/ny)</option>
+                    <option value="dak">dak- / tak-</option>
+                    <option value="ko">ko- / kok-</option>
+                    <option value="di">di-</option>
+                    <option value="in">-in- (Seselan)</option>
+                    <option value="sa">sa-</option>
+                    <option value="pa">pa-</option>
+                    <option value="pating_paN">pating pa-N (Anuswara otomatis)</option>
+                    <option value="pi">pi-</option>
+                    <option value="pra">pra-</option>
+                    <option value="pri">pri-</option>
+                    <option value="ka">ka- / ke-</option>
+                    <option value="kuma">kuma-</option>
+                    <option value="kami">kami-</option>
+                    <option value="kapi">kapi-</option>
+                    <option value="tar">tar-</option>
+                    <option value="ma">ma-</option>
+                </select>
+            </div>
+            <div class="control-col">
+                <label>Kata Dasar</label>
+                <input type="text" id="inDasar" placeholder="Ketik kata dasar..." oninput="prosesParamasastra()" autocapitalize="none" autocomplete="off" spellcheck="false" autocorrect="off">
+            </div>
+            <div class="control-col">
+                <label>Panambang (Akhiran)</label>
+                <select id="selPanam" onchange="prosesParamasastra()">
+                    <option value="">- Tanpa Akhiran -</option>
+                    <option value="a">-a</option>
+                    <option value="i">-i</option>
+                    <option value="e">-e / -é</option>
+                    <option value="en">-en</option>
+                    <option value="an">-an</option>
+                    <option value="an_e">-an + -é (-anné / -nnanné)</option>
+                    <option value="ana">-ana</option>
+                    <option value="na">-na</option>
+                    <option value="ake">-aké</option>
+                    <option value="aken">-aken</option>
+                    <option value="ipun">-ipun</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="output-param-box">
+            <div class="header-group">
+                <label for="outParamLatin">Bentuk Jadi (Latin - Bisa Diedit):</label>
+                <button class="action-btn" onclick="salinParamLatin()">Salin Teks Latin</button>
+            </div>
+            <textarea id="outParamLatin" class="param-latin-input" oninput="updateParamFromManualInput()" placeholder="Hasil bentuk jadi Latin..."></textarea>
+            <div id="paramWarningArea"></div>
+
+            <div class="header-group" style="margin-top: 15px;">
+                <label>Hasil Aksara Jawa:</label>
+                <button class="action-btn btn-copy" id="btnSalinParam" onclick="salinParamJawa()">Salin Aksara Jawa</button>
+            </div>
+            <div id="outParamJawa" style="font-family:'Ngayogyann', 'Noto Sans Javanese', sans-serif; font-size:2.5rem; line-height:2.2; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
+        </div>
+    </div>
+
+    <!-- MODUL APLIKASI DWIPURWA -->
+    <div id="dwipurwa-app" class="container" style="margin-top: 2rem;">
+        <h2 style="color:var(--primary); text-align:center; margin-bottom: 0.5rem;">Pembentukan Tembung Dwipurwa</h2>
+        <p style="text-align:center; font-size:0.9rem; margin-bottom: 2rem;">Reduplikasi suku kata pertama (Dwipurwa) sesuai kaidah peluluhan wyanjana dan panyigeging wanda.</p>
+        
+        <div class="paramasastra-grid">
+            <div class="control-col" style="flex: 1;">
+                <label>Kata Dasar</label>
+                <input type="text" id="inDwipurwa" placeholder="Ketik kata dasar..." oninput="prosesDwipurwa()" autocapitalize="none" autocomplete="off" spellcheck="false" autocorrect="off">
+            </div>
+        </div>
+
+        <div class="output-param-box">
+            <div class="header-group">
+                <label for="outDwipurwaLatin">Bentuk Dwipurwa (Latin - Bisa Diedit):</label>
+                <button class="action-btn" onclick="salinDwipurwaLatin()">Salin Teks Latin</button>
+            </div>
+            <textarea id="outDwipurwaLatin" class="param-latin-input" oninput="updateDwipurwaFromManualInput()" placeholder="Hasil Dwipurwa Latin..."></textarea>
+
+            <div class="header-group" style="margin-top: 15px;">
+                <label>Hasil Aksara Jawa:</label>
+                <button class="action-btn btn-copy" id="btnSalinDwipurwa" onclick="salinDwipurwaJawa()">Salin Aksara Jawa</button>
+            </div>
+            <div id="outDwipurwaJawa" style="font-family:'Ngayogyann', 'Noto Sans Javanese', sans-serif; font-size:2.5rem; line-height:2.2; text-align:center; padding:20px; background:#fff; border-radius:8px; min-height:80px; margin-top:5px; word-break:break-all;"></div>
+        </div>
+    </div>
+
+    <script src="sriwedari.js"></script>
+</body>
+</html>
